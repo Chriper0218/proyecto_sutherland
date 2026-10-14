@@ -1,0 +1,72 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. ENUMS (Listas de valores predefinidos)
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+enum TaskType {
+  KYC
+  WATCHLIST_REVIEW
+  RISK_REVIEW
+  RECORD_KEEPING
+  ENHANCED_DUE_DILIGENCE
+  ENHANCED_KYC
+}
+
+// 2. MODELO DE USUARIOS (Registro de Empleados y Administradores)
+model User {
+  id          String   @id @default(uuid())
+  employeeId  String   @unique // ID o Cédula del empleado
+  firstName   String
+  lastName    String
+  email       String   @unique
+  birthDate   DateTime
+  password    String   // Contraseña hasheada (con bcrypt, por ejemplo)
+  role        Role     @default(EMPLOYEE) // Por defecto es empleado
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones: Un usuario tiene muchos turnos y muchas tareas
+  shifts      Shift[]
+  tasks       TaskMetric[]
+}
+
+// 3. MODELO DE TURNOS (Para saber cuándo inicia y termina de trabajar)
+model Shift {
+  id          String    @id @default(uuid())
+  userId      String
+  startTime   DateTime  @default(now()) // Hora de inicio del turno
+  endTime     DateTime?                 // Hora de fin (nulo hasta que el empleado cierre turno)
+  
+  user        User      @relation(fields: [userId], references: [id])
+  tasks       TaskMetric[] // Tareas realizadas dentro de este turno específico
+}
+
+// 4. MODELO DE MÉTRICAS (Para medir el AHT y eficiencia de cada nota)
+model TaskMetric {
+  id              String    @id @default(uuid())
+  userId          String
+  shiftId         String?   // Opcional, pero útil para saber en qué turno se hizo
+  taskType        TaskType  // Tipo de nota (KYC, Risk Review, etc.)
+  
+  startTime       DateTime  // Momento exacto en que abre el formulario de la nota
+  endTime         DateTime  // Momento en que hace clic en "Copiar Nota"
+  durationSeconds Int       // Tiempo total en segundos (Para sacar el AHT fácil)
+  
+  createdAt       DateTime  @default(now())
+
+  // Relaciones
+  user            User      @relation(fields: [userId], references: [id])
+  shift           Shift?    @relation(fields: [shiftId], references: [id])
+}

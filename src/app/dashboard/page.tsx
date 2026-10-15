@@ -52,6 +52,17 @@ const COUNTRIES_LIST = [
   'Austria',
 ];
 
+// Tipos de documentos primarios permitidos
+const PRIMARY_DOCUMENT_TYPES = [
+  'Pasaporte / Passport',
+  'Licencia de Conducción / Driver\'s License',
+  'Documento Nacional de Identidad / National ID (Cédula / DNI)',
+  'Permiso de Residencia / Residence Permit',
+  'Identificación Estatal / State ID',
+  'Tarjeta Militar / Military ID',
+  'Otro Documento Primario',
+];
+
 export default function DashboardPage() {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -75,7 +86,7 @@ export default function DashboardPage() {
   const [taskSubmitting, setTaskSubmitting] = useState<boolean>(false);
   const [taskSavedSuccess, setTaskSavedSuccess] = useState<string | null>(null);
 
-  // 4. Métricas globales del día
+  // 4. Métricas del día
   const [todayNotesCount, setTodayNotesCount] = useState<number>(0);
   const [todayAvgAht, setTodayAvgAht] = useState<number>(0);
 
@@ -84,7 +95,7 @@ export default function DashboardPage() {
     country: '',
     corridor: '',
     reviewedDocument: '',
-    docNameDate: '',
+    customDocument: '',
     docLink: '',
     isPhotoVisible: '',
     isIdNumberVisible: '',
@@ -92,7 +103,7 @@ export default function DashboardPage() {
     isDobMatch: '',
     isNameMatch: '',
     observations: '',
-    reviewDecision: '',
+    reviewDecision: 'KYC review approved',
     nextActions: '',
   });
 
@@ -131,7 +142,6 @@ export default function DashboardPage() {
 
     const fetchShiftAndMetrics = async () => {
       try {
-        // Consultar turno activo
         const resShift = await fetch(`/api/shifts?userId=${user.id}`);
         if (resShift.ok) {
           const dataShift = await resShift.json();
@@ -145,7 +155,6 @@ export default function DashboardPage() {
           }
         }
 
-        // Consultar métricas del día
         const resMetrics = await fetch(`/api/tasks?userId=${user.id}`);
         if (resMetrics.ok) {
           const dataMetrics = await resMetrics.json();
@@ -206,7 +215,7 @@ export default function DashboardPage() {
     };
   }, [isTaskActive, taskStartTime]);
 
-  // --- Limpieza del timeout de copiado al desmontar ---
+  // --- Limpieza del timeout de copiado ---
   useEffect(() => {
     return () => {
       if (copyTimeoutRef.current) {
@@ -251,8 +260,8 @@ export default function DashboardPage() {
       setActiveShift(data.shift);
       setIsShiftActive(true);
       setShiftSeconds(0);
-      setShiftMessage('¡Turno iniciado con éxito en la base de datos!');
-      setTimeout(() => setShiftMessage(null), 4000);
+      setShiftMessage('¡Turno iniciado con éxito en la base de datos! Ya puedes abrir y gestionar casos.');
+      setTimeout(() => setShiftMessage(null), 4500);
     } catch (err) {
       console.error(err);
       setShiftMessage('Error de conexión al iniciar el turno.');
@@ -262,9 +271,33 @@ export default function DashboardPage() {
   };
 
   const handleEndShift = async () => {
-    if (!activeShift) return;
+    if (!activeShift || !user) return;
     setShiftLoading(true);
     setShiftMessage(null);
+
+    // Si había una tarea en progreso al cerrar turno, guardarla como tarea vacía/cerrada para métricas
+    if (isTaskActive && taskStartTime) {
+      const endTaskTime = new Date();
+      const taskDuration = taskSeconds > 0 ? taskSeconds : Math.max(1, Math.round((endTaskTime.getTime() - taskStartTime.getTime()) / 1000));
+      try {
+        await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            shiftId: activeShift.id,
+            taskType: 'KYC',
+            startTime: taskStartTime.toISOString(),
+            endTime: endTaskTime.toISOString(),
+            durationSeconds: taskDuration,
+          }),
+        });
+      } catch (err) {
+        console.error('Error al guardar tarea pendiente al cerrar turno:', err);
+      }
+      setIsTaskActive(false);
+      setCaseType('');
+    }
 
     try {
       const res = await fetch('/api/shifts', {
@@ -282,6 +315,9 @@ export default function DashboardPage() {
       setIsShiftActive(false);
       setActiveShift(null);
       setShiftSeconds(0);
+      setCaseType('');
+      setIsTaskActive(false);
+      setTaskSeconds(0);
       setShiftMessage('Turno finalizado correctamente.');
       setTimeout(() => setShiftMessage(null), 4000);
     } catch (err) {
@@ -292,8 +328,13 @@ export default function DashboardPage() {
     }
   };
 
-  // --- Selección del Tipo de Caso ---
+  // --- Selección del Tipo de Caso (Bloqueado si no hay turno) ---
   const handleCaseTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!isShiftActive) {
+      alert('Debes iniciar un turno antes de seleccionar un caso.');
+      return;
+    }
+
     const selected = e.target.value;
     setCaseType(selected);
     setTaskSavedSuccess(null);
@@ -310,13 +351,53 @@ export default function DashboardPage() {
     }
   };
 
-  // --- Reiniciar Formulario para Nuevo Caso ---
-  const handleResetForm = () => {
+  // --- Acción: Nueva Tarea (Registra tarea vacía/incompleta en DB si ya había empezado una) ---
+  const handleResetForm = async () => {
+    if (!user) return;
+
+    // Si el usuario ya había iniciado una tarea (cronómetro corriendo o en curso sin haber generado la nota)
+    if (isTaskActive && taskStartTime) {
+      const endTime = new Date();
+      const duration =
+        taskSeconds > 0
+          ? taskSeconds
+          : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
+
+      try {
+        // Almacenar el tiempo transcurrido en la base de datos (métrica de tarea descartada / vacía)
+        await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            shiftId: activeShift ? activeShift.id : null,
+            taskType: 'KYC',
+            startTime: taskStartTime.toISOString(),
+            endTime: endTime.toISOString(),
+            durationSeconds: duration,
+          }),
+        });
+
+        // Actualizar contadores del día
+        setTodayNotesCount((prev) => prev + 1);
+        setTodayAvgAht((prev) => (prev === 0 ? duration : Math.round((prev + duration) / 2)));
+
+        setTaskSavedSuccess(
+          `Tarea anterior descartada y registrada en métricas de eficiencia (AHT: ${formatTaskTime(duration)}). Nueva tarea iniciada.`
+        );
+      } catch (err) {
+        console.error('Error al registrar tarea descartada en la BD:', err);
+      }
+    } else {
+      setTaskSavedSuccess(null);
+    }
+
+    // Reiniciar los campos del formulario
     setKycForm({
       country: '',
       corridor: '',
       reviewedDocument: '',
-      docNameDate: '',
+      customDocument: '',
       docLink: '',
       isPhotoVisible: '',
       isIdNumberVisible: '',
@@ -324,33 +405,40 @@ export default function DashboardPage() {
       isDobMatch: '',
       isNameMatch: '',
       observations: '',
-      reviewDecision: '',
+      reviewDecision: 'KYC review approved',
       nextActions: '',
     });
-    setTaskSavedSuccess(null);
+
+    // Iniciar nuevo cronómetro automáticamente para la siguiente tarea
     const now = new Date();
     setTaskStartTime(now);
     setTaskSeconds(0);
     setIsTaskActive(true);
   };
 
-  // --- Generación de Texto de la Nota según el Formato Solicitado ---
+  // --- Formateador de Decisión de Revisión ---
+  const formatDecisionText = (val: string): string => {
+    const trimmed = val.trim();
+    if (!trimmed) return 'KYC review approved';
+    if (/^kyc review/i.test(trimmed)) {
+      return trimmed;
+    }
+    return `KYC review ${trimmed}`;
+  };
+
+  // --- Generación del Texto Exacto de la Nota ---
   const generateNoteText = (): string => {
     const country = kycForm.country.trim() || '[País]';
     const corridor = kycForm.corridor.trim() || '[Corridor]';
-    const reviewedDoc = kycForm.reviewedDocument.trim() || '[Documento Revisado]';
 
-    // Manejo de Document name, date + Link
-    let docLine = '';
-    if (kycForm.docNameDate.trim() && kycForm.docLink.trim()) {
-      docLine = `${kycForm.docNameDate.trim()} | Link: ${kycForm.docLink.trim()}`;
-    } else if (kycForm.docNameDate.trim()) {
-      docLine = kycForm.docNameDate.trim();
-    } else if (kycForm.docLink.trim()) {
-      docLine = `Link: ${kycForm.docLink.trim()}`;
-    } else {
-      docLine = '[Nombre y Fecha según CRM + Enlace]';
-    }
+    // Documento primario
+    const docType =
+      kycForm.reviewedDocument === 'Otro Documento Primario' && kycForm.customDocument.trim()
+        ? kycForm.customDocument.trim()
+        : kycForm.reviewedDocument.trim() || '[Tipo de Documento Primario]';
+
+    // Enlace del documento (sin menciones de CRM)
+    const linkLine = kycForm.docLink.trim() || '[Enlace del Documento ID]';
 
     const photoVisible = kycForm.isPhotoVisible || '[Yes/No]';
     const idNumberVisible = kycForm.isIdNumberVisible || '[Yes/No]';
@@ -359,14 +447,14 @@ export default function DashboardPage() {
     const nameMatch = kycForm.isNameMatch || '[Yes/No]';
 
     const observations = kycForm.observations.trim() || '[Observaciones del analista]';
-    const decision = kycForm.reviewDecision.trim() || '[Causa de aprobación o rechazo]';
+    const decision = formatDecisionText(kycForm.reviewDecision);
     const nextActions = kycForm.nextActions.trim() || '[Próximas acciones]';
 
     return `*** KYC Review (${country}) ***
 
 ✔️ Corridor: ${corridor}
-✔️ Reviewed Document: ${reviewedDoc}
-${docLine}
+✔️ Reviewed Document: ${docType}
+${linkLine}
 ▷ Is Photo Visible: ${photoVisible}
 ▷ Is Id Number Visible: ${idNumberVisible}
 ▷ Is it expired: ${expired}
@@ -376,20 +464,22 @@ ${docLine}
 ✔️ Observations:
 ${observations}
 
-✔️ Review Decision: KYC review approved/denied due to ${decision}
+✔️ Review Decision: ${decision}
 
 ✔️ Next agent actions: ${nextActions}`;
   };
 
   // --- Acción "Generar Nota" (Detener Temporizador y Guardar en Prisma) ---
   const handleGenerateNote = async () => {
-    if (!user) return;
-    if (!taskStartTime) return;
+    if (!user || !taskStartTime) return;
 
     // 1. Detener el contador de la tarea
     setIsTaskActive(false);
     const endTime = new Date();
-    const duration = taskSeconds > 0 ? taskSeconds : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
+    const duration =
+      taskSeconds > 0
+        ? taskSeconds
+        : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
 
     setTaskSubmitting(true);
     setTaskSavedSuccess(null);
@@ -416,7 +506,6 @@ ${observations}
         setTaskSavedSuccess(
           `¡Nota generada con éxito! Métrica registrada en Prisma: AHT de ${formatTaskTime(duration)} (${duration} seg).`
         );
-        // Actualizar estadísticas en pantalla
         setTodayNotesCount((prev) => prev + 1);
         setTodayAvgAht((prev) => (prev === 0 ? duration : Math.round((prev + duration) / 2)));
       }
@@ -553,8 +642,8 @@ ${observations}
                 Gestión de Disponibilidad & Jornada
               </h2>
               <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
-                Inicia tu jornada para registrar las métricas operacionales. Puedes iniciar y finalizar múltiples
-                turnos al día sin restricciones.
+                Debes iniciar turno para habilitar la gestión de casos y cronometrar el AHT. Puedes realizar
+                múltiples turnos por día.
               </p>
             </div>
 
@@ -627,16 +716,28 @@ ${observations}
             <div className="space-y-1">
               <label htmlFor="case-type-select" className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                 <span>1. Seleccionar Tipo de Caso</span>
-                <span className="text-[10px] text-blue-400 font-normal">(Requerido para iniciar cronómetro AHT)</span>
+                {!isShiftActive && (
+                  <span className="text-[10px] text-amber-400 font-semibold">
+                    (🔒 Bloqueado: Inicia turno primero)
+                  </span>
+                )}
               </label>
+
               <div className="relative w-full sm:w-80">
                 <select
                   id="case-type-select"
+                  disabled={!isShiftActive}
                   value={caseType}
                   onChange={handleCaseTypeChange}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium cursor-pointer"
+                  className={`w-full border rounded-xl px-4 py-2.5 text-sm appearance-none font-medium transition ${
+                    !isShiftActive
+                      ? 'bg-slate-900/50 border-slate-700/60 text-slate-500 cursor-not-allowed'
+                      : 'bg-slate-900 border-slate-700 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer'
+                  }`}
                 >
-                  <option value="">-- Elige un tipo de caso --</option>
+                  <option value="">
+                    {!isShiftActive ? 'Inicia turno para habilitar' : '-- Elige un tipo de caso --'}
+                  </option>
                   <option value="KYC">KYC Review (Proof of Identity)</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
@@ -645,6 +746,15 @@ ${observations}
                   </svg>
                 </div>
               </div>
+
+              {!isShiftActive && (
+                <p className="text-[11px] text-amber-400/90 flex items-center gap-1.5 mt-1 font-medium">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Debes presionar &ldquo;Iniciar Turno&rdquo; antes de poder crear una nota.</span>
+                </p>
+              )}
             </div>
 
             {/* Cronómetro de Tarea / AHT (Visible al seleccionar KYC) */}
@@ -680,7 +790,7 @@ ${observations}
           {/* Tarjeta Informativa de Métricas Rápidas */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-700/50">
             <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Notas Hoy</span>
+              <span className="text-[10px] text-slate-400 uppercase font-semibold">Notas / Tareas Hoy</span>
               <p className="text-lg font-bold text-white font-mono">{todayNotesCount}</p>
             </div>
             <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">
@@ -717,7 +827,7 @@ ${observations}
         </section>
 
         {/* ================= 3. GENERADOR DE NOTAS: CASO KYC (PROOF OF IDENTITY) ================= */}
-        {caseType === 'KYC' ? (
+        {caseType === 'KYC' && isShiftActive ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Columna Izquierda: Formulario KYC (7 columnas) */}
             <div className="lg:col-span-7 bg-slate-800/90 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
@@ -730,7 +840,7 @@ ${observations}
                     Formulario KYC: Proof of Identity
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Completa todos los campos para estandarizar la nota de auditoría.
+                    Completa las validaciones del documento primario para estandarizar la auditoría.
                   </p>
                 </div>
 
@@ -784,46 +894,49 @@ ${observations}
                   </div>
                 </div>
 
-                {/* 3. Reviewed Document */}
+                {/* 3. Reviewed Document (Solo Primary Document Type) */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    3. Reviewed Document (Type of ID Including Country or State):
+                    3. Reviewed Document (Primary ID Type):
                   </label>
-                  <input
-                    type="text"
-                    value={kycForm.reviewedDocument}
-                    onChange={(e) => setKycForm({ ...kycForm, reviewedDocument: e.target.value })}
-                    placeholder="Ej: Driver's License - Florida, USA o Pasaporte - Colombia"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                  />
+                  <div className="space-y-2">
+                    <select
+                      value={kycForm.reviewedDocument}
+                      onChange={(e) => setKycForm({ ...kycForm, reviewedDocument: e.target.value })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">-- Selecciona el tipo de documento primario --</option>
+                      {PRIMARY_DOCUMENT_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+
+                    {kycForm.reviewedDocument === 'Otro Documento Primario' && (
+                      <input
+                        type="text"
+                        value={kycForm.customDocument}
+                        onChange={(e) => setKycForm({ ...kycForm, customDocument: e.target.value })}
+                        placeholder="Especifica el documento primario (Ej: Cédula de Extranjería)"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500 animate-fadeIn"
+                      />
+                    )}
+                  </div>
                 </div>
 
-                {/* 4. Document Name & Date as on CRM + Link */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      4. Document Name and Date as on CRM:
-                    </label>
-                    <input
-                      type="text"
-                      value={kycForm.docNameDate}
-                      onChange={(e) => setKycForm({ ...kycForm, docNameDate: e.target.value })}
-                      placeholder="Ej: John Doe - Exp: 12/2028 - DOB: 05/14/1990"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      Enlace / URL al CRM:
-                    </label>
-                    <input
-                      type="url"
-                      value={kycForm.docLink}
-                      onChange={(e) => setKycForm({ ...kycForm, docLink: e.target.value })}
-                      placeholder="https://crm.sutherland.internal/docs/..."
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                    />
-                  </div>
+                {/* 4. Enlace / URL al Documento ID (Sin mención de CRM) */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    4. Enlace / URL del Documento ID:
+                  </label>
+                  <input
+                    type="url"
+                    value={kycForm.docLink}
+                    onChange={(e) => setKycForm({ ...kycForm, docLink: e.target.value })}
+                    placeholder="https://... (URL al documento o archivo que estás manejando)"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
+                  />
                 </div>
 
                 {/* 5. Validaciones del ID (Yes / No) */}
@@ -994,20 +1107,36 @@ ${observations}
                   />
                 </div>
 
-                {/* 7. Review Decision */}
+                {/* 7. Review Decision con botones rápidos */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    7. Review Decision:
-                    <span className="text-[11px] text-slate-400 font-normal ml-2">
-                      (KYC review approved/denied due to...)
-                    </span>
-                  </label>
-                  <textarea
-                    rows={2}
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-slate-300">
+                      7. Review Decision:
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setKycForm({ ...kycForm, reviewDecision: 'KYC review approved' })}
+                        className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition font-medium"
+                      >
+                        ✔️ KYC review approved
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setKycForm({ ...kycForm, reviewDecision: 'KYC review denied due to ' })}
+                        className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition font-medium"
+                      >
+                        ❌ KYC review denied due to...
+                      </button>
+                    </div>
+                  </div>
+
+                  <input
+                    type="text"
                     value={kycForm.reviewDecision}
                     onChange={(e) => setKycForm({ ...kycForm, reviewDecision: e.target.value })}
-                    placeholder="approved due to valid unexpired government ID matching all customer records"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
+                    placeholder="KYC review approved"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500 font-mono"
                   />
                 </div>
 
@@ -1026,7 +1155,7 @@ ${observations}
                 </div>
               </div>
 
-              {/* Botón Principal: Generar Nota (Detiene Cronómetro y Guarda en Prisma) */}
+              {/* Botones de Acción */}
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
                 <button
                   type="button"
@@ -1055,13 +1184,13 @@ ${observations}
                 <button
                   type="button"
                   onClick={handleResetForm}
-                  className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-700/60 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-600 transition flex items-center justify-center gap-1.5"
-                  title="Reiniciar campos y reiniciar cronómetro para un nuevo cliente"
+                  className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-700/60 hover:bg-amber-600/20 hover:text-amber-300 text-slate-300 text-xs font-semibold border border-slate-600 hover:border-amber-500/40 transition flex items-center justify-center gap-1.5"
+                  title="Reiniciar y registrar la tarea previa para medir eficiencia"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <span>Nueva Tarea</span>
+                  <span>Nueva Tarea (Registrar Vacío)</span>
                 </button>
               </div>
 
@@ -1144,22 +1273,29 @@ ${observations}
                   2. Haz clic en <span className="text-blue-400 font-semibold">&ldquo;Generar Nota y Detener AHT&rdquo;</span> para guardar el tiempo exacto en Prisma.
                 </p>
                 <p>
-                  3. Presiona <span className="text-emerald-400 font-semibold">&ldquo;Copiar Nota&rdquo;</span> y pégala en el sistema CRM o herramienta de tickets.
+                  3. Si descartas la tarea con <span className="text-amber-400 font-semibold">&ldquo;Nueva Tarea&rdquo;</span>, el tiempo empleado se registra para auditar tareas vacías.
+                </p>
+                <p>
+                  4. Presiona <span className="text-emerald-400 font-semibold">&ldquo;Copiar Nota&rdquo;</span> y pégala en la herramienta de tickets.
                 </p>
               </div>
             </div>
           </div>
         ) : (
-          /* Estado Vacío cuando no hay caso seleccionado */
+          /* Estado Vacío cuando no hay caso seleccionado o no hay turno activo */
           <div className="p-12 text-center rounded-2xl bg-slate-800/50 border border-dashed border-slate-700 space-y-3">
             <div className="w-12 h-12 mx-auto rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
             </div>
-            <h4 className="text-base font-bold text-white">Ningún caso en curso</h4>
+            <h4 className="text-base font-bold text-white">
+              {!isShiftActive ? 'Inicia un turno para comenzar' : 'Ningún caso en curso'}
+            </h4>
             <p className="text-xs text-slate-400 max-w-md mx-auto">
-              Selecciona <span className="text-blue-400 font-semibold">&ldquo;KYC Review&rdquo;</span> en el desplegable superior para iniciar el cronómetro AHT y cargar el generador de notas estandarizadas.
+              {!isShiftActive
+                ? 'El panel de notas y el cronómetro AHT requieren que tengas un turno de trabajo activo.'
+                : 'Selecciona "KYC Review" en el desplegable superior para iniciar el cronómetro AHT y cargar el generador de notas.'}
             </p>
           </div>
         )}

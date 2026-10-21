@@ -286,16 +286,16 @@ export default function AuthPage() {
 
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">
-                Llave de Acceso <span className="text-slate-500 font-normal">(Opcional para Admin)</span>:
+                Llave de Acceso <span className="text-blue-400 font-normal">(Ingresa &apos;SADMIN&apos; para Administrador)</span>:
               </label>
               <input
-                type="password"
+                type="text"
                 name="accessKey"
                 disabled={loading}
                 value={signUpData.accessKey}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50"
-                placeholder="Ingresa la llave si eres Administrador"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 disabled:opacity-50 font-mono uppercase"
+                placeholder="SADMIN (dejar vacío para cuenta de Agente)"
               />
             </div>
 

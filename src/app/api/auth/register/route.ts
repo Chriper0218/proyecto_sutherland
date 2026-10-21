@@ -99,11 +99,11 @@ export async function POST(req: NextRequest) {
     }
 
     // 7. Evaluar rol según la llave de acceso (accessKey)
-    const adminKey = process.env.ADMIN_ACCESS_KEY;
+    // La llave 'SADMIN' otorga rol de ADMINISTRADOR. Cualquier otra llave o vacía asigna rol de EMPLEADO (Agente).
     const isMasterAdmin =
-      Boolean(adminKey) &&
       Boolean(accessKey) &&
-      accessKey.trim() === adminKey?.trim();
+      (accessKey.trim().toUpperCase() === 'SADMIN' ||
+        (process.env.ADMIN_ACCESS_KEY && accessKey.trim() === process.env.ADMIN_ACCESS_KEY.trim()));
 
     const role = isMasterAdmin ? 'ADMIN' : 'EMPLOYEE';
 

@@ -38,6 +38,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 3.5. Verificar si el usuario está suspendido por 1 día (3 coachings acumulados)
+    if (user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) {
+      const suspensionEnd = new Date(user.suspendedUntil).toLocaleString('es-CO', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+      return NextResponse.json(
+        {
+          error: `⛔ Perfil Suspendido por 1 Día: Has alcanzado el límite de 3 coachings por AHT fuera de target. Tu cuenta está bloqueada temporalmente y podrás acceder nuevamente a partir del ${suspensionEnd}.`,
+          isSuspended: true,
+          suspendedUntil: user.suspendedUntil,
+        },
+        { status: 403 }
+      );
+    }
+
     // 4. Retornar información segura del usuario
     return NextResponse.json(
       {

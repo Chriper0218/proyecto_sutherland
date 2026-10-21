@@ -26,6 +26,7 @@ import { RiskReviewForm } from '@/components/notes/RiskReviewForm';
 import { RecordKeepingForm } from '@/components/notes/RecordKeepingForm';
 import { WatchlistReviewForm } from '@/components/notes/WatchlistReviewForm';
 import { NotePreviewCard } from '@/components/notes/NotePreviewCard';
+import Administrador from '@/components/admin/administrador';
 
 interface UserSession {
   id: string;
@@ -88,6 +89,17 @@ export default function DashboardPage() {
     isOpen: false,
     type: 'LOGOUT_RESTRICTED',
   });
+
+  // 8. Modo de Vista para Administradores
+  const [adminViewMode, setAdminViewMode] = useState<'ADMIN' | 'OPERATIONAL'>('ADMIN');
+
+  // 9. Mensaje Fantasma Recibido (Para visualización en pantalla del agente)
+  const [activeGhostMessage, setActiveGhostMessage] = useState<{
+    id: string;
+    message: string;
+    senderName: string;
+    createdAt: string;
+  } | null>(null);
 
   // Referencias a los intervalos
   const shiftIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -260,6 +272,9 @@ export default function DashboardPage() {
       return;
     }
 
+    // Sincronizar estado inactivo en backend
+    syncTaskStatus(false);
+
     setShiftLoading(true);
     setShiftMessage(null);
 
@@ -351,10 +366,12 @@ export default function DashboardPage() {
       setTaskStartTime(now);
       setTaskSeconds(0);
       setIsTaskActive(true);
+      syncTaskStatus(true, selected);
     } else {
       setIsTaskActive(false);
       setTaskStartTime(null);
       setTaskSeconds(0);
+      syncTaskStatus(false);
     }
   };
 
@@ -388,6 +405,7 @@ export default function DashboardPage() {
     setTaskStartTime(now);
     setTaskSeconds(0);
     setIsTaskActive(true);
+    syncTaskStatus(true, caseType);
   };
 
   // --- Generación del Texto Actual de la Nota ---
@@ -427,6 +445,7 @@ export default function DashboardPage() {
 
     // 1. Detener el contador de la tarea
     setIsTaskActive(false);
+    syncTaskStatus(false);
     const endTime = new Date();
     const duration =
       taskSeconds > 0
@@ -562,6 +581,68 @@ export default function DashboardPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [restrictionModal.isOpen]);
 
+  // Sincronizar estado de tarea en tiempo real con el servidor
+  const syncTaskStatus = async (active: boolean, type: string = '') => {
+    if (!user?.id) return;
+    try {
+      await fetch('/api/tasks/active-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          isTaskActive: active,
+          taskType: type,
+        }),
+      });
+    } catch (err) {
+      console.error('Error al sincronizar estado de tarea:', err);
+    }
+  };
+
+  // Polling para consultar mensajes fantasma de supervisión
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const checkGhostMessages = async () => {
+      try {
+        const res = await fetch(`/api/admin/ghost-messages?agentId=${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && data.messages.length > 0) {
+            const first = data.messages[0];
+            setActiveGhostMessage({
+              id: first.id,
+              message: first.message,
+              senderName: first.sender ? `${first.sender.firstName} ${first.sender.lastName}` : 'Administrador',
+              createdAt: first.createdAt,
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error al chequear mensajes fantasma:', err);
+      }
+    };
+
+    checkGhostMessages();
+    const interval = setInterval(checkGhostMessages, 4000);
+    return () => clearInterval(interval);
+  }, [user?.id]);
+
+  const handleDismissGhostMessage = async () => {
+    if (!activeGhostMessage) return;
+    const msgId = activeGhostMessage.id;
+    setActiveGhostMessage(null);
+    try {
+      await fetch('/api/admin/ghost-messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId: msgId }),
+      });
+    } catch (err) {
+      console.error('Error al marcar mensaje fantasma como leído:', err);
+    }
+  };
+
   // Protección ante recarga o cierre accidental de pestaña si hay turno o tarea activa
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -594,6 +675,17 @@ export default function DashboardPage() {
 
   const isAdmin = user.role === 'ADMIN';
 
+  // Si el usuario es administrador y está en modo 'ADMIN', renderizar la interfaz de Administrador
+  if (isAdmin && adminViewMode === 'ADMIN') {
+    return (
+      <Administrador
+        user={user}
+        onLogout={handleLogout}
+        onSwitchToOperational={() => setAdminViewMode('OPERATIONAL')}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
       {/* ================= HEADER PRINCIPAL ================= */}
@@ -620,6 +712,17 @@ export default function DashboardPage() {
             </span>
             <span className="text-[11px] text-slate-400 font-mono">ID: {user.employeeId}</span>
           </div>
+
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setAdminViewMode('ADMIN')}
+              className="text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-900/30"
+              title="Volver a la vista de supervisión y analítica de agentes"
+            >
+              <span>👑 Volver a Panel Admin</span>
+            </button>
+          )}
 
           <span
             className={`px-3 py-1 text-xs font-semibold rounded-full border ${isAdmin
@@ -1253,6 +1356,43 @@ export default function DashboardPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+      {/* ================= NOTIFICACIÓN FLOTANTE DE MENSAJE FANTASMA (PARA EL AGENTE) ================= */}
+      {activeGhostMessage && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-bounceIn shadow-2xl">
+          <div className="bg-slate-900/95 border-2 border-indigo-500/80 rounded-2xl p-4 shadow-indigo-500/30 backdrop-blur-md space-y-3 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div className="flex items-start justify-between gap-3 relative z-10">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-lg animate-pulse">
+                  👻
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-400 block">
+                    Mensaje de Supervisión &bull; {activeGhostMessage.senderName}
+                  </span>
+                  <h4 className="text-xs font-bold text-white">Alerta de Supervisión en Vivo</h4>
+                </div>
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">Ahora</span>
+            </div>
+
+            <div className="p-3 bg-slate-950/80 rounded-xl border border-indigo-500/30 text-xs text-indigo-100 font-medium relative z-10">
+              &ldquo;{activeGhostMessage.message}&rdquo;
+            </div>
+
+            <div className="flex items-center justify-end relative z-10 pt-1">
+              <button
+                type="button"
+                onClick={handleDismissGhostMessage}
+                className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition active:scale-95"
+              >
+                ✓ Entendido / Confirmar
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -26,20 +26,29 @@ enum TaskType {
 
 // 2. MODELO DE USUARIOS (Registro de Empleados y Administradores)
 model User {
-  id          String   @id @default(uuid())
-  employeeId  String   @unique // ID o Cédula del empleado
-  firstName   String
-  lastName    String
-  email       String   @unique
-  birthDate   DateTime
-  password    String   // Contraseña hasheada (con bcrypt, por ejemplo)
-  role        Role     @default(EMPLOYEE) // Por defecto es empleado
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String         @id @default(uuid())
+  employeeId      String         @unique // ID o Cédula del empleado
+  firstName       String
+  lastName        String
+  email           String         @unique
+  birthDate       DateTime
+  password        String         // Contraseña hasheada (con bcrypt, por ejemplo)
+  role            Role           @default(EMPLOYEE) // Por defecto es empleado
+  coachingCount   Int            @default(0)        // Cantidad de coachings acumulados (máx 3)
+  suspendedUntil  DateTime?                         // Fecha hasta la cual está suspendido (1 día)
+  isTaskActive    Boolean        @default(false)    // Si tiene un task activo en tiempo real
+  currentTaskType String?                           // Tipo de caso activo actual
+  taskStartedAt   DateTime?                         // Hora de inicio del task actual
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
-  // Relaciones: Un usuario tiene muchos turnos y muchas tareas
-  shifts      Shift[]
-  tasks       TaskMetric[]
+  // Relaciones
+  shifts                Shift[]
+  tasks                 TaskMetric[]
+  receivedGhostMessages GhostMessage[] @relation("ReceivedGhostMessages")
+  sentGhostMessages     GhostMessage[] @relation("SentGhostMessages")
+  agentCoachings        Coaching[]     @relation("AgentCoachings")
+  givenCoachings        Coaching[]     @relation("GivenCoachings")
 }
 
 // 3. MODELO DE TURNOS (Para saber cuándo inicia y termina de trabajar)
@@ -76,4 +85,30 @@ model TaskMetric {
   // Relaciones
   user            User      @relation(fields: [userId], references: [id])
   shift           Shift?    @relation(fields: [shiftId], references: [id])
+}
+
+// 5. MODELO DE MENSAJES FANTASMA (Supervisión -> Agente)
+model GhostMessage {
+  id        String   @id @default(uuid())
+  senderId  String
+  agentId   String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  sender    User     @relation("SentGhostMessages", fields: [senderId], references: [id])
+  agent     User     @relation("ReceivedGhostMessages", fields: [agentId], references: [id])
+}
+
+// 6. MODELO DE COACHING (Control de demoras y AHT fuera de target)
+model Coaching {
+  id        String   @id @default(uuid())
+  agentId   String
+  adminId   String
+  reason    String   // Razón de las demoras ingresada por el administrador
+  ahtAtTime Int?     // AHT promedio en segundos al momento del coaching
+  createdAt DateTime @default(now())
+
+  agent     User     @relation("AgentCoachings", fields: [agentId], references: [id])
+  admin     User     @relation("GivenCoachings", fields: [adminId], references: [id])
 }

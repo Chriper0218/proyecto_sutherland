@@ -80,6 +80,15 @@ export default function DashboardPage() {
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // 7. Modal de Restricciones Operativas (Cierre de Sesión y Finalización de Turno)
+  const [restrictionModal, setRestrictionModal] = useState<{
+    isOpen: boolean;
+    type: 'LOGOUT_RESTRICTED' | 'SHIFT_END_RESTRICTED' | 'LOGOUT_CONFIRM';
+  }>({
+    isOpen: false,
+    type: 'LOGOUT_RESTRICTED',
+  });
+
   // Referencias a los intervalos
   const shiftIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const taskIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -241,6 +250,16 @@ export default function DashboardPage() {
 
   const handleEndShift = async () => {
     if (!activeShift || !user) return;
+
+    // 🔒 RESTRICCIÓN: El agente no puede finalizar el turno si tiene una tarea activa en curso
+    if (isTaskActive) {
+      setRestrictionModal({
+        isOpen: true,
+        type: 'SHIFT_END_RESTRICTED',
+      });
+      return;
+    }
+
     setShiftLoading(true);
     setShiftMessage(null);
 
@@ -502,13 +521,60 @@ export default function DashboardPage() {
     }
   };
 
-  // --- Cerrar Sesión ---
+  // --- Cerrar Sesión con Restricciones Operativas ---
   const handleLogout = () => {
+    // 🔒 RESTRICCIÓN: No puede cerrar sesión si tiene una tarea activa o turno activo
+    if (isTaskActive || isShiftActive) {
+      setRestrictionModal({
+        isOpen: true,
+        type: 'LOGOUT_RESTRICTED',
+      });
+      return;
+    }
+
+    // Si no hay tareas ni turnos activos, confirmar cierre de sesión
+    setRestrictionModal({
+      isOpen: true,
+      type: 'LOGOUT_CONFIRM',
+    });
+  };
+
+  const confirmLogout = () => {
+    setRestrictionModal((prev) => ({ ...prev, isOpen: false }));
     startTransition(() => {
       localStorage.removeItem('currentUser');
       router.push('/');
     });
   };
+
+  const closeRestrictionModal = () => {
+    setRestrictionModal((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  // Escuchar tecla Escape para cerrar modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && restrictionModal.isOpen) {
+        closeRestrictionModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [restrictionModal.isOpen]);
+
+  // Protección ante recarga o cierre accidental de pestaña si hay turno o tarea activa
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isTaskActive || isShiftActive) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isTaskActive, isShiftActive]);
 
   if (loadingUser) {
     return (
@@ -538,7 +604,7 @@ export default function DashboardPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold tracking-tight text-white">Sutherland Platform</h1>
+              <h1 className="text-base font-bold tracking-tight text-white">Annotations platform</h1>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                 Risk & Compliance
               </span>
@@ -556,23 +622,50 @@ export default function DashboardPage() {
           </div>
 
           <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full border ${
-              isAdmin
-                ? 'bg-purple-900/40 text-purple-300 border-purple-600/50'
-                : 'bg-blue-900/40 text-blue-300 border-blue-600/50'
-            }`}
+            className={`px-3 py-1 text-xs font-semibold rounded-full border ${isAdmin
+              ? 'bg-purple-900/40 text-purple-300 border-purple-600/50'
+              : 'bg-blue-900/40 text-blue-300 border-blue-600/50'
+              }`}
           >
             {isAdmin ? '👑 Rol: Administrador' : '💼 Rol: Analista de Riesgo'}
           </span>
 
           <button
             onClick={handleLogout}
-            className="text-xs px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-300 border border-slate-700 hover:border-red-500/30 transition duration-150 flex items-center gap-1.5"
+            className={`text-xs px-3.5 py-1.5 rounded-lg border transition duration-150 flex items-center gap-1.5 ${
+              isTaskActive || isShiftActive
+                ? 'bg-slate-800 text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
+                : 'bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-300 border-slate-700 hover:border-red-500/30'
+            }`}
+            title={
+              isTaskActive || isShiftActive
+                ? '🔒 Restricción activa: Debes culminar la tarea y finalizar el turno antes de cerrar sesión'
+                : 'Cerrar Sesión'
+            }
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            {isTaskActive || isShiftActive ? (
+              <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            ) : (
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+            )}
             <span>Cerrar Sesión</span>
+            {(isTaskActive || isShiftActive) && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5" title="Restricción activa"></span>
+            )}
           </button>
         </div>
       </header>
@@ -591,16 +684,14 @@ export default function DashboardPage() {
                   Control de Turno Laboral
                 </span>
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                    isShiftActive
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                      : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                  }`}
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${isShiftActive
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                    : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                    }`}
                 >
                   <span
-                    className={`w-2 h-2 rounded-full mr-2 ${
-                      isShiftActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
-                    }`}
+                    className={`w-2 h-2 rounded-full mr-2 ${isShiftActive ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                      }`}
                   ></span>
                   {isShiftActive ? 'Turno Activo en Base de Datos' : 'Sin Turno Activo'}
                 </span>
@@ -633,11 +724,10 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleStartShift}
                   disabled={isShiftActive || shiftLoading}
-                  className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${
-                    isShiftActive
-                      ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30 active:scale-95'
-                  }`}
+                  className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${isShiftActive
+                    ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30 active:scale-95'
+                    }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -654,14 +744,26 @@ export default function DashboardPage() {
                   className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${
                     !isShiftActive
                       ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                      : isTaskActive
+                      ? 'bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-700/60 cursor-pointer active:scale-95'
                       : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-900/30 active:scale-95'
                   }`}
+                  title={
+                    isTaskActive
+                      ? '🔒 Debes culminar la tarea en curso antes de finalizar el turno'
+                      : 'Finalizar turno laboral'
+                  }
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
                   </svg>
                   <span>Finalizar Turno</span>
+                  {isShiftActive && isTaskActive && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-mono">
+                      🔒 Bloqueado
+                    </span>
+                  )}
                 </button>
               </div>
             </div>
@@ -713,18 +815,17 @@ export default function DashboardPage() {
                   disabled={!isShiftActive || isTaskActive}
                   value={caseType}
                   onChange={handleCaseTypeChange}
-                  className={`w-full border rounded-xl px-4 py-2.5 text-sm appearance-none font-medium transition ${
-                    !isShiftActive || isTaskActive
-                      ? 'bg-slate-900/60 border-slate-700/60 text-slate-400 cursor-not-allowed'
-                      : 'bg-slate-900 border-slate-700 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer ring-1 ring-blue-500/40'
-                  }`}
+                  className={`w-full border rounded-xl px-4 py-2.5 text-sm appearance-none font-medium transition ${!isShiftActive || isTaskActive
+                    ? 'bg-slate-900/60 border-slate-700/60 text-slate-400 cursor-not-allowed'
+                    : 'bg-slate-900 border-slate-700 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer ring-1 ring-blue-500/40'
+                    }`}
                 >
                   <option value="">
                     {!isShiftActive
                       ? 'Inicia turno para habilitar'
                       : isTaskActive
-                      ? 'Tarea en curso (Genera la nota para cambiar)'
-                      : '-- Elige un tipo de caso / nota --'}
+                        ? 'Tarea en curso (Genera la nota para cambiar)'
+                        : '-- Elige un tipo de caso / nota --'}
                   </option>
                   <option value="KYC">🔍 KYC Review (Proof of Identity)</option>
                   <option value="RISK_REVIEW">🛡️ Risk Review (Fraud Review)</option>
@@ -912,6 +1013,249 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* ================= MODAL DE RESTRICCIONES Y CONFIRMACIÓN DE SESIÓN ================= */}
+      {restrictionModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div
+            className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Botón de cierre superior (X) */}
+            <button
+              type="button"
+              onClick={closeRestrictionModal}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              aria-label="Cerrar modal"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {restrictionModal.type === 'LOGOUT_RESTRICTED' && (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 shadow-lg shadow-amber-500/10">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
+                      Restricción Operativa &bull; Risk &amp; Compliance
+                    </span>
+                    <h3 className="text-lg font-black text-white">No puedes cerrar sesión</h3>
+                    <p className="text-xs text-slate-300">
+                      Para garantizar la integridad del tiempo AHT y el registro de casos, debes completar el flujo operativo antes de salir:
+                    </p>
+                  </div>
+                </div>
+
+                {/* Lista de Requisitos y Estado Actual */}
+                <div className="space-y-3 pt-1">
+                  {/* Requisito 1: Tarea activa */}
+                  <div
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 transition ${
+                      isTaskActive
+                        ? 'bg-rose-500/10 border-rose-500/30'
+                        : 'bg-emerald-500/10 border-emerald-500/30'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {isTaskActive ? (
+                        <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold border border-rose-500/40">
+                          ✕
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">1. Culminar Tarea Activa (AHT)</span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            isTaskActive
+                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          }`}
+                        >
+                          {isTaskActive ? 'Pendiente / En Progreso' : 'Culminada'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {isTaskActive
+                          ? `Tienes un caso activo (${caseType || 'En curso'}). Debes presionar "Generar Nota y Detener AHT" para registrar la métrica.`
+                          : 'No tienes ninguna tarea activa en progreso.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Requisito 2: Turno activo */}
+                  <div
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 transition ${
+                      isShiftActive
+                        ? 'bg-rose-500/10 border-rose-500/30'
+                        : 'bg-emerald-500/10 border-emerald-500/30'
+                    }`}
+                  >
+                    <div className="mt-0.5">
+                      {isShiftActive ? (
+                        <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold border border-rose-500/40">
+                          ✕
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">2. Finalizar Turno Laboral</span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            isShiftActive
+                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          }`}
+                        >
+                          {isShiftActive ? 'Turno Activo' : 'Finalizado'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {isShiftActive
+                          ? 'Debes hacer clic en "Finalizar Turno" en la sección superior una vez que hayas culminado tu tarea.'
+                          : 'El turno laboral ha sido cerrado en la base de datos.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 text-[11px] text-slate-300 flex items-center gap-2">
+                  <span className="text-amber-400 text-sm">💡</span>
+                  <span>
+                    Secuencia obligatoria: <strong>1° Culminar tarea</strong> ➔ <strong>2° Finalizar turno</strong> ➔ <strong>3° Cerrar sesión</strong>.
+                  </span>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={closeRestrictionModal}
+                    className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition duration-150 shadow-lg shadow-blue-600/30 active:scale-98"
+                  >
+                    Entendido, continuar trabajando
+                  </button>
+                </div>
+              </>
+            )}
+
+            {restrictionModal.type === 'SHIFT_END_RESTRICTED' && (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0 shadow-lg shadow-rose-500/10">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+                      Tarea en Progreso
+                    </span>
+                    <h3 className="text-lg font-black text-white">No puedes finalizar el turno</h3>
+                    <p className="text-xs text-slate-300">
+                      Tienes una tarea activa abierta ({caseType || 'Caso actual'}). No puedes finalizar tu turno sin antes culminar la tarea.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-2">
+                  <span className="text-xs font-bold text-slate-200 block">¿Qué debes hacer?</span>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Completa los campos de la nota y haz clic en el botón verde{' '}
+                    <strong className="text-emerald-400">&ldquo;Generar Nota y Detener AHT&rdquo;</strong>. Esto registrará tu tiempo de gestión y te permitirá finalizar el turno de manera ordenada.
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={closeRestrictionModal}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-600 transition duration-150 active:scale-98"
+                  >
+                    Volver y culminar tarea
+                  </button>
+                </div>
+              </>
+            )}
+
+            {restrictionModal.type === 'LOGOUT_CONFIRM' && (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 shadow-lg shadow-blue-500/10">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
+                      ✓ Turno y tareas al día
+                    </span>
+                    <h3 className="text-lg font-black text-white">¿Deseas cerrar sesión?</h3>
+                    <p className="text-xs text-slate-300">
+                      Has culminado tus tareas y tu turno de trabajo se encuentra cerrado en la base de datos.
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-400">
+                  Al cerrar sesión volverás a la pantalla de autenticación. Deberás ingresar tus credenciales para volver a operar.
+                </p>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={closeRestrictionModal}
+                    className="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmLogout}
+                    className="py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-lg shadow-red-600/30 flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Sí, cerrar sesión</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

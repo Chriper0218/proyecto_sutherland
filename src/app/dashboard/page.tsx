@@ -300,51 +300,34 @@ export default function DashboardPage() {
     }
   };
 
-  // --- Selección del Tipo de Caso (Bloqueado si no hay turno) ---
+  // --- Selección del Tipo de Caso (Bloqueado si no hay turno o si hay una tarea en curso) ---
   const handleCaseTypeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!isShiftActive) {
       alert('Debes iniciar un turno antes de seleccionar un caso.');
       return;
     }
 
+    // 🔒 BLOQUEO DE NOTA: El agente no puede cambiar de tarea si ya tiene una en curso
+    if (isTaskActive) {
+      alert(
+        '🔒 Tarea en progreso: Debes hacer clic en "Generar Nota y Detener AHT" para finalizarla y registrar tus métricas antes de poder cambiar o elegir otra tarea.'
+      );
+      return;
+    }
+
     const selected = e.target.value as ActiveCaseType;
     if (selected === caseType) return;
-
-    // Si el usuario ya tenía una tarea activa y cambia de caso, registrar la tarea previa
-    if (isTaskActive && taskStartTime && caseType && user) {
-      const endTime = new Date();
-      const duration =
-        taskSeconds > 0
-          ? taskSeconds
-          : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
-
-      try {
-        await fetch('/api/tasks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            shiftId: activeShift ? activeShift.id : null,
-            taskType: caseType,
-            startTime: taskStartTime.toISOString(),
-            endTime: endTime.toISOString(),
-            durationSeconds: duration,
-            decision: 'SWITCHED_CASE',
-            noteSummary: `Cambio de caso a ${selected || 'ninguno'}`,
-          }),
-        });
-
-        setTodayNotesCount((prev) => prev + 1);
-        setTodayAvgAht((prev) => (prev === 0 ? duration : Math.round((prev + duration) / 2)));
-      } catch (err) {
-        console.error('Error al registrar cambio de caso en métricas:', err);
-      }
-    }
 
     setCaseType(selected);
     setTaskSavedSuccess(null);
 
     if (selected) {
+      // Iniciar formulario limpio y arrancar cronómetro
+      if (selected === 'KYC') setKycForm(initialKycFormData);
+      if (selected === 'RISK_REVIEW') setRiskForm(initialRiskReviewFormData);
+      if (selected === 'RECORD_KEEPING') setRkForm(initialRecordKeepingFormData);
+      if (selected === 'WATCHLIST_REVIEW') setWlForm(initialWatchlistReviewFormData);
+
       const now = new Date();
       setTaskStartTime(now);
       setTaskSeconds(0);
@@ -356,46 +339,16 @@ export default function DashboardPage() {
     }
   };
 
-  // --- Acción: Nueva Tarea (Registra tarea vacía/incompleta en DB si ya había empezado una) ---
-  const handleResetForm = async () => {
+  // --- Acción: Iniciar Nueva Tarea (Solo permitido una vez generada la nota previa) ---
+  const handleResetForm = () => {
     if (!user || !caseType) return;
 
-    // Si el usuario ya había iniciado una tarea (cronómetro corriendo o en curso sin haber generado la nota)
-    if (isTaskActive && taskStartTime) {
-      const endTime = new Date();
-      const duration =
-        taskSeconds > 0
-          ? taskSeconds
-          : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
-
-      try {
-        await fetch('/api/tasks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.id,
-            shiftId: activeShift ? activeShift.id : null,
-            taskType: caseType,
-            startTime: taskStartTime.toISOString(),
-            endTime: endTime.toISOString(),
-            durationSeconds: duration,
-            decision: 'DISCARDED_TASK',
-            noteSummary: 'Tarea vacía o reiniciada por el operador',
-          }),
-        });
-
-        // Actualizar contadores del día
-        setTodayNotesCount((prev) => prev + 1);
-        setTodayAvgAht((prev) => (prev === 0 ? duration : Math.round((prev + duration) / 2)));
-
-        setTaskSavedSuccess(
-          `Tarea anterior descartada y registrada en métricas de eficiencia (AHT: ${formatTaskTime(duration)}). Nueva tarea iniciada.`
-        );
-      } catch (err) {
-        console.error('Error al registrar tarea descartada en la BD:', err);
-      }
-    } else {
-      setTaskSavedSuccess(null);
+    // 🔒 Si la tarea está activa, no permitir reinicio accidental sin generar la nota
+    if (isTaskActive) {
+      alert(
+        '🔒 Debes finalizar la tarea actual presionando "Generar Nota y Detener AHT" para registrar tus métricas y evitar que quede incompleta.'
+      );
+      return;
     }
 
     // Reiniciar los campos del formulario según el caso actual
@@ -409,7 +362,9 @@ export default function DashboardPage() {
       setWlForm(initialWatchlistReviewFormData);
     }
 
-    // Iniciar nuevo cronómetro automáticamente para la siguiente tarea
+    setTaskSavedSuccess(null);
+
+    // Iniciar nuevo cronómetro automáticamente para la siguiente tarea del mismo tipo
     const now = new Date();
     setTaskStartTime(now);
     setTaskSeconds(0);
@@ -517,7 +472,7 @@ export default function DashboardPage() {
         console.error('Error al guardar métrica:', data.error);
       } else {
         setTaskSavedSuccess(
-          `¡Nota generada con éxito! Métrica registrada en Prisma: AHT de ${formatTaskTime(duration)} (${duration} seg).`
+          `¡Nota generada con éxito! Métrica registrada en Prisma: AHT de ${formatTaskTime(duration)} (${duration} seg). El selector de tareas ha sido desbloqueado para elegir otra tarea o iniciar una nueva.`
         );
         setTodayNotesCount((prev) => prev + 1);
         setTodayAvgAht((prev) => (prev === 0 ? duration : Math.round((prev + duration) / 2)));
@@ -727,11 +682,27 @@ export default function DashboardPage() {
         <section className="p-5 rounded-2xl bg-slate-800/90 border border-slate-700 shadow-xl space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <label htmlFor="case-type-select" className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+              <label htmlFor="case-type-select" className="text-xs font-bold uppercase tracking-wider text-slate-300 flex flex-wrap items-center gap-2">
                 <span>1. Seleccionar Tipo de Tarea / Caso</span>
                 {!isShiftActive && (
                   <span className="text-[10px] text-amber-400 font-semibold">
                     (🔒 Bloqueado: Inicia turno primero)
+                  </span>
+                )}
+                {isShiftActive && isTaskActive && (
+                  <span className="text-[10px] text-amber-300 font-semibold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 flex items-center gap-1">
+                    <svg className="w-3 h-3 text-amber-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span>🔒 Bloqueado: Tarea en progreso</span>
+                  </span>
+                )}
+                {isShiftActive && !isTaskActive && caseType && (
+                  <span className="text-[10px] text-emerald-400 font-semibold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-1">
+                    <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                    <span>🔓 Desbloqueado: Ya puedes elegir otra tarea</span>
                   </span>
                 )}
               </label>
@@ -739,17 +710,21 @@ export default function DashboardPage() {
               <div className="relative w-full sm:w-96">
                 <select
                   id="case-type-select"
-                  disabled={!isShiftActive}
+                  disabled={!isShiftActive || isTaskActive}
                   value={caseType}
                   onChange={handleCaseTypeChange}
                   className={`w-full border rounded-xl px-4 py-2.5 text-sm appearance-none font-medium transition ${
-                    !isShiftActive
-                      ? 'bg-slate-900/50 border-slate-700/60 text-slate-500 cursor-not-allowed'
-                      : 'bg-slate-900 border-slate-700 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer'
+                    !isShiftActive || isTaskActive
+                      ? 'bg-slate-900/60 border-slate-700/60 text-slate-400 cursor-not-allowed'
+                      : 'bg-slate-900 border-slate-700 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer ring-1 ring-blue-500/40'
                   }`}
                 >
                   <option value="">
-                    {!isShiftActive ? 'Inicia turno para habilitar' : '-- Elige un tipo de caso / nota --'}
+                    {!isShiftActive
+                      ? 'Inicia turno para habilitar'
+                      : isTaskActive
+                      ? 'Tarea en curso (Genera la nota para cambiar)'
+                      : '-- Elige un tipo de caso / nota --'}
                   </option>
                   <option value="KYC">🔍 KYC Review (Proof of Identity)</option>
                   <option value="RISK_REVIEW">🛡️ Risk Review (Fraud Review)</option>
@@ -769,6 +744,17 @@ export default function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <span>Debes presionar &ldquo;Iniciar Turno&rdquo; antes de poder crear una nota.</span>
+                </p>
+              )}
+
+              {isShiftActive && isTaskActive && (
+                <p className="text-[11px] text-amber-300/90 flex items-center gap-1.5 mt-1 font-medium animate-fadeIn">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>
+                    El selector está bloqueado mientras estés trabajando en esta nota. Presiona <strong>&ldquo;Generar Nota y Detener AHT&rdquo;</strong> para registrar tus métricas y desbloquear el selector de tareas.
+                  </span>
                 </p>
               )}
             </div>
@@ -855,6 +841,7 @@ export default function DashboardPage() {
                   onReset={handleResetForm}
                   submitting={taskSubmitting}
                   successMessage={taskSavedSuccess}
+                  isTaskActive={isTaskActive}
                 />
               )}
 
@@ -866,6 +853,7 @@ export default function DashboardPage() {
                   onReset={handleResetForm}
                   submitting={taskSubmitting}
                   successMessage={taskSavedSuccess}
+                  isTaskActive={isTaskActive}
                 />
               )}
 
@@ -877,6 +865,7 @@ export default function DashboardPage() {
                   onReset={handleResetForm}
                   submitting={taskSubmitting}
                   successMessage={taskSavedSuccess}
+                  isTaskActive={isTaskActive}
                 />
               )}
 
@@ -888,6 +877,7 @@ export default function DashboardPage() {
                   onReset={handleResetForm}
                   submitting={taskSubmitting}
                   successMessage={taskSavedSuccess}
+                  isTaskActive={isTaskActive}
                 />
               )}
             </div>

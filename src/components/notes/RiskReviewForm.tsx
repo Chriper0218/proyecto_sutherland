@@ -9,6 +9,7 @@ interface RiskReviewFormProps {
   onReset: () => void;
   submitting: boolean;
   successMessage: string | null;
+  isTaskActive?: boolean;
 }
 
 export const RiskReviewForm: React.FC<RiskReviewFormProps> = ({
@@ -18,6 +19,7 @@ export const RiskReviewForm: React.FC<RiskReviewFormProps> = ({
   onReset,
   submitting,
   successMessage,
+  isTaskActive = false,
 }) => {
   return (
     <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
@@ -650,13 +652,33 @@ export const RiskReviewForm: React.FC<RiskReviewFormProps> = ({
         <button
           type="button"
           onClick={onReset}
-          className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-700/60 hover:bg-amber-600/20 hover:text-amber-300 text-slate-300 text-xs font-semibold border border-slate-600 hover:border-amber-500/40 transition flex items-center justify-center gap-1.5"
-          title="Reiniciar y registrar la tarea previa para medir eficiencia"
+          disabled={isTaskActive}
+          className={`w-full sm:w-auto py-3 px-4 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5 ${
+            isTaskActive
+              ? 'bg-slate-800/60 text-slate-500 border-slate-700 cursor-not-allowed opacity-60'
+              : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border-emerald-500/40 hover:border-emerald-400 cursor-pointer shadow-md'
+          }`}
+          title={
+            isTaskActive
+              ? '🔒 Debes presionar "Generar Nota y Detener AHT" antes de iniciar una nueva tarea'
+              : 'Iniciar una nueva tarea limpia de Risk Review'
+          }
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          <span>Nueva Tarea (Registrar Vacío)</span>
+          {isTaskActive ? (
+            <>
+              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Nueva Tarea (Bloqueado)</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>+ Iniciar Nueva Tarea Risk Review</span>
+            </>
+          )}
         </button>
       </div>
 

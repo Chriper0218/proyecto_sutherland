@@ -64,6 +64,13 @@ model TaskMetric {
   endTime         DateTime  // Momento en que hace clic en "Copiar Nota"
   durationSeconds Int       // Tiempo total en segundos (Para sacar el AHT fácil)
   
+  // Campos opcionales para auditoría y métricas de administradores
+  decision        String?   // Approved, Denied, False Positive, True Positive, etc.
+  country         String?   // País evaluado
+  corridor        String?   // Corridor evaluado
+  noteSummary     String?   // Contenido exacto de la nota generada
+  metadata        String?   // JSON con atributos estructurados del formulario
+  
   createdAt       DateTime  @default(now())
 
   // Relaciones

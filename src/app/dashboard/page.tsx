@@ -3,6 +3,30 @@
 import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import {
+  KycFormData,
+  initialKycFormData,
+  RiskReviewFormData,
+  initialRiskReviewFormData,
+  RecordKeepingFormData,
+  initialRecordKeepingFormData,
+  WatchlistReviewFormData,
+  initialWatchlistReviewFormData,
+} from '@/components/notes/types';
+
+import {
+  generateKycNote,
+  generateRiskReviewNote,
+  generateRecordKeepingNote,
+  generateWatchlistReviewNote,
+} from '@/components/notes/generateNoteText';
+
+import { KycReviewForm } from '@/components/notes/KycReviewForm';
+import { RiskReviewForm } from '@/components/notes/RiskReviewForm';
+import { RecordKeepingForm } from '@/components/notes/RecordKeepingForm';
+import { WatchlistReviewForm } from '@/components/notes/WatchlistReviewForm';
+import { NotePreviewCard } from '@/components/notes/NotePreviewCard';
+
 interface UserSession {
   id: string;
   firstName: string;
@@ -17,51 +41,7 @@ interface ActiveShift {
   startTime: string;
 }
 
-// Lista de países representativos de América y Europa
-const COUNTRIES_LIST = [
-  'Estados Unidos',
-  'Canadá',
-  'México',
-  'Colombia',
-  'Brasil',
-  'Argentina',
-  'Chile',
-  'Perú',
-  'Ecuador',
-  'Panamá',
-  'Costa Rica',
-  'Guatemala',
-  'República Dominicana',
-  'Uruguay',
-  'Bolivia',
-  'Paraguay',
-  'Reino Unido',
-  'España',
-  'Francia',
-  'Alemania',
-  'Italia',
-  'Portugal',
-  'Países Bajos',
-  'Suiza',
-  'Bélgica',
-  'Irlanda',
-  'Suecia',
-  'Noruega',
-  'Dinamarca',
-  'Polonia',
-  'Austria',
-];
-
-// Tipos de documentos primarios permitidos
-const PRIMARY_DOCUMENT_TYPES = [
-  'Pasaporte / Passport',
-  'Licencia de Conducción / Driver\'s License',
-  'Documento Nacional de Identidad / National ID (Cédula / DNI)',
-  'Permiso de Residencia / Residence Permit',
-  'Identificación Estatal / State ID',
-  'Tarjeta Militar / Military ID',
-  'Otro Documento Primario',
-];
+type ActiveCaseType = 'KYC' | 'RISK_REVIEW' | 'RECORD_KEEPING' | 'WATCHLIST_REVIEW' | '';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -78,8 +58,8 @@ export default function DashboardPage() {
   const [shiftLoading, setShiftLoading] = useState<boolean>(false);
   const [shiftMessage, setShiftMessage] = useState<string | null>(null);
 
-  // 3. Estado de la Tarea KYC & Cronómetro AHT
-  const [caseType, setCaseType] = useState<string>('');
+  // 3. Estado de la Tarea & Cronómetro AHT
+  const [caseType, setCaseType] = useState<ActiveCaseType>('');
   const [isTaskActive, setIsTaskActive] = useState<boolean>(false);
   const [taskStartTime, setTaskStartTime] = useState<Date | null>(null);
   const [taskSeconds, setTaskSeconds] = useState<number>(0);
@@ -90,22 +70,11 @@ export default function DashboardPage() {
   const [todayNotesCount, setTodayNotesCount] = useState<number>(0);
   const [todayAvgAht, setTodayAvgAht] = useState<number>(0);
 
-  // 5. Estado del Formulario KYC
-  const [kycForm, setKycForm] = useState({
-    country: '',
-    corridor: '',
-    reviewedDocument: '',
-    customDocument: '',
-    docLink: '',
-    isPhotoVisible: '',
-    isIdNumberVisible: '',
-    isExpired: '',
-    isDobMatch: '',
-    isNameMatch: '',
-    observations: '',
-    reviewDecision: 'KYC review approved',
-    nextActions: '',
-  });
+  // 5. Estados de los Formularios Estandarizados
+  const [kycForm, setKycForm] = useState<KycFormData>(initialKycFormData);
+  const [riskForm, setRiskForm] = useState<RiskReviewFormData>(initialRiskReviewFormData);
+  const [rkForm, setRkForm] = useState<RecordKeepingFormData>(initialRecordKeepingFormData);
+  const [wlForm, setWlForm] = useState<WatchlistReviewFormData>(initialWatchlistReviewFormData);
 
   // 6. Estado del Botón de Copiado
   const [isCopied, setIsCopied] = useState<boolean>(false);
@@ -276,9 +245,10 @@ export default function DashboardPage() {
     setShiftMessage(null);
 
     // Si había una tarea en progreso al cerrar turno, guardarla como tarea vacía/cerrada para métricas
-    if (isTaskActive && taskStartTime) {
+    if (isTaskActive && taskStartTime && caseType) {
       const endTaskTime = new Date();
-      const taskDuration = taskSeconds > 0 ? taskSeconds : Math.max(1, Math.round((endTaskTime.getTime() - taskStartTime.getTime()) / 1000));
+      const taskDuration =
+        taskSeconds > 0 ? taskSeconds : Math.max(1, Math.round((endTaskTime.getTime() - taskStartTime.getTime()) / 1000));
       try {
         await fetch('/api/tasks', {
           method: 'POST',
@@ -286,10 +256,12 @@ export default function DashboardPage() {
           body: JSON.stringify({
             userId: user.id,
             shiftId: activeShift.id,
-            taskType: 'KYC',
+            taskType: caseType,
             startTime: taskStartTime.toISOString(),
             endTime: endTaskTime.toISOString(),
             durationSeconds: taskDuration,
+            decision: 'CLOSED_AT_SHIFT_END',
+            noteSummary: 'Turno finalizado con tarea en progreso',
           }),
         });
       } catch (err) {
@@ -329,17 +301,50 @@ export default function DashboardPage() {
   };
 
   // --- Selección del Tipo de Caso (Bloqueado si no hay turno) ---
-  const handleCaseTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleCaseTypeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (!isShiftActive) {
       alert('Debes iniciar un turno antes de seleccionar un caso.');
       return;
     }
 
-    const selected = e.target.value;
+    const selected = e.target.value as ActiveCaseType;
+    if (selected === caseType) return;
+
+    // Si el usuario ya tenía una tarea activa y cambia de caso, registrar la tarea previa
+    if (isTaskActive && taskStartTime && caseType && user) {
+      const endTime = new Date();
+      const duration =
+        taskSeconds > 0
+          ? taskSeconds
+          : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
+
+      try {
+        await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            shiftId: activeShift ? activeShift.id : null,
+            taskType: caseType,
+            startTime: taskStartTime.toISOString(),
+            endTime: endTime.toISOString(),
+            durationSeconds: duration,
+            decision: 'SWITCHED_CASE',
+            noteSummary: `Cambio de caso a ${selected || 'ninguno'}`,
+          }),
+        });
+
+        setTodayNotesCount((prev) => prev + 1);
+        setTodayAvgAht((prev) => (prev === 0 ? duration : Math.round((prev + duration) / 2)));
+      } catch (err) {
+        console.error('Error al registrar cambio de caso en métricas:', err);
+      }
+    }
+
     setCaseType(selected);
     setTaskSavedSuccess(null);
 
-    if (selected === 'KYC') {
+    if (selected) {
       const now = new Date();
       setTaskStartTime(now);
       setTaskSeconds(0);
@@ -353,7 +358,7 @@ export default function DashboardPage() {
 
   // --- Acción: Nueva Tarea (Registra tarea vacía/incompleta en DB si ya había empezado una) ---
   const handleResetForm = async () => {
-    if (!user) return;
+    if (!user || !caseType) return;
 
     // Si el usuario ya había iniciado una tarea (cronómetro corriendo o en curso sin haber generado la nota)
     if (isTaskActive && taskStartTime) {
@@ -364,17 +369,18 @@ export default function DashboardPage() {
           : Math.max(1, Math.round((endTime.getTime() - taskStartTime.getTime()) / 1000));
 
       try {
-        // Almacenar el tiempo transcurrido en la base de datos (métrica de tarea descartada / vacía)
         await fetch('/api/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: user.id,
             shiftId: activeShift ? activeShift.id : null,
-            taskType: 'KYC',
+            taskType: caseType,
             startTime: taskStartTime.toISOString(),
             endTime: endTime.toISOString(),
             durationSeconds: duration,
+            decision: 'DISCARDED_TASK',
+            noteSummary: 'Tarea vacía o reiniciada por el operador',
           }),
         });
 
@@ -392,22 +398,16 @@ export default function DashboardPage() {
       setTaskSavedSuccess(null);
     }
 
-    // Reiniciar los campos del formulario
-    setKycForm({
-      country: '',
-      corridor: '',
-      reviewedDocument: '',
-      customDocument: '',
-      docLink: '',
-      isPhotoVisible: '',
-      isIdNumberVisible: '',
-      isExpired: '',
-      isDobMatch: '',
-      isNameMatch: '',
-      observations: '',
-      reviewDecision: 'KYC review approved',
-      nextActions: '',
-    });
+    // Reiniciar los campos del formulario según el caso actual
+    if (caseType === 'KYC') {
+      setKycForm(initialKycFormData);
+    } else if (caseType === 'RISK_REVIEW') {
+      setRiskForm(initialRiskReviewFormData);
+    } else if (caseType === 'RECORD_KEEPING') {
+      setRkForm(initialRecordKeepingFormData);
+    } else if (caseType === 'WATCHLIST_REVIEW') {
+      setWlForm(initialWatchlistReviewFormData);
+    }
 
     // Iniciar nuevo cronómetro automáticamente para la siguiente tarea
     const now = new Date();
@@ -416,62 +416,40 @@ export default function DashboardPage() {
     setIsTaskActive(true);
   };
 
-  // --- Formateador de Decisión de Revisión ---
-  const formatDecisionText = (val: string): string => {
-    const trimmed = val.trim();
-    if (!trimmed) return 'KYC review approved';
-    if (/^kyc review/i.test(trimmed)) {
-      return trimmed;
+  // --- Generación del Texto Actual de la Nota ---
+  const getCurrentNoteText = (): string => {
+    switch (caseType) {
+      case 'KYC':
+        return generateKycNote(kycForm);
+      case 'RISK_REVIEW':
+        return generateRiskReviewNote(riskForm);
+      case 'RECORD_KEEPING':
+        return generateRecordKeepingNote(rkForm);
+      case 'WATCHLIST_REVIEW':
+        return generateWatchlistReviewNote(wlForm);
+      default:
+        return 'Selecciona un tipo de caso para generar la nota.';
     }
-    return `KYC review ${trimmed}`;
   };
 
-  // --- Generación del Texto Exacto de la Nota ---
-  const generateNoteText = (): string => {
-    const country = kycForm.country.trim() || '[País]';
-    const corridor = kycForm.corridor.trim() || '[Corridor]';
-
-    // Documento primario
-    const docType =
-      kycForm.reviewedDocument === 'Otro Documento Primario' && kycForm.customDocument.trim()
-        ? kycForm.customDocument.trim()
-        : kycForm.reviewedDocument.trim() || '[Tipo de Documento Primario]';
-
-    // Enlace del documento (sin menciones de CRM)
-    const linkLine = kycForm.docLink.trim() || '[Enlace del Documento ID]';
-
-    const photoVisible = kycForm.isPhotoVisible || '[Yes/No]';
-    const idNumberVisible = kycForm.isIdNumberVisible || '[Yes/No]';
-    const expired = kycForm.isExpired || '[Yes/No]';
-    const dobMatch = kycForm.isDobMatch || '[Yes/No]';
-    const nameMatch = kycForm.isNameMatch || '[Yes/No]';
-
-    const observations = kycForm.observations.trim() || '[Observaciones del analista]';
-    const decision = formatDecisionText(kycForm.reviewDecision);
-    const nextActions = kycForm.nextActions.trim() || '[Próximas acciones]';
-
-    return `*** KYC Review (${country}) ***
-
-✔️ Corridor: ${corridor}
-✔️ Reviewed Document: ${docType}
-${linkLine}
-▷ Is Photo Visible: ${photoVisible}
-▷ Is Id Number Visible: ${idNumberVisible}
-▷ Is it expired: ${expired}
-▷ DOB Matches Customer Record: ${dobMatch}
-▷ Name Matches Customer Record: ${nameMatch}
-
-✔️ Observations:
-${observations}
-
-✔️ Review Decision: ${decision}
-
-✔️ Next agent actions: ${nextActions}`;
+  const getTemplateTitle = (): string => {
+    switch (caseType) {
+      case 'KYC':
+        return 'KYC Review (Proof of Identity)';
+      case 'RISK_REVIEW':
+        return 'Risk Review (Fraud Review)';
+      case 'RECORD_KEEPING':
+        return 'Record Keeping Review';
+      case 'WATCHLIST_REVIEW':
+        return `Watchlist Review (${wlForm.matchType})`;
+      default:
+        return 'Estandarizada Compliance';
+    }
   };
 
   // --- Acción "Generar Nota" (Detener Temporizador y Guardar en Prisma) ---
   const handleGenerateNote = async () => {
-    if (!user || !taskStartTime) return;
+    if (!user || !taskStartTime || !caseType) return;
 
     // 1. Detener el contador de la tarea
     setIsTaskActive(false);
@@ -484,18 +462,53 @@ ${observations}
     setTaskSubmitting(true);
     setTaskSavedSuccess(null);
 
+    // 2. Extraer metadatos específicos del caso
+    const noteText = getCurrentNoteText();
+    let decision = '';
+    let country = '';
+    let corridor = '';
+    let metadata: Record<string, unknown> = {};
+
+    if (caseType === 'KYC') {
+      decision = kycForm.reviewDecision;
+      country = kycForm.country;
+      corridor = kycForm.corridor;
+      metadata = { ...kycForm };
+    } else if (caseType === 'RISK_REVIEW') {
+      decision = riskForm.kycStatus;
+      corridor = riskForm.corridor;
+      metadata = { ...riskForm };
+    } else if (caseType === 'RECORD_KEEPING') {
+      decision = rkForm.recordKeepingDecision;
+      country = rkForm.country;
+      metadata = { ...rkForm };
+    } else if (caseType === 'WATCHLIST_REVIEW') {
+      decision =
+        wlForm.conclusion === 'TRUE_POSITIVE'
+          ? `TRUE_POSITIVE: ${wlForm.truePositiveDisposition}`
+          : 'FALSE_POSITIVE';
+      country = wlForm.corridorCountry;
+      corridor = wlForm.corridorCountry;
+      metadata = { ...wlForm };
+    }
+
     try {
-      // 2. Enviar métricas AHT al backend
+      // 3. Enviar métricas AHT al backend
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
           shiftId: activeShift ? activeShift.id : null,
-          taskType: 'KYC',
+          taskType: caseType,
           startTime: taskStartTime.toISOString(),
           endTime: endTime.toISOString(),
           durationSeconds: duration,
+          decision,
+          country,
+          corridor,
+          noteSummary: noteText,
+          metadata,
         }),
       });
 
@@ -519,7 +532,7 @@ ${observations}
   // --- Botón de Copiado Inteligente al Portapapeles ---
   const handleCopyToClipboard = async () => {
     try {
-      const textToCopy = generateNoteText();
+      const textToCopy = getCurrentNoteText();
       await navigator.clipboard.writeText(textToCopy);
 
       setIsCopied(true);
@@ -594,7 +607,7 @@ ${observations}
                 : 'bg-blue-900/40 text-blue-300 border-blue-600/50'
             }`}
           >
-            {isAdmin ? '👑 Rol: Administrador' : '💼 Rol: Investigador KYC'}
+            {isAdmin ? '👑 Rol: Administrador' : '💼 Rol: Analista de Riesgo'}
           </span>
 
           <button
@@ -715,7 +728,7 @@ ${observations}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
               <label htmlFor="case-type-select" className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-                <span>1. Seleccionar Tipo de Caso</span>
+                <span>1. Seleccionar Tipo de Tarea / Caso</span>
                 {!isShiftActive && (
                   <span className="text-[10px] text-amber-400 font-semibold">
                     (🔒 Bloqueado: Inicia turno primero)
@@ -723,7 +736,7 @@ ${observations}
                 )}
               </label>
 
-              <div className="relative w-full sm:w-80">
+              <div className="relative w-full sm:w-96">
                 <select
                   id="case-type-select"
                   disabled={!isShiftActive}
@@ -736,9 +749,12 @@ ${observations}
                   }`}
                 >
                   <option value="">
-                    {!isShiftActive ? 'Inicia turno para habilitar' : '-- Elige un tipo de caso --'}
+                    {!isShiftActive ? 'Inicia turno para habilitar' : '-- Elige un tipo de caso / nota --'}
                   </option>
-                  <option value="KYC">KYC Review (Proof of Identity)</option>
+                  <option value="KYC">🔍 KYC Review (Proof of Identity)</option>
+                  <option value="RISK_REVIEW">🛡️ Risk Review (Fraud Review)</option>
+                  <option value="RECORD_KEEPING">📁 Record Keeping Review (RK)</option>
+                  <option value="WATCHLIST_REVIEW">🌐 Watchlist Review (Sender / Recipient)</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -757,8 +773,8 @@ ${observations}
               )}
             </div>
 
-            {/* Cronómetro de Tarea / AHT (Visible al seleccionar KYC) */}
-            {caseType === 'KYC' && (
+            {/* Cronómetro de Tarea / AHT (Visible al seleccionar cualquier caso) */}
+            {caseType && (
               <div className="flex items-center gap-4 bg-slate-900/90 p-3.5 rounded-xl border border-blue-500/30 shadow-inner">
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -769,7 +785,7 @@ ${observations}
                   </div>
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                      Cronómetro AHT (Handle Time)
+                      Cronómetro AHT ({caseType})
                     </span>
                     <span className="text-2xl font-mono font-black text-emerald-400 tracking-wider">
                       {formatTaskTime(taskSeconds)}
@@ -826,459 +842,65 @@ ${observations}
           </div>
         </section>
 
-        {/* ================= 3. GENERADOR DE NOTAS: CASO KYC (PROOF OF IDENTITY) ================= */}
-        {caseType === 'KYC' && isShiftActive ? (
+        {/* ================= 3. GENERADOR DE NOTAS SEGÚN EL TIPO DE CASO ================= */}
+        {caseType && isShiftActive ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Columna Izquierda: Formulario KYC (7 columnas) */}
-            <div className="lg:col-span-7 bg-slate-800/90 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-4">
-                <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center text-xs font-mono">
-                      ID
-                    </span>
-                    Formulario KYC: Proof of Identity
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Completa las validaciones del documento primario para estandarizar la auditoría.
-                  </p>
-                </div>
+            {/* Columna Izquierda: Formulario Dinámico (7 columnas) */}
+            <div className="lg:col-span-7">
+              {caseType === 'KYC' && (
+                <KycReviewForm
+                  form={kycForm}
+                  setForm={setKycForm}
+                  onSubmit={handleGenerateNote}
+                  onReset={handleResetForm}
+                  submitting={taskSubmitting}
+                  successMessage={taskSavedSuccess}
+                />
+              )}
 
-                {/* Enlace Botón External Source */}
-                <a
-                  href="https://www.edisontd.nl/country-browser/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-blue-400 hover:text-blue-300 border border-slate-600 text-xs font-semibold flex items-center gap-1.5 transition"
-                >
-                  <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                  </svg>
-                  <span>EdisonTD Browser</span>
-                </a>
-              </div>
+              {caseType === 'RISK_REVIEW' && (
+                <RiskReviewForm
+                  form={riskForm}
+                  setForm={setRiskForm}
+                  onSubmit={handleGenerateNote}
+                  onReset={handleResetForm}
+                  submitting={taskSubmitting}
+                  successMessage={taskSavedSuccess}
+                />
+              )}
 
-              {/* Campos Principales */}
-              <div className="space-y-4">
-                {/* 1. País & 2. Corridor */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      1. País Emisor del Documento:
-                    </label>
-                    <select
-                      value={kycForm.country}
-                      onChange={(e) => setKycForm({ ...kycForm, country: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
-                    >
-                      <option value="">-- Selecciona el País --</option>
-                      {COUNTRIES_LIST.map((country) => (
-                        <option key={country} value={country}>
-                          {country}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              {caseType === 'RECORD_KEEPING' && (
+                <RecordKeepingForm
+                  form={rkForm}
+                  setForm={setRkForm}
+                  onSubmit={handleGenerateNote}
+                  onReset={handleResetForm}
+                  submitting={taskSubmitting}
+                  successMessage={taskSavedSuccess}
+                />
+              )}
 
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                      2. Corridor:
-                    </label>
-                    <input
-                      type="text"
-                      value={kycForm.corridor}
-                      onChange={(e) => setKycForm({ ...kycForm, corridor: e.target.value })}
-                      placeholder="Ej: USA -> COL o Domestic US"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                    />
-                  </div>
-                </div>
-
-                {/* 3. Reviewed Document (Solo Primary Document Type) */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    3. Reviewed Document (Primary ID Type):
-                  </label>
-                  <div className="space-y-2">
-                    <select
-                      value={kycForm.reviewedDocument}
-                      onChange={(e) => setKycForm({ ...kycForm, reviewedDocument: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500"
-                    >
-                      <option value="">-- Selecciona el tipo de documento primario --</option>
-                      {PRIMARY_DOCUMENT_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-
-                    {kycForm.reviewedDocument === 'Otro Documento Primario' && (
-                      <input
-                        type="text"
-                        value={kycForm.customDocument}
-                        onChange={(e) => setKycForm({ ...kycForm, customDocument: e.target.value })}
-                        placeholder="Especifica el documento primario (Ej: Cédula de Extranjería)"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500 animate-fadeIn"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* 4. Enlace / URL al Documento ID (Sin mención de CRM) */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    4. Enlace / URL del Documento ID:
-                  </label>
-                  <input
-                    type="url"
-                    value={kycForm.docLink}
-                    onChange={(e) => setKycForm({ ...kycForm, docLink: e.target.value })}
-                    placeholder="https://... (URL al documento o archivo que estás manejando)"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                  />
-                </div>
-
-                {/* 5. Validaciones del ID (Yes / No) */}
-                <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700/80 space-y-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
-                    5. Validaciones de Seguridad del ID
-                  </span>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    {/* Validation 1 */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700">
-                      <span className="text-slate-300">Is Photo Visible?</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isPhotoVisible: 'Yes' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isPhotoVisible === 'Yes'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isPhotoVisible: 'No' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isPhotoVisible === 'No'
-                              ? 'bg-rose-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Validation 2 */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700">
-                      <span className="text-slate-300">Is Id Number Visible?</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isIdNumberVisible: 'Yes' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isIdNumberVisible === 'Yes'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isIdNumberVisible: 'No' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isIdNumberVisible === 'No'
-                              ? 'bg-rose-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Validation 3 */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700">
-                      <span className="text-slate-300">Is it expired?</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isExpired: 'Yes' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isExpired === 'Yes'
-                              ? 'bg-rose-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isExpired: 'No' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isExpired === 'No'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Validation 4 */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700">
-                      <span className="text-slate-300">DOB Matches Customer Record?</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isDobMatch: 'Yes' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isDobMatch === 'Yes'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isDobMatch: 'No' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isDobMatch === 'No'
-                              ? 'bg-rose-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Validation 5 */}
-                    <div className="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700 sm:col-span-2">
-                      <span className="text-slate-300">Name Matches Customer Record?</span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isNameMatch: 'Yes' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isNameMatch === 'Yes'
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Yes
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setKycForm({ ...kycForm, isNameMatch: 'No' })}
-                          className={`px-2.5 py-1 rounded text-[11px] font-bold transition ${
-                            kycForm.isNameMatch === 'No'
-                              ? 'bg-rose-600 text-white'
-                              : 'bg-slate-700 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          No
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 6. Observations */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    6. Observations:
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={kycForm.observations}
-                    onChange={(e) => setKycForm({ ...kycForm, observations: e.target.value })}
-                    placeholder="Detalles adicionales sobre nitidez del documento, elementos holográficos, etc."
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                  />
-                </div>
-
-                {/* 7. Review Decision con botones rápidos */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-slate-300">
-                      7. Review Decision:
-                    </label>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => setKycForm({ ...kycForm, reviewDecision: 'KYC review approved' })}
-                        className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 transition font-medium"
-                      >
-                        ✔️ KYC review approved
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setKycForm({ ...kycForm, reviewDecision: 'KYC review denied due to ' })}
-                        className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 transition font-medium"
-                      >
-                        ❌ KYC review denied due to...
-                      </button>
-                    </div>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={kycForm.reviewDecision}
-                    onChange={(e) => setKycForm({ ...kycForm, reviewDecision: e.target.value })}
-                    placeholder="KYC review approved"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500 font-mono"
-                  />
-                </div>
-
-                {/* 8. Next agent actions */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    8. Next agent actions:
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={kycForm.nextActions}
-                    onChange={(e) => setKycForm({ ...kycForm, nextActions: e.target.value })}
-                    placeholder="Ej: Proceder con la liberación de la transacción / Solicitar comprobante de domicilio"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-500"
-                  />
-                </div>
-              </div>
-
-              {/* Botones de Acción */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleGenerateNote}
-                  disabled={taskSubmitting}
-                  className="w-full sm:flex-1 py-3 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-[0.99] text-white font-bold text-sm tracking-wide shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2 disabled:bg-blue-800 disabled:cursor-not-allowed"
-                >
-                  {taskSubmitting ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                      </svg>
-                      <span>Guardando AHT en Base de Datos...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Generar Nota y Detener AHT</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleResetForm}
-                  className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-700/60 hover:bg-amber-600/20 hover:text-amber-300 text-slate-300 text-xs font-semibold border border-slate-600 hover:border-amber-500/40 transition flex items-center justify-center gap-1.5"
-                  title="Reiniciar y registrar la tarea previa para medir eficiencia"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span>Nueva Tarea (Registrar Vacío)</span>
-                </button>
-              </div>
-
-              {/* Mensaje de Confirmación al Generar */}
-              {taskSavedSuccess && (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/40 rounded-xl text-xs font-medium text-emerald-400 flex items-center gap-2 animate-fadeIn">
-                  <svg className="w-5 h-5 flex-shrink-0 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{taskSavedSuccess}</span>
-                </div>
+              {caseType === 'WATCHLIST_REVIEW' && (
+                <WatchlistReviewForm
+                  form={wlForm}
+                  setForm={setWlForm}
+                  onSubmit={handleGenerateNote}
+                  onReset={handleResetForm}
+                  submitting={taskSubmitting}
+                  successMessage={taskSavedSuccess}
+                />
               )}
             </div>
 
-            {/* ================= 4. VISUALIZACIÓN Y BOTÓN DE COPIADO (CLIPBOARD) ================= */}
-            <div className="lg:col-span-5 space-y-3 sticky top-24">
-              <div className="bg-slate-950 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col">
-                {/* Cabecera del Bloc de Notas */}
-                <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex space-x-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
-                    </div>
-                    <span className="text-xs font-mono font-medium text-slate-300 ml-2">
-                      Nota Generada (Audit Note)
-                    </span>
-                  </div>
-
-                  {/* Botón de Copiado Inteligente */}
-                  <button
-                    type="button"
-                    onClick={handleCopyToClipboard}
-                    className={`text-xs px-3.5 py-1.5 rounded-lg font-bold transition duration-200 flex items-center gap-1.5 shadow-md ${
-                      isCopied
-                        ? 'bg-emerald-600 text-white border border-emerald-400 scale-105'
-                        : 'bg-blue-600 hover:bg-blue-500 text-white border border-blue-500 active:scale-95'
-                    }`}
-                  >
-                    {isCopied ? (
-                      <>
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>¡Copiado!</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        <span>Copiar Nota</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Contenido de la Nota Formateada (Texto Exacto) */}
-                <div className="p-4 sm:p-5 overflow-x-auto bg-slate-950 font-mono text-xs sm:text-sm text-slate-200 leading-relaxed select-all">
-                  <pre className="whitespace-pre-wrap break-words font-mono">
-                    {generateNoteText()}
-                  </pre>
-                </div>
-
-                {/* Pie de bloc de notas */}
-                <div className="px-4 py-2.5 bg-slate-900/60 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between font-mono">
-                  <span>Plantilla: Estandarizada KYC</span>
-                  <span>{isCopied ? 'Copiado al portapapeles' : 'Listo para copiar'}</span>
-                </div>
-              </div>
-
-              {/* Guía Rápida para el Operador */}
-              <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs text-slate-400 space-y-1.5">
-                <span className="font-semibold text-slate-300 block">Instrucciones Operativas:</span>
-                <p>
-                  1. Completa las validaciones del documento verificando elementos en <span className="text-blue-400">EdisonTD</span>.
-                </p>
-                <p>
-                  2. Haz clic en <span className="text-blue-400 font-semibold">&ldquo;Generar Nota y Detener AHT&rdquo;</span> para guardar el tiempo exacto en Prisma.
-                </p>
-                <p>
-                  3. Si descartas la tarea con <span className="text-amber-400 font-semibold">&ldquo;Nueva Tarea&rdquo;</span>, el tiempo empleado se registra para auditar tareas vacías.
-                </p>
-                <p>
-                  4. Presiona <span className="text-emerald-400 font-semibold">&ldquo;Copiar Nota&rdquo;</span> y pégala en la herramienta de tickets.
-                </p>
-              </div>
+            {/* Columna Derecha: Vista Previa y Botón de Copiado (5 columnas) */}
+            <div className="lg:col-span-5">
+              <NotePreviewCard
+                noteText={getCurrentNoteText()}
+                templateTitle={getTemplateTitle()}
+                isCopied={isCopied}
+                onCopy={handleCopyToClipboard}
+                caseType={getTemplateTitle()}
+              />
             </div>
           </div>
         ) : (
@@ -1295,7 +917,7 @@ ${observations}
             <p className="text-xs text-slate-400 max-w-md mx-auto">
               {!isShiftActive
                 ? 'El panel de notas y el cronómetro AHT requieren que tengas un turno de trabajo activo.'
-                : 'Selecciona "KYC Review" en el desplegable superior para iniciar el cronómetro AHT y cargar el generador de notas.'}
+                : 'Selecciona una plantilla en el menú desplegable superior (KYC, Risk Review, Record Keeping, Watchlist Review) para iniciar el cronómetro AHT.'}
             </p>
           </div>
         )}

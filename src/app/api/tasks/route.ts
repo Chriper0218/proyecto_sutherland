@@ -6,7 +6,19 @@ import { TaskType } from '@prisma/client';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, shiftId, taskType, startTime, endTime, durationSeconds } = body;
+    const {
+      userId,
+      shiftId,
+      taskType,
+      startTime,
+      endTime,
+      durationSeconds,
+      decision,
+      country,
+      corridor,
+      noteSummary,
+      metadata,
+    } = body;
 
     if (!userId || !startTime || !endTime) {
       return NextResponse.json(
@@ -48,6 +60,11 @@ export async function POST(req: NextRequest) {
         startTime: start,
         endTime: end,
         durationSeconds: calculatedDuration,
+        decision: decision ? String(decision) : null,
+        country: country ? String(country) : null,
+        corridor: corridor ? String(corridor) : null,
+        noteSummary: noteSummary ? String(noteSummary) : null,
+        metadata: metadata ? (typeof metadata === 'string' ? metadata : JSON.stringify(metadata)) : null,
       },
     });
 

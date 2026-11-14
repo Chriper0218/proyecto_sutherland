@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 import {
   KycFormData,
@@ -675,14 +676,256 @@ export default function DashboardPage() {
 
   const isAdmin = user.role === 'ADMIN';
 
+  // ================= MODAL DE RESTRICCIONES Y CONFIRMACIÓN DE SESIÓN (compartido por vista Admin y Operativa) =================
+  const restrictionModalElement = restrictionModal.isOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div
+            className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Botón de cierre superior (X) */}
+            <button
+              type="button"
+              onClick={closeRestrictionModal}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              aria-label="Cerrar modal"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {restrictionModal.type === 'LOGOUT_RESTRICTED' && (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 shadow-lg shadow-amber-500/10">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
+                      Restricción Operativa &bull; Risk &amp; Compliance
+                    </span>
+                    <h3 className="text-lg font-black text-white">No puedes cerrar sesión</h3>
+                    <p className="text-xs text-slate-300">
+                      Para garantizar la integridad del tiempo AHT y el registro de casos, debes completar el flujo operativo antes de salir:
+                    </p>
+                  </div>
+                </div>
+
+                {/* Lista de Requisitos y Estado Actual */}
+                <div className="space-y-3 pt-1">
+                  {/* Requisito 1: Tarea activa */}
+                  <div
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 transition ${isTaskActive
+                      ? 'bg-rose-500/10 border-rose-500/30'
+                      : 'bg-emerald-500/10 border-emerald-500/30'
+                      }`}
+                  >
+                    <div className="mt-0.5">
+                      {isTaskActive ? (
+                        <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold border border-rose-500/40">
+                          ✕
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">1. Culminar Tarea Activa (AHT)</span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isTaskActive
+                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                            : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                            }`}
+                        >
+                          {isTaskActive ? 'Pendiente / En Progreso' : 'Culminada'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {isTaskActive
+                          ? `Tienes un caso activo (${caseType || 'En curso'}). Debes presionar "Generar Nota y Detener AHT" para registrar la métrica.`
+                          : 'No tienes ninguna tarea activa en progreso.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Requisito 2: Turno activo */}
+                  <div
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 transition ${isShiftActive
+                      ? 'bg-rose-500/10 border-rose-500/30'
+                      : 'bg-emerald-500/10 border-emerald-500/30'
+                      }`}
+                  >
+                    <div className="mt-0.5">
+                      {isShiftActive ? (
+                        <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold border border-rose-500/40">
+                          ✕
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">
+                          ✓
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">2. Finalizar Turno Laboral</span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isShiftActive
+                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                            : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                            }`}
+                        >
+                          {isShiftActive ? 'Turno Activo' : 'Finalizado'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {isShiftActive
+                          ? 'Debes hacer clic en "Finalizar Turno" en la sección superior una vez que hayas culminado tu tarea.'
+                          : 'El turno laboral ha sido cerrado en la base de datos.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 text-[11px] text-slate-300 flex items-center gap-2">
+                  <span className="text-amber-400 text-sm">💡</span>
+                  <span>
+                    Secuencia obligatoria: <strong>1° Culminar tarea</strong> ➔ <strong>2° Finalizar turno</strong> ➔ <strong>3° Cerrar sesión</strong>.
+                  </span>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={closeRestrictionModal}
+                    className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition duration-150 shadow-lg shadow-blue-600/30 active:scale-98"
+                  >
+                    Entendido, continuar trabajando
+                  </button>
+                </div>
+              </>
+            )}
+
+            {restrictionModal.type === 'SHIFT_END_RESTRICTED' && (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0 shadow-lg shadow-rose-500/10">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+                      Tarea en Progreso
+                    </span>
+                    <h3 className="text-lg font-black text-white">No puedes finalizar el turno</h3>
+                    <p className="text-xs text-slate-300">
+                      Tienes una tarea activa abierta ({caseType || 'Caso actual'}). No puedes finalizar tu turno sin antes culminar la tarea.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-2">
+                  <span className="text-xs font-bold text-slate-200 block">¿Qué debes hacer?</span>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Completa los campos de la nota y haz clic en el botón verde{' '}
+                    <strong className="text-emerald-400">&ldquo;Generar Nota y Detener AHT&rdquo;</strong>. Esto registrará tu tiempo de gestión y te permitirá finalizar el turno de manera ordenada.
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={closeRestrictionModal}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-600 transition duration-150 active:scale-98"
+                  >
+                    Volver y culminar tarea
+                  </button>
+                </div>
+              </>
+            )}
+
+            {restrictionModal.type === 'LOGOUT_CONFIRM' && (
+              <>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 shadow-lg shadow-blue-500/10">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
+                      ✓ Turno y tareas al día
+                    </span>
+                    <h3 className="text-lg font-black text-white">¿Deseas cerrar sesión?</h3>
+                    <p className="text-xs text-slate-300">
+                      Has culminado tus tareas y tu turno de trabajo se encuentra cerrado en la base de datos.
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-400">
+                  Al cerrar sesión volverás a la pantalla de autenticación. Deberás ingresar tus credenciales para volver a operar.
+                </p>
+
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={closeRestrictionModal}
+                    className="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmLogout}
+                    className="py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-lg shadow-red-600/30 flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Sí, cerrar sesión</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+  ) : null;
+
   // Si el usuario es administrador y está en modo 'ADMIN', renderizar la interfaz de Administrador
   if (isAdmin && adminViewMode === 'ADMIN') {
     return (
-      <Administrador
-        user={user}
-        onLogout={handleLogout}
-        onSwitchToOperational={() => setAdminViewMode('OPERATIONAL')}
-      />
+      <>
+        <Administrador
+          user={user}
+          onLogout={handleLogout}
+          onSwitchToOperational={() => setAdminViewMode('OPERATIONAL')}
+        />
+        {restrictionModalElement}
+      </>
     );
   }
 
@@ -691,8 +934,15 @@ export default function DashboardPage() {
       {/* ================= HEADER PRINCIPAL ================= */}
       <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30 px-6 py-3.5 flex items-center justify-between shadow-lg">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 flex items-center justify-center font-extrabold text-white text-lg shadow-md shadow-blue-500/20">
-            S
+          <div className="w-10 h-10 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center p-1.5 shadow-md shadow-blue-500/10">
+            <Image
+              src="/suth-logo.png"
+              alt="Sutherland Logo"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -735,11 +985,10 @@ export default function DashboardPage() {
 
           <button
             onClick={handleLogout}
-            className={`text-xs px-3.5 py-1.5 rounded-lg border transition duration-150 flex items-center gap-1.5 ${
-              isTaskActive || isShiftActive
-                ? 'bg-slate-800 text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
-                : 'bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-300 border-slate-700 hover:border-red-500/30'
-            }`}
+            className={`text-xs px-3.5 py-1.5 rounded-lg border transition duration-150 flex items-center gap-1.5 ${isTaskActive || isShiftActive
+              ? 'bg-slate-800 text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
+              : 'bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-300 border-slate-700 hover:border-red-500/30'
+              }`}
             title={
               isTaskActive || isShiftActive
                 ? '🔒 Restricción activa: Debes culminar la tarea y finalizar el turno antes de cerrar sesión'
@@ -844,13 +1093,12 @@ export default function DashboardPage() {
                   type="button"
                   onClick={handleEndShift}
                   disabled={!isShiftActive || shiftLoading}
-                  className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${
-                    !isShiftActive
-                      ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
-                      : isTaskActive
+                  className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${!isShiftActive
+                    ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                    : isTaskActive
                       ? 'bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-700/60 cursor-pointer active:scale-95'
                       : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-900/30 active:scale-95'
-                  }`}
+                    }`}
                   title={
                     isTaskActive
                       ? '🔒 Debes culminar la tarea en curso antes de finalizar el turno'
@@ -1117,248 +1365,7 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* ================= MODAL DE RESTRICCIONES Y CONFIRMACIÓN DE SESIÓN ================= */}
-      {restrictionModal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div
-            className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative"
-            role="dialog"
-            aria-modal="true"
-          >
-            {/* Botón de cierre superior (X) */}
-            <button
-              type="button"
-              onClick={closeRestrictionModal}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
-              aria-label="Cerrar modal"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {restrictionModal.type === 'LOGOUT_RESTRICTED' && (
-              <>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 shadow-lg shadow-amber-500/10">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
-                      Restricción Operativa &bull; Risk &amp; Compliance
-                    </span>
-                    <h3 className="text-lg font-black text-white">No puedes cerrar sesión</h3>
-                    <p className="text-xs text-slate-300">
-                      Para garantizar la integridad del tiempo AHT y el registro de casos, debes completar el flujo operativo antes de salir:
-                    </p>
-                  </div>
-                </div>
-
-                {/* Lista de Requisitos y Estado Actual */}
-                <div className="space-y-3 pt-1">
-                  {/* Requisito 1: Tarea activa */}
-                  <div
-                    className={`p-3.5 rounded-xl border flex items-start gap-3 transition ${
-                      isTaskActive
-                        ? 'bg-rose-500/10 border-rose-500/30'
-                        : 'bg-emerald-500/10 border-emerald-500/30'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {isTaskActive ? (
-                        <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold border border-rose-500/40">
-                          ✕
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">
-                          ✓
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-0.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">1. Culminar Tarea Activa (AHT)</span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                            isTaskActive
-                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                          }`}
-                        >
-                          {isTaskActive ? 'Pendiente / En Progreso' : 'Culminada'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-400">
-                        {isTaskActive
-                          ? `Tienes un caso activo (${caseType || 'En curso'}). Debes presionar "Generar Nota y Detener AHT" para registrar la métrica.`
-                          : 'No tienes ninguna tarea activa en progreso.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Requisito 2: Turno activo */}
-                  <div
-                    className={`p-3.5 rounded-xl border flex items-start gap-3 transition ${
-                      isShiftActive
-                        ? 'bg-rose-500/10 border-rose-500/30'
-                        : 'bg-emerald-500/10 border-emerald-500/30'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {isShiftActive ? (
-                        <div className="w-5 h-5 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-xs font-bold border border-rose-500/40">
-                          ✕
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">
-                          ✓
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-0.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">2. Finalizar Turno Laboral</span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                            isShiftActive
-                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                          }`}
-                        >
-                          {isShiftActive ? 'Turno Activo' : 'Finalizado'}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-400">
-                        {isShiftActive
-                          ? 'Debes hacer clic en "Finalizar Turno" en la sección superior una vez que hayas culminado tu tarea.'
-                          : 'El turno laboral ha sido cerrado en la base de datos.'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 text-[11px] text-slate-300 flex items-center gap-2">
-                  <span className="text-amber-400 text-sm">💡</span>
-                  <span>
-                    Secuencia obligatoria: <strong>1° Culminar tarea</strong> ➔ <strong>2° Finalizar turno</strong> ➔ <strong>3° Cerrar sesión</strong>.
-                  </span>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={closeRestrictionModal}
-                    className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition duration-150 shadow-lg shadow-blue-600/30 active:scale-98"
-                  >
-                    Entendido, continuar trabajando
-                  </button>
-                </div>
-              </>
-            )}
-
-            {restrictionModal.type === 'SHIFT_END_RESTRICTED' && (
-              <>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0 shadow-lg shadow-rose-500/10">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
-                      Tarea en Progreso
-                    </span>
-                    <h3 className="text-lg font-black text-white">No puedes finalizar el turno</h3>
-                    <p className="text-xs text-slate-300">
-                      Tienes una tarea activa abierta ({caseType || 'Caso actual'}). No puedes finalizar tu turno sin antes culminar la tarea.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-2">
-                  <span className="text-xs font-bold text-slate-200 block">¿Qué debes hacer?</span>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    Completa los campos de la nota y haz clic en el botón verde{' '}
-                    <strong className="text-emerald-400">&ldquo;Generar Nota y Detener AHT&rdquo;</strong>. Esto registrará tu tiempo de gestión y te permitirá finalizar el turno de manera ordenada.
-                  </p>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={closeRestrictionModal}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-600 transition duration-150 active:scale-98"
-                  >
-                    Volver y culminar tarea
-                  </button>
-                </div>
-              </>
-            )}
-
-            {restrictionModal.type === 'LOGOUT_CONFIRM' && (
-              <>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 shadow-lg shadow-blue-500/10">
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                      />
-                    </svg>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
-                      ✓ Turno y tareas al día
-                    </span>
-                    <h3 className="text-lg font-black text-white">¿Deseas cerrar sesión?</h3>
-                    <p className="text-xs text-slate-300">
-                      Has culminado tus tareas y tu turno de trabajo se encuentra cerrado en la base de datos.
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-400">
-                  Al cerrar sesión volverás a la pantalla de autenticación. Deberás ingresar tus credenciales para volver a operar.
-                </p>
-
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={closeRestrictionModal}
-                    className="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmLogout}
-                    className="py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-lg shadow-red-600/30 flex items-center gap-1.5"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Sí, cerrar sesión</span>
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {restrictionModalElement}
       {/* ================= NOTIFICACIÓN FLOTANTE DE MENSAJE FANTASMA (PARA EL AGENTE) ================= */}
       {activeGhostMessage && (
         <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-bounceIn shadow-2xl">

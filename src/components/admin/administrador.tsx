@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 
 // ================= TIPOS DE DATOS =================
 export interface AgentTodayMetrics {
@@ -342,8 +343,17 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-30 px-6 py-3.5 shadow-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-purple-900/30">
-              👑
+            <div className="relative w-10 h-10 rounded-xl bg-slate-800/90 border border-purple-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-purple-900/20">
+              <Image
+                src="/suth-logo.png"
+                alt="Sutherland Logo"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+              />
+              <span className="absolute -top-1 -right-1 text-[10px] leading-none bg-purple-900/90 border border-purple-500/50 rounded-full p-0.5">
+                👑
+              </span>
             </div>
             <div>
               <div className="flex items-center gap-2">

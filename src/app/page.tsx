@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -175,10 +176,17 @@ export default function AuthPage() {
 
         {/* Encabezado */}
         <div>
-          <div className="flex justify-center mb-2">
-            <span className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-blue-500/30">
-              S
-            </span>
+          <div className="flex justify-center mb-3">
+            <div className="w-14 h-14 rounded-2xl bg-slate-900/90 border border-slate-700/80 flex items-center justify-center p-2 shadow-xl shadow-blue-500/10 backdrop-blur">
+              <Image
+                src="/suth-logo.png"
+                alt="Sutherland Logo"
+                width={50}
+                height={50}
+                className="w-full h-full object-contain"
+                priority
+              />
+            </div>
           </div>
           <h2 className="mt-2 text-center text-3xl font-extrabold text-white tracking-tight">
             {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}

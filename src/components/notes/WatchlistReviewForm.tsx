@@ -22,17 +22,17 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
   isTaskActive = false,
 }) => {
   return (
-    <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-xl space-y-5">
+    <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-6 shadow-md space-y-5">
       {/* Cabecera */}
-      <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+      <div className="flex items-center justify-between border-b border-[#2E323B] pb-4">
         <div>
           <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <span className="w-6 h-6 rounded-md bg-purple-600 flex items-center justify-center text-xs font-mono font-bold text-white">
+            <span className="w-6 h-6 rounded-md bg-[#0052CC] flex items-center justify-center text-xs font-mono font-bold text-white">
               WL
             </span>
             Formulario: Watchlist Review ({form.matchType})
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-zinc-400 mt-0.5">
             Comparación de listas de sanciones y PEP contra documento primario ({form.matchType}).
           </p>
         </div>
@@ -42,9 +42,9 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
           href="https://www.edisontd.nl/country-browser/"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-1.5 rounded-lg bg-slate-700/60 hover:bg-slate-700 text-purple-400 hover:text-purple-300 border border-slate-600 text-xs font-semibold flex items-center gap-1.5 transition"
+          className="px-3 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-[#4C9AFF] hover:text-[#4C9AFF] border border-[#2E323B] text-xs font-semibold flex items-center gap-1.5 transition"
         >
-          <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-[#4C9AFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
           </svg>
           <span>EdisonTD Browser</span>
@@ -55,13 +55,13 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
         {/* Corridor & Match Type */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
               ▷ Corridor:
             </label>
             <select
               value={form.corridorCountry}
               onChange={(e) => setForm({ ...form, corridorCountry: e.target.value })}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-purple-500"
+              className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#0065FF]"
             >
               <option value="">-- Selecciona el País (COUNTRIES_LIST) --</option>
               {COUNTRIES_LIST.map((country) => (
@@ -73,7 +73,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
               ▷ Match (Sender o Recipient):
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -82,8 +82,8 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                 onClick={() => setForm({ ...form, matchType: 'Sender' })}
                 className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                   form.matchType === 'Sender'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'bg-slate-900 border border-slate-700 text-slate-400 hover:text-white'
+                    ? 'bg-[#0052CC] text-white shadow-sm'
+                    : 'bg-[#121316] border border-[#2E323B] text-zinc-400 hover:text-white'
                 }`}
               >
                 <span>👤 Sender</span>
@@ -93,8 +93,8 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                 onClick={() => setForm({ ...form, matchType: 'Recipient' })}
                 className={`py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                   form.matchType === 'Recipient'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'bg-slate-900 border border-slate-700 text-slate-400 hover:text-white'
+                    ? 'bg-[#0052CC] text-white shadow-sm'
+                    : 'bg-[#121316] border border-[#2E323B] text-zinc-400 hover:text-white'
                 }`}
               >
                 <span>🎯 Recipient</span>
@@ -104,14 +104,14 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
         </div>
 
         {/* 📌 • Findings • */}
-        <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700/80 space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block">
+        <div className="p-4 bg-[#121316] rounded-xl border border-[#2E323B] space-y-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4C9AFF] block">
             📌 • Findings •
           </span>
 
           <div className="space-y-3 text-xs">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">
+              <label className="block text-zinc-300 font-medium mb-1">
                 ▷ {form.matchType} ID (Enlace o link al documento):
               </label>
               <input
@@ -119,17 +119,17 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                 value={form.idLink}
                 onChange={(e) => setForm({ ...form, idLink: e.target.value })}
                 placeholder={`https://... (URL al documento de identidad del ${form.matchType.toLowerCase()})`}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 placeholder:text-slate-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF] placeholder:text-zinc-500"
               />
             </div>
 
-            <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
-              <span className="text-slate-300">▷ External source:</span>
+            <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#1C1E24] border border-[#2E323B]">
+              <span className="text-zinc-300">▷ External source:</span>
               <a
                 href={form.externalSource}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-purple-300 hover:text-purple-200 underline font-mono text-[11px] flex items-center gap-1"
+                className="text-[#4C9AFF] hover:text-white underline font-mono text-[11px] flex items-center gap-1"
               >
                 <span>https://www.edisontd.nl/country-browser/</span>
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -141,64 +141,64 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
         </div>
 
         {/* 📌 ID Details */}
-        <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700/80 space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block">
+        <div className="p-4 bg-[#121316] rounded-xl border border-[#2E323B] space-y-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4C9AFF] block">
             📌 ID Details ({form.matchType})
           </span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">▷ Full Name on ID:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ Full Name on ID:</label>
               <input
                 type="text"
                 value={form.idFullName}
                 onChange={(e) => setForm({ ...form, idFullName: e.target.value })}
                 placeholder="Nombre completo visible en el ID"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">▷ Date of birth on ID:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ Date of birth on ID:</label>
               <input
                 type="text"
                 value={form.idDob}
                 onChange={(e) => setForm({ ...form, idDob: e.target.value })}
                 placeholder="Fecha de nacimiento en el ID (Ej: 1985-08-22)"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">▷ ID number:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ ID number:</label>
               <input
                 type="text"
                 value={form.idNumber}
                 onChange={(e) => setForm({ ...form, idNumber: e.target.value })}
                 placeholder="Número de documento de identidad"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">▷ Expiration date:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ Expiration date:</label>
               <input
                 type="text"
                 value={form.idExpirationDate}
                 onChange={(e) => setForm({ ...form, idExpirationDate: e.target.value })}
                 placeholder="Fecha de vencimiento (Ej: 2028-11-30)"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
 
             {/* Checkbox de ID Expirado */}
-            <div className="sm:col-span-2 p-2.5 rounded-lg bg-slate-800/80 border border-slate-700 flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+            <div className="sm:col-span-2 p-2.5 rounded-lg bg-[#1C1E24] border border-[#2E323B] flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-zinc-300">
                 <input
                   type="checkbox"
                   checked={form.isIdExpired}
                   onChange={(e) => setForm({ ...form, isIdExpired: e.target.checked })}
-                  className="rounded border-slate-700 text-rose-600 focus:ring-rose-500 w-4 h-4 bg-slate-900"
+                  className="rounded border-[#2E323B] text-rose-600 focus:ring-rose-500 w-4 h-4 bg-[#121316]"
                 />
                 <span className="font-semibold">¿El ID se encuentra vencido/expirado?</span>
               </label>
@@ -221,62 +221,62 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
         </div>
 
         {/* 📌 Match Details */}
-        <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700/80 space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block">
+        <div className="p-4 bg-[#121316] rounded-xl border border-[#2E323B] space-y-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4C9AFF] block">
             📌 Match Details (Información de la lista sancionada / PEP)
           </span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="sm:col-span-2">
-              <label className="block text-slate-300 font-medium mb-1">▷ Full Name of the match and AKA:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ Full Name of the match and AKA:</label>
               <input
                 type="text"
                 value={form.matchFullNameAka}
                 onChange={(e) => setForm({ ...form, matchFullNameAka: e.target.value })}
                 placeholder="Nombre exacto del match sancionado y alias (AKA)"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">▷ Date of birth of the match:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ Date of birth of the match:</label>
               <input
                 type="text"
                 value={form.matchDob}
                 onChange={(e) => setForm({ ...form, matchDob: e.target.value })}
                 placeholder="DOB en la lista (Ej: 1974-03-12)"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-medium mb-1">▷ Location of the match:</label>
+              <label className="block text-zinc-300 font-medium mb-1">▷ Location of the match:</label>
               <input
                 type="text"
                 value={form.matchLocation}
                 onChange={(e) => setForm({ ...form, matchLocation: e.target.value })}
                 placeholder="Ubicación / país del match sancionado"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
               />
             </div>
           </div>
         </div>
 
         {/* 📌 Resolution: How Cleared */}
-        <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700/80 space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block">
+        <div className="p-4 bg-[#121316] rounded-xl border border-[#2E323B] space-y-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4C9AFF] block">
             📌 Resolution
           </span>
 
           <div className="space-y-3 text-xs">
             <div>
-              <label className="block text-slate-300 font-medium mb-1">
+              <label className="block text-zinc-300 font-medium mb-1">
                 How: Cleared by [attribute used]:
               </label>
               <select
                 value={form.attributeUsed}
                 onChange={(e) => setForm({ ...form, attributeUsed: e.target.value as 'Name' | 'DOB' | 'Location' })}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-purple-300 focus:outline-none focus:border-purple-500"
+                className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs font-bold text-[#4C9AFF] focus:outline-none focus:border-[#0065FF]"
               >
                 <option value="Name">Name (Nombre)</option>
                 <option value="DOB">DOB (Fecha de nacimiento)</option>
@@ -286,7 +286,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-slate-300 font-medium mb-1">
+                <label className="block text-zinc-300 font-medium mb-1">
                   {form.matchType} attribute used to clear: [ {form.attributeUsed} ]
                 </label>
                 <input
@@ -294,12 +294,12 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                   value={form.clearingAttributeValue}
                   onChange={(e) => setForm({ ...form, clearingAttributeValue: e.target.value })}
                   placeholder={`Valor del ${form.matchType} (${form.attributeUsed})`}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 font-medium mb-1">
+                <label className="block text-zinc-300 font-medium mb-1">
                   Match attribute used: [ Sanctioned {form.attributeUsed} ]
                 </label>
                 <input
@@ -307,7 +307,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                   value={form.matchAttributeValue}
                   onChange={(e) => setForm({ ...form, matchAttributeValue: e.target.value })}
                   placeholder={`Valor del match sancionado (${form.attributeUsed})`}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-[#121316] border border-[#2E323B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0065FF]"
                 />
               </div>
             </div>
@@ -315,8 +315,8 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
         </div>
 
         {/* 📌 CONCLUSION & RESOLUTION */}
-        <div className="p-4 bg-slate-900/60 rounded-xl border border-slate-700/80 space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-400 block">
+        <div className="p-4 bg-[#121316] rounded-xl border border-[#2E323B] space-y-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#4C9AFF] block">
             📌 CONCLUSION & RESOLUTION
           </span>
 
@@ -325,8 +325,8 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
             <label
               className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
                 form.conclusion === 'FALSE_POSITIVE'
-                  ? 'bg-purple-950/40 border-purple-500/80 text-white'
-                  : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#0052CC]/10 border-[#0052CC]/60 text-white'
+                  : 'bg-[#1C1E24] border-[#2E323B] text-zinc-400 hover:text-white'
               }`}
             >
               <input
@@ -334,13 +334,13 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                 name="watchlist_conclusion"
                 checked={form.conclusion === 'FALSE_POSITIVE'}
                 onChange={() => setForm({ ...form, conclusion: 'FALSE_POSITIVE' })}
-                className="mt-0.5 text-purple-600 focus:ring-purple-500"
+                className="mt-0.5 text-[#0052CC] focus:ring-[#0065FF]"
               />
               <div className="space-y-0.5">
-                <span className="font-bold text-purple-300 block">
+                <span className="font-bold text-[#4C9AFF] block">
                   [X] FALSE POSITIVE
                 </span>
-                <p className="text-[11px] text-slate-300">
+                <p className="text-[11px] text-zinc-300">
                   The match is confirmed as a false positive due to a non-matching unique identifier (ID/DOB/Location).
                 </p>
               </div>
@@ -351,7 +351,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
               className={`p-3 rounded-xl border transition space-y-2 ${
                 form.conclusion === 'TRUE_POSITIVE'
                   ? 'bg-rose-950/30 border-rose-500/80 text-white'
-                  : 'bg-slate-800/80 border-slate-700 text-slate-400'
+                  : 'bg-[#1C1E24] border-[#2E323B] text-zinc-400'
               }`}
             >
               <label className="flex items-start gap-3 cursor-pointer">
@@ -366,7 +366,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                   <span className="font-bold text-rose-300 block">
                     [ ] TRUE POSITIVE - DISPOSITION:
                   </span>
-                  <p className="text-[11px] text-slate-300">
+                  <p className="text-[11px] text-zinc-300">
                     Match confirmado como positivo. Selecciona la disposición correspondiente:
                   </p>
                 </div>
@@ -377,7 +377,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
                   <select
                     value={form.truePositiveDisposition}
                     onChange={(e) => setForm({ ...form, truePositiveDisposition: e.target.value })}
-                    className="w-full bg-slate-900 border border-rose-500/50 rounded-lg px-3 py-2 text-xs font-semibold text-rose-300 focus:outline-none focus:border-rose-400"
+                    className="w-full bg-[#121316] border border-rose-500/50 rounded-lg px-3 py-2 text-xs font-semibold text-rose-300 focus:outline-none focus:border-rose-400"
                   >
                     <option value="Escalated to MLRO">Escalated to MLRO</option>
                     <option value="Frozen Funds">Frozen Funds</option>
@@ -396,7 +396,7 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
           type="button"
           onClick={onSubmit}
           disabled={submitting}
-          className="w-full sm:flex-1 py-3 px-5 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-[0.99] text-white font-bold text-sm tracking-wide shadow-lg shadow-purple-600/30 transition flex items-center justify-center gap-2 disabled:bg-purple-800 disabled:cursor-not-allowed"
+          className="w-full sm:flex-1 py-3 px-5 rounded-xl bg-[#0052CC] hover:bg-[#0065FF] active:scale-[0.99] text-white font-bold text-sm tracking-wide shadow-sm transition flex items-center justify-center gap-2 disabled:bg-[#003D99] disabled:cursor-not-allowed"
         >
           {submitting ? (
             <>
@@ -422,8 +422,8 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
           disabled={isTaskActive}
           className={`w-full sm:w-auto py-3 px-4 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5 ${
             isTaskActive
-              ? 'bg-slate-800/60 text-slate-500 border-slate-700 cursor-not-allowed opacity-60'
-              : 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border-emerald-500/40 hover:border-emerald-400 cursor-pointer shadow-md'
+              ? 'bg-[#121316] text-zinc-500 border-[#2E323B] cursor-not-allowed opacity-60'
+              : 'bg-[#121316] hover:bg-[#252830] text-zinc-200 border-[#2E323B] hover:border-[#0065FF] cursor-pointer shadow-sm'
           }`}
           title={
             isTaskActive
@@ -433,14 +433,14 @@ export const WatchlistReviewForm: React.FC<WatchlistReviewFormProps> = ({
         >
           {isTaskActive ? (
             <>
-              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               <span>Nueva Tarea (Bloqueado)</span>
             </>
           ) : (
             <>
-              <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-[#4C9AFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
               </svg>
               <span>+ Iniciar Nueva Tarea Watchlist</span>

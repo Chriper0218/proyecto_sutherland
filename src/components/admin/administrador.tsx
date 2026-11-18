@@ -339,12 +339,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans selection:bg-[#0052CC] selection:text-white">
       {/* ================= HEADER ADMINISTRATIVO ================= */}
-      <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-30 px-6 py-3.5 shadow-xl">
+      <header className="border-b border-[#2E323B] bg-[#121316]/95 backdrop-blur sticky top-0 z-30 px-6 py-3.5 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
-            <div className="relative w-10 h-10 rounded-xl bg-slate-800/90 border border-purple-500/30 flex items-center justify-center p-1.5 shadow-lg shadow-purple-900/20">
+            <div className="relative w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm">
               <Image
                 src="/suth-logo.png"
                 alt="Sutherland Logo"
@@ -352,14 +352,14 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 height={36}
                 className="w-full h-full object-contain"
               />
-              <span className="absolute -top-1 -right-1 text-[10px] leading-none bg-purple-900/90 border border-purple-500/50 rounded-full p-0.5">
+              <span className="absolute -top-1 -right-1 text-[10px] leading-none bg-[#DE1B54]/20 border border-[#DE1B54]/50 rounded-full p-0.5">
                 👑
               </span>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base font-black tracking-tight text-white">Supervisión &amp; Administración</h1>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#DE1B54]/15 text-[#DE1B54] border border-[#DE1B54]/40">
                   Panel de Control General
                 </span>
                 <span className="flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
@@ -367,7 +367,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   <span>Tiempo Real (5s)</span>
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-zinc-400">
                 Monitoreo de Agentes &bull; Control de AHT (Target: 10 min) &bull; Coachings &bull; Visualización Tableau
               </p>
             </div>
@@ -378,24 +378,24 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               <button
                 type="button"
                 onClick={onSwitchToOperational}
-                className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 hover:border-blue-500/40 transition flex items-center gap-1.5 font-medium"
+                className="text-xs px-3 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-[#4C9AFF] border border-[#2E323B] hover:border-[#0065FF] transition flex items-center gap-1.5 font-medium"
                 title="Probar o usar el panel de notas estandarizadas"
               >
                 <span>💼 Vista Operativa</span>
               </button>
             )}
 
-            <div className="hidden sm:flex flex-col text-right pr-2 border-r border-slate-800">
-              <span className="text-xs font-bold text-slate-200">
+            <div className="hidden sm:flex flex-col text-right pr-2 border-r border-[#2E323B]">
+              <span className="text-xs font-bold text-zinc-200">
                 {formatFullName(user.firstName, user.lastName)}
               </span>
-              <span className="text-[11px] text-purple-400 font-mono">ID Admin: {user.employeeId}</span>
+              <span className="text-[11px] text-[#DE1B54] font-mono">ID Admin: {user.employeeId}</span>
             </div>
 
             <button
               type="button"
               onClick={onLogout}
-              className="text-xs px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-300 border border-slate-700 hover:border-red-500/30 transition duration-150 flex items-center gap-1.5"
+              className="text-xs px-3.5 py-1.5 rounded-lg bg-[#121316] hover:bg-red-500/10 hover:text-red-400 text-zinc-300 border border-[#2E323B] hover:border-red-500/30 transition duration-150 flex items-center gap-1.5"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -409,15 +409,15 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       {/* ================= CONTENEDOR PRINCIPAL ================= */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
         {/* ================= 1. BARRA DE NAVEGACIÓN Y PESTAÑAS ================= */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2E323B] pb-3">
           <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={() => setActiveTab('MONITORING')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                 activeTab === 'MONITORING'
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-[#0052CC] text-white shadow-sm'
+                  : 'bg-[#1C1E24] text-zinc-400 hover:text-white border border-[#2E323B]'
               }`}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -431,8 +431,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               onClick={() => setActiveTab('TABLEAU')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                 activeTab === 'TABLEAU'
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-[#0052CC] text-white shadow-sm'
+                  : 'bg-[#1C1E24] text-zinc-400 hover:text-white border border-[#2E323B]'
               }`}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -446,8 +446,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               onClick={() => setActiveTab('COACHINGS')}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                 activeTab === 'COACHINGS'
-                  ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                  ? 'bg-[#DE1B54] text-white shadow-sm'
+                  : 'bg-[#1C1E24] text-zinc-400 hover:text-white border border-[#2E323B]'
               }`}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -458,25 +458,25 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-400 font-mono">
+            <span className="text-[11px] text-zinc-400 font-mono">
               Última sincronización: {lastUpdated.toLocaleTimeString()}
             </span>
             <button
               type="button"
               onClick={() => fetchAgentsData()}
-              className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 transition"
+              className="p-1.5 rounded-lg bg-[#1C1E24] border border-[#2E323B] hover:bg-[#252830] text-zinc-300 transition"
               title="Refrescar datos manualmente"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-            <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+            <label className="flex items-center gap-1.5 text-xs text-zinc-400 cursor-pointer">
               <input
                 type="checkbox"
                 checked={autoRefresh}
                 onChange={(e) => setAutoRefresh(e.target.checked)}
-                className="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0"
+                className="rounded bg-[#121316] border-[#2E323B] text-[#0052CC] focus:ring-0"
               />
               <span>Auto (5s)</span>
             </label>
@@ -487,48 +487,48 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
         {summary && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
             {/* Total Agentes */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            <div className="p-4 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md">
+              <span className="text-[10px] uppercase font-bold text-zinc-400 block tracking-wider">
                 Total Agentes
               </span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="text-2xl font-black font-mono text-white">{summary.totalAgents}</span>
-                <span className="text-xs text-slate-400 font-semibold">Registrados</span>
+                <span className="text-xs text-zinc-400 font-semibold">Registrados</span>
               </div>
             </div>
 
             {/* Agentes en Turno */}
-            <div className="p-4 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 shadow-md">
+            <div className="p-4 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-sm">
               <span className="text-[10px] uppercase font-bold text-emerald-400 block tracking-wider flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>En Turno Activo</span>
               </span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="text-2xl font-black font-mono text-emerald-300">{summary.agentsOnShift}</span>
-                <span className="text-xs text-slate-400 font-semibold">de {summary.totalAgents}</span>
+                <span className="text-xs text-zinc-400 font-semibold">de {summary.totalAgents}</span>
               </div>
             </div>
 
             {/* Agentes con Task Activo */}
-            <div className="p-4 rounded-2xl bg-blue-950/20 border border-blue-500/30 shadow-md">
-              <span className="text-[10px] uppercase font-bold text-blue-400 block tracking-wider flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+            <div className="p-4 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-sm">
+              <span className="text-[10px] uppercase font-bold text-[#4C9AFF] block tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#4C9AFF] animate-ping"></span>
                 <span>Con Task Activo</span>
               </span>
               <div className="flex items-baseline justify-between mt-1">
-                <span className="text-2xl font-black font-mono text-blue-300">{summary.agentsOnTask}</span>
-                <span className="text-xs text-slate-400 font-semibold">En revisión</span>
+                <span className="text-2xl font-black font-mono text-[#4C9AFF]">{summary.agentsOnTask}</span>
+                <span className="text-xs text-zinc-400 font-semibold">En revisión</span>
               </div>
             </div>
 
             {/* Agentes en Turno Sin Task (Disponibles) */}
-            <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 shadow-md">
+            <div className="p-4 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-sm">
               <span className="text-[10px] uppercase font-bold text-amber-400 block tracking-wider">
                 En Turno Sin Task
               </span>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="text-2xl font-black font-mono text-amber-300">{summary.agentsShiftNoTask}</span>
-                <span className="text-xs text-slate-400 font-semibold">Esperando</span>
+                <span className="text-xs text-zinc-400 font-semibold">Esperando</span>
               </div>
             </div>
 
@@ -543,7 +543,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-slate-300 block tracking-wider">
+                <span className="text-[10px] uppercase font-bold text-zinc-300 block tracking-wider">
                   AHT Promedio Empresa
                 </span>
                 <span
@@ -570,20 +570,20 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 >
                   {formatSecondsToMMSS(summary.companyAvgAht)}
                 </span>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-zinc-400 font-mono">
                   {summary.globalTasksCount} casos hoy
                 </span>
               </div>
             </div>
 
             {/* Eficiencia Global */}
-            <div className="p-4 rounded-2xl bg-purple-950/20 border border-purple-500/30 shadow-md">
-              <span className="text-[10px] uppercase font-bold text-purple-400 block tracking-wider">
+            <div className="p-4 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-sm">
+              <span className="text-[10px] uppercase font-bold text-[#4C9AFF] block tracking-wider">
                 Eficiencia Global
               </span>
               <div className="flex items-baseline justify-between mt-1">
-                <span className="text-2xl font-black font-mono text-purple-300">{summary.companyEfficiency}%</span>
-                <span className="text-xs text-slate-400 font-semibold">Operativa</span>
+                <span className="text-2xl font-black font-mono text-[#4C9AFF]">{summary.companyEfficiency}%</span>
+                <span className="text-xs text-zinc-400 font-semibold">Operativa</span>
               </div>
             </div>
           </div>
@@ -593,29 +593,29 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
         {activeTab === 'MONITORING' && (
           <section className="space-y-4">
             {/* Barra de Filtros y Búsqueda */}
-            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
+            <div className="p-4 rounded-2xl bg-[#1C1E24] border border-[#2E323B] flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-lg">
               <div className="relative flex-1 max-w-md">
                 <input
                   type="text"
                   placeholder="Buscar agente por nombre, correo o ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-9 pr-4 py-2 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#0065FF]"
                 />
-                <svg className="w-4 h-4 absolute left-3 top-2.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 absolute left-3 top-2.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mr-1">Filtrar:</span>
+                <span className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider mr-1">Filtrar:</span>
                 <button
                   type="button"
                   onClick={() => setStatusFilter('ALL')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                     statusFilter === 'ALL'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      ? 'bg-[#0052CC] text-white'
+                      : 'bg-[#121316] text-zinc-400 hover:text-white border border-[#2E323B]'
                   }`}
                 >
                   Todos ({agents.length})
@@ -626,7 +626,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                     statusFilter === 'ON_SHIFT'
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-slate-950 text-emerald-400 hover:text-emerald-300 border border-slate-800'
+                      : 'bg-[#121316] text-emerald-400 hover:text-emerald-300 border border-[#2E323B]'
                   }`}
                 >
                   En Turno ({summary?.agentsOnShift || 0})
@@ -636,8 +636,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   onClick={() => setStatusFilter('ON_TASK')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                     statusFilter === 'ON_TASK'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-950 text-blue-400 hover:text-blue-300 border border-slate-800'
+                      ? 'bg-[#0052CC] text-white'
+                      : 'bg-[#121316] text-[#4C9AFF] hover:text-white border border-[#2E323B]'
                   }`}
                 >
                   Con Task ({summary?.agentsOnTask || 0})
@@ -648,7 +648,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                     statusFilter === 'CRITICAL'
                       ? 'bg-rose-600 text-white'
-                      : 'bg-slate-950 text-rose-400 hover:text-rose-300 border border-slate-800'
+                      : 'bg-[#121316] text-rose-400 hover:text-rose-300 border border-[#2E323B]'
                   }`}
                 >
                   En Rojo (+2m)
@@ -658,8 +658,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   onClick={() => setStatusFilter('SUSPENDED')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                     statusFilter === 'SUSPENDED'
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-slate-950 text-purple-400 hover:text-purple-300 border border-slate-800'
+                      ? 'bg-[#DE1B54] text-white'
+                      : 'bg-[#121316] text-[#DE1B54] hover:text-white border border-[#2E323B]'
                   }`}
                 >
                   Suspendidos ({summary?.agentsSuspended || 0})
@@ -669,18 +669,18 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             {/* Listado de Agentes (Tarjetas Detalladas) */}
             {loading ? (
-              <div className="p-12 text-center rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-400 flex flex-col items-center justify-center space-y-3">
-                <svg className="animate-spin h-7 w-7 text-blue-500" viewBox="0 0 24 24" fill="none">
+              <div className="p-12 text-center rounded-2xl bg-[#1C1E24] border border-[#2E323B] text-zinc-400 flex flex-col items-center justify-center space-y-3">
+                <svg className="animate-spin h-7 w-7 text-[#0065FF]" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                 </svg>
                 <span className="text-sm font-medium">Cargando estado en vivo de los agentes...</span>
               </div>
             ) : filteredAgents.length === 0 ? (
-              <div className="p-12 text-center rounded-2xl bg-slate-900/60 border border-dashed border-slate-800 space-y-2">
+              <div className="p-12 text-center rounded-2xl bg-[#1C1E24] border border-dashed border-[#2E323B] space-y-2">
                 <span className="text-3xl">👥</span>
                 <h4 className="text-base font-bold text-white">No se encontraron agentes</h4>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-400">
                   No hay agentes que coincidan con los filtros aplicados.
                 </p>
               </div>
@@ -695,28 +695,28 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   return (
                     <div
                       key={agent.id}
-                      className={`p-5 rounded-2xl border transition duration-200 flex flex-col justify-between shadow-xl relative overflow-hidden ${
+                      className={`p-5 rounded-2xl border transition duration-200 flex flex-col justify-between shadow-md relative overflow-hidden ${
                         agent.isSuspended
-                          ? 'bg-purple-950/20 border-purple-500/40'
+                          ? 'bg-[#1C1E24] border-[#DE1B54]/50'
                           : isRed
-                          ? 'bg-rose-950/20 border-rose-500/50 ring-1 ring-rose-500/30'
+                          ? 'bg-[#1C1E24] border-rose-500/50 ring-1 ring-rose-500/20'
                           : isOrange
-                          ? 'bg-amber-950/15 border-amber-500/40'
-                          : 'bg-slate-900/90 border-slate-800 hover:border-slate-700'
+                          ? 'bg-[#1C1E24] border-amber-500/40'
+                          : 'bg-[#1C1E24] border-[#2E323B] hover:border-[#2E323B]'
                       }`}
                     >
                       {/* Borde superior de color indicador */}
                       <div
                         className={`absolute top-0 left-0 right-0 h-1 ${
                           agent.isSuspended
-                            ? 'bg-purple-500'
+                            ? 'bg-[#DE1B54]'
                             : isRed
                             ? 'bg-rose-500 animate-pulse'
                             : isOrange
                             ? 'bg-amber-500'
                             : isGreen
                             ? 'bg-emerald-500'
-                            : 'bg-slate-700'
+                            : 'bg-[#2E323B]'
                         }`}
                       ></div>
 
@@ -724,7 +724,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                       <div className="space-y-3 pt-1">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-sm shadow-inner">
+                            <div className="w-10 h-10 rounded-xl bg-[#121316] border border-[#2E323B] flex items-center justify-center font-bold text-white text-sm shadow-inner">
                               {toTitleCase(agent.firstName).charAt(0).toUpperCase()}
                               {toTitleCase(agent.lastName).charAt(0).toUpperCase()}
                             </div>
@@ -732,7 +732,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                               <h3 className="text-sm font-bold text-white leading-tight">
                                 {formatFullName(agent.firstName, agent.lastName)}
                               </h3>
-                              <span className="text-[11px] text-slate-400 font-mono">
+                              <span className="text-[11px] text-zinc-400 font-mono">
                                 ID: {agent.employeeId} &bull; {agent.email}
                               </span>
                             </div>
@@ -740,12 +740,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
                           {/* Badge de Estado Operativo */}
                           {agent.isSuspended ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#DE1B54]/15 text-[#DE1B54] border border-[#DE1B54]/40">
                               ⛔ Suspendido 1 Día
                             </span>
                           ) : agent.liveStatus === 'ON_TASK' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center gap-1 animate-pulse">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40 flex items-center gap-1 animate-pulse">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#4C9AFF]"></span>
                               <span>Task Activo</span>
                             </span>
                           ) : agent.liveStatus === 'SHIFT_NO_TASK' ? (
@@ -754,7 +754,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                               <span>Turno Disponible</span>
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#121316] text-zinc-400 border border-[#2E323B]">
                               Fuera de Turno
                             </span>
                           )}
@@ -762,9 +762,9 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
                         {/* Detalle del Task en progreso (si tiene) */}
                         {agent.hasActiveTask && (
-                          <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-xs text-blue-300 flex items-center justify-between">
+                          <div className="p-2.5 rounded-xl bg-[#0052CC]/15 border border-[#0052CC]/40 text-xs text-[#4C9AFF] flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4 text-blue-400 animate-spin" viewBox="0 0 24 24" fill="none">
+                              <svg className="w-4 h-4 text-[#4C9AFF] animate-spin" viewBox="0 0 24 24" fill="none">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                               </svg>
@@ -772,23 +772,23 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                                 Trabajando en: <strong>{agent.currentTaskType || 'Nota'}</strong>
                               </span>
                             </div>
-                            <span className="text-[10px] font-mono bg-blue-500/20 px-2 py-0.5 rounded">
+                            <span className="text-[10px] font-mono bg-[#0052CC]/25 px-2 py-0.5 rounded">
                               En progreso
                             </span>
                           </div>
                         )}
 
                         {/* Métricas de AHT y Target de 10 min */}
-                        <div className="grid grid-cols-3 gap-2 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                        <div className="grid grid-cols-3 gap-2 bg-[#121316] p-2.5 rounded-xl border border-[#2E323B]">
                           <div>
-                            <span className="text-[9px] uppercase font-bold text-slate-400 block">Casos Hoy</span>
+                            <span className="text-[9px] uppercase font-bold text-zinc-400 block">Casos Hoy</span>
                             <span className="text-base font-bold font-mono text-white">
                               {m.totalTasks}
                             </span>
                           </div>
 
                           <div>
-                            <span className="text-[9px] uppercase font-bold text-slate-400 block">AHT Promedio</span>
+                            <span className="text-[9px] uppercase font-bold text-zinc-400 block">AHT Promedio</span>
                             <span
                               className={`text-base font-bold font-mono ${
                                 isRed
@@ -797,7 +797,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                                   ? 'text-amber-400'
                                   : isGreen
                                   ? 'text-emerald-400'
-                                  : 'text-slate-400'
+                                  : 'text-zinc-400'
                               }`}
                             >
                               {m.totalTasks > 0 ? formatSecondsToMMSS(m.avgAht) : '--:--'}
@@ -805,8 +805,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                           </div>
 
                           <div>
-                            <span className="text-[9px] uppercase font-bold text-slate-400 block">Eficiencia</span>
-                            <span className="text-base font-bold font-mono text-purple-300">
+                            <span className="text-[9px] uppercase font-bold text-zinc-400 block">Eficiencia</span>
+                            <span className="text-base font-bold font-mono text-[#4C9AFF]">
                               {m.totalTasks > 0 ? `${m.efficiency}%` : '--'}
                             </span>
                           </div>
@@ -847,7 +847,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         )}
 
                         {/* Estado de Coachings del Agente */}
-                        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+                        <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-1 border-t border-[#2E323B]">
                           <span>
                             Coachings acumulados:{' '}
                             <strong
@@ -856,7 +856,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                                   ? 'text-rose-400'
                                   : agent.coachingCount > 0
                                   ? 'text-amber-400'
-                                  : 'text-slate-300'
+                                  : 'text-zinc-300'
                               }
                             >
                               {agent.coachingCount} / 3 máx
@@ -871,7 +871,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                       </div>
 
                       {/* Botones de Acción */}
-                      <div className="pt-4 mt-3 border-t border-slate-800/80 flex items-center gap-2">
+                      <div className="pt-4 mt-3 border-t border-[#2E323B] flex items-center gap-2">
                         {/* Botón Mensaje Fantasma */}
                         <button
                           type="button"
@@ -884,7 +884,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                               feedback: null,
                             });
                           }}
-                          className="flex-1 py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 transition flex items-center justify-center gap-1.5 active:scale-95"
+                          className="flex-1 py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-[#0052CC]/15 hover:bg-[#0052CC]/25 text-[#4C9AFF] border border-[#0052CC]/40 transition flex items-center justify-center gap-1.5 active:scale-95"
                           title="Enviar mensaje fantasma corto a la pantalla del agente"
                         >
                           <span>👻 Mensaje Fantasma</span>
@@ -907,8 +907,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                           }}
                           className={`py-1.5 px-2.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 ${
                             isRed
-                              ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 font-bold active:scale-95'
-                              : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                              ? 'bg-[#DE1B54] hover:bg-[#C4164A] text-white shadow-sm font-bold active:scale-95'
+                              : 'bg-[#121316] hover:bg-[#252830] text-zinc-300 border border-[#2E323B]'
                           }`}
                           title="Registrar coaching por demoras (máx 3 antes de suspensión por 1 día)"
                         >
@@ -920,7 +920,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         <button
                           type="button"
                           onClick={() => setSelectedAgentDetail(agent)}
-                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 transition"
+                          className="p-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-zinc-400 hover:text-white border border-[#2E323B] transition"
                           title="Ver métricas completas y gráficos de este agente"
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -941,53 +941,53 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
         {activeTab === 'TABLEAU' && summary && (
           <section className="space-y-6">
             {/* Banner de Tableau Analytics */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-blue-950/40 border border-purple-500/30 shadow-2xl relative overflow-hidden">
+            <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md relative overflow-hidden">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#DE1B54]/15 text-[#DE1B54] border border-[#DE1B54]/40">
                       Tableau Analytics Suite
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-zinc-400 font-mono">
                       Target Corporativo: 10 Minutos (600 seg)
                     </span>
                   </div>
                   <h2 className="text-2xl font-black text-white">Visualización &amp; Rendimiento Global</h2>
-                  <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                  <p className="text-xs text-zinc-300 max-w-2xl leading-relaxed">
                     Evaluación continua del AHT general y la eficiencia en conjunto de toda la operación.
                     Estos gráficos generales son informativos para evaluar a la empresa como un todo.
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 text-right">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">AHT General</span>
-                    <span className="text-2xl font-black font-mono text-purple-300">
+                  <div className="bg-[#1C1E24] p-4 rounded-xl border border-[#2E323B] text-right">
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 block">AHT General</span>
+                    <span className="text-2xl font-black font-mono text-[#4C9AFF]">
                       {formatSecondsToMMSS(summary.companyAvgAht)} min
                     </span>
                     <span className="text-[10px] text-emerald-400 block font-semibold">
                       {summary.companyAvgAht <= 600 ? '✓ En Target (<=10m)' : '+ Demoras detectadas'}
                     </span>
                   </div>
-                  <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 text-right">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block">Eficiencia General</span>
+                  <div className="bg-[#1C1E24] p-4 rounded-xl border border-[#2E323B] text-right">
+                    <span className="text-[10px] uppercase font-bold text-zinc-400 block">Eficiencia General</span>
                     <span className="text-2xl font-black font-mono text-emerald-400">
                       {summary.companyEfficiency}%
                     </span>
-                    <span className="text-[10px] text-slate-400 block">Operación Sutherland</span>
+                    <span className="text-[10px] text-zinc-400 block">Operación Sutherland</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Gráfico 1: Comparativa de AHT por Agente vs Target de 10 minutos */}
-            <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+            <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-white">
                     📊 Comparativa de AHT por Agente vs Línea Target (10 Minutos)
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-zinc-400">
                     Verde: En Target (&le; 10 min) &bull; Naranja: Alerta (&le; 12 min) &bull; Rojo: Crítico (&gt; 12 min)
                   </p>
                 </div>
@@ -1019,7 +1019,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
                   const barColor =
                     ahtSec === 0
-                      ? 'bg-slate-700'
+                      ? 'bg-[#2E323B]'
                       : ahtSec <= 600
                       ? 'bg-emerald-500'
                       : ahtSec <= 720
@@ -1029,9 +1029,9 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   return (
                     <div key={ag.id} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-200">
+                        <span className="font-semibold text-zinc-200">
                           {formatFullName(ag.firstName, ag.lastName)}{' '}
-                          <span className="text-[10px] text-slate-400 font-mono">({ag.employeeId})</span>
+                          <span className="text-[10px] text-zinc-400 font-mono">({ag.employeeId})</span>
                         </span>
                         <div className="flex items-center gap-2 font-mono text-[11px]">
                           <span>{ag.todayMetrics.totalTasks} tareas</span>
@@ -1041,7 +1041,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         </div>
                       </div>
 
-                      <div className="relative h-6 bg-slate-950 rounded-lg overflow-hidden border border-slate-800">
+                      <div className="relative h-6 bg-[#121316] rounded-lg overflow-hidden border border-[#2E323B]">
                         {/* Línea de Target de 10 minutos */}
                         <div
                           className="absolute top-0 bottom-0 w-0.5 bg-yellow-400 z-10"
@@ -1069,14 +1069,14 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             {/* Gráfico 2: Distribución de Tareas por Tipo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+              <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
                 <h3 className="text-base font-bold text-white">
                   📂 Distribución de Tipos de Notas / Casos
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {Object.entries(summary.taskDistribution).map(([typeKey, count]) => (
-                    <div key={typeKey} className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">{typeKey}</span>
+                    <div key={typeKey} className="p-3 bg-[#121316] rounded-xl border border-[#2E323B]">
+                      <span className="text-[10px] text-zinc-400 uppercase font-bold block">{typeKey}</span>
                       <span className="text-xl font-bold font-mono text-white mt-1 block">{count}</span>
                     </div>
                   ))}
@@ -1084,16 +1084,16 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               </div>
 
               {/* Conector Tableau Embed Interactivo */}
-              <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+              <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-white">
                     🌐 Conectar Dashboard Externo de Tableau
                   </h3>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
                     Tableau Server / Public
                   </span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-400">
                   Inserta el enlace del libro de trabajo (Workbook) de Tableau para visualizar las hojas analíticas directamente:
                 </p>
                 <div className="flex items-center gap-2">
@@ -1102,7 +1102,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     placeholder="https://public.tableau.com/views/..."
                     value={tableauUrl}
                     onChange={(e) => setTableauUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-mono"
+                    className="flex-1 px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] font-mono"
                   />
                   <button
                     type="button"
@@ -1111,13 +1111,13 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         setTableauUrl('https://public.tableau.com/views/RiskComplianceAHTDashboard/Overview');
                       }
                     }}
-                    className="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-md"
+                    className="px-3.5 py-2 bg-[#0052CC] hover:bg-[#0065FF] text-white rounded-xl text-xs font-bold transition shadow-sm"
                   >
                     Cargar
                   </button>
                 </div>
                 {tableauUrl ? (
-                  <div className="w-full h-64 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 text-xs">
+                  <div className="w-full h-64 rounded-xl bg-[#121316] border border-[#2E323B] flex items-center justify-center text-zinc-400 text-xs">
                     <iframe
                       src={tableauUrl}
                       className="w-full h-full rounded-xl"
@@ -1125,7 +1125,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     />
                   </div>
                 ) : (
-                  <div className="w-full h-32 rounded-xl bg-slate-950 border border-dashed border-slate-800 flex items-center justify-center text-slate-500 text-xs text-center p-4">
+                  <div className="w-full h-32 rounded-xl bg-[#121316] border border-dashed border-[#2E323B] flex items-center justify-center text-zinc-500 text-xs text-center p-4">
                     Ingresa una URL de Tableau arriba o presiona &ldquo;Cargar&rdquo; para previsualizar la integración.
                   </div>
                 )}
@@ -1137,13 +1137,13 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
         {/* ================= PESTAÑA 3: COACHINGS & AUDITORÍA DE SUSPENSIONES ================= */}
         {activeTab === 'COACHINGS' && (
           <section className="space-y-6">
-            <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl space-y-4">
+            <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-white">
                     📋 Auditoría de Coachings &amp; Políticas de Suspensión
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-zinc-400">
                     Registro de retroalimentaciones aplicadas a los agentes por superar el AHT de 10 min. Límite: 3 coachings = 1 día de suspensión.
                   </p>
                 </div>
@@ -1164,7 +1164,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     suspendedUntil: a.suspendedUntil,
                   }))
                 ).length === 0 ? (
-                  <div className="p-8 text-center text-slate-400 text-xs">
+                  <div className="p-8 text-center text-zinc-400 text-xs">
                     No se han registrado coachings hasta el momento. La operación se encuentra dentro de los parámetros esperados.
                   </div>
                 ) : (
@@ -1183,22 +1183,22 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     .map((item) => (
                       <div
                         key={item.id}
-                        className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                        className="p-4 rounded-xl bg-[#121316] border border-[#2E323B] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-white">{item.agentName}</span>
-                            <span className="text-[10px] text-slate-400 font-mono">ID: {item.agentId}</span>
+                            <span className="text-[10px] text-zinc-400 font-mono">ID: {item.agentId}</span>
                             <span className="text-[10px] px-2 py-0.5 rounded font-mono bg-rose-500/10 text-rose-300 border border-rose-500/30">
                               AHT al momento: {item.ahtAtTime ? `${formatSecondsToMMSS(item.ahtAtTime)} min` : 'N/A'}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-300">
+                          <p className="text-xs text-zinc-300">
                             <strong>Razón de la demora:</strong> {item.reason}
                           </p>
                         </div>
 
-                        <div className="text-right text-[11px] text-slate-400 font-mono">
+                        <div className="text-right text-[11px] text-zinc-400 font-mono">
                           <div>Registrado por: {item.admin ? formatFullName(item.admin.firstName, item.admin.lastName) : 'Administrador'}</div>
                           <div>{new Date(item.createdAt).toLocaleString()}</div>
                         </div>
@@ -1213,28 +1213,28 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
       {/* ================= MODAL: ENVIAR MENSAJE FANTASMA ================= */}
       {ghostModal.isOpen && ghostModal.agent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-indigo-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-4 relative">
             <button
               type="button"
               onClick={() => setGhostModal({ isOpen: false, agent: null, message: '', submitting: false, feedback: null })}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#252830] transition"
             >
               ✕
             </button>
 
             <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-[#0052CC]/15 border border-[#0052CC]/40 flex items-center justify-center text-2xl flex-shrink-0">
                 👻
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 font-mono">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#4C9AFF] font-mono">
                   Mensaje Fantasma en Pantalla
                 </span>
                 <h3 className="text-lg font-black text-white">
                   Supervisar a {formatFullName(ghostModal.agent.firstName, ghostModal.agent.lastName)}
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-400">
                   Este mensaje aparecerá como notificación flotante directa en la ventana activa del agente.
                 </p>
               </div>
@@ -1242,7 +1242,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             {/* Mensajes rápidos predefinidos */}
             <div className="space-y-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                 Frases cortas sugeridas:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -1256,7 +1256,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     key={idx}
                     type="button"
                     onClick={() => setGhostModal((prev) => ({ ...prev, message: phrase }))}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-[#121316] hover:bg-[#252830] text-zinc-300 border border-[#2E323B] transition"
                   >
                     {phrase}
                   </button>
@@ -1266,7 +1266,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             {/* Campo de texto */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-zinc-300 mb-1">
                 Escribe tu mensaje corto (máx 280 caracteres):
               </label>
               <textarea
@@ -1275,9 +1275,9 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 value={ghostModal.message}
                 onChange={(e) => setGhostModal((prev) => ({ ...prev, message: e.target.value }))}
                 placeholder="Ingresa tu pregunta o instrucción para el agente..."
-                className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500 placeholder-slate-500"
+                className="w-full p-3 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white focus:outline-none focus:border-[#0065FF] placeholder-zinc-500"
               />
-              <span className="text-[10px] text-slate-500 font-mono text-right block mt-0.5">
+              <span className="text-[10px] text-zinc-500 font-mono text-right block mt-0.5">
                 {ghostModal.message.length} / 280 caracteres
               </span>
             </div>
@@ -1298,7 +1298,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               <button
                 type="button"
                 onClick={() => setGhostModal({ isOpen: false, agent: null, message: '', submitting: false, feedback: null })}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
+                className="px-4 py-2 bg-[#121316] hover:bg-[#252830] text-zinc-300 rounded-xl text-xs font-semibold"
               >
                 Cancelar
               </button>
@@ -1306,7 +1306,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 type="button"
                 disabled={ghostModal.submitting || !ghostModal.message.trim()}
                 onClick={handleSendGhostMessage}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#0052CC] hover:bg-[#0065FF] disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5"
               >
                 {ghostModal.submitting ? 'Enviando...' : 'Enviar Mensaje Fantasma'}
               </button>
@@ -1317,12 +1317,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
       {/* ================= MODAL: REGISTRAR COACHING ================= */}
       {coachingModal.isOpen && coachingModal.agent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-rose-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-4 relative">
             <button
               type="button"
               onClick={() => setCoachingModal({ isOpen: false, agent: null, reason: '', submitting: false, feedback: null, error: null })}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#252830] transition"
             >
               ✕
             </button>
@@ -1338,7 +1338,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 <h3 className="text-lg font-black text-white">
                   Coaching para {formatFullName(coachingModal.agent.firstName, coachingModal.agent.lastName)}
                 </h3>
-                <p className="text-xs text-slate-300">
+                <p className="text-xs text-zinc-300">
                   AHT Actual: <strong>{formatSecondsToMMSS(coachingModal.agent.todayMetrics.avgAht)} min</strong> (Target: 10 min).
                 </p>
               </div>
@@ -1359,7 +1359,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
             )}
 
             <div>
-              <label className="block text-xs font-bold text-slate-200 mb-1">
+              <label className="block text-xs font-bold text-zinc-200 mb-1">
                 Razón de las demoras y plan de coaching:
               </label>
               <textarea
@@ -1367,7 +1367,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 value={coachingModal.reason}
                 onChange={(e) => setCoachingModal((prev) => ({ ...prev, reason: e.target.value }))}
                 placeholder="Especifica la razón de la demora (ej. problemas técnicos con el portal de pasaportes, falta de claridad en el corridor, demoras injustificadas en la revisión de KYC)..."
-                className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-rose-500 placeholder-slate-500"
+                className="w-full p-3 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white focus:outline-none focus:border-rose-500 placeholder-zinc-500"
               />
             </div>
 
@@ -1387,7 +1387,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               <button
                 type="button"
                 onClick={() => setCoachingModal({ isOpen: false, agent: null, reason: '', submitting: false, feedback: null, error: null })}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold"
+                className="px-4 py-2 bg-[#121316] hover:bg-[#252830] text-zinc-300 rounded-xl text-xs font-semibold"
               >
                 Cancelar
               </button>
@@ -1395,7 +1395,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 type="button"
                 disabled={coachingModal.submitting || !coachingModal.reason.trim()}
                 onClick={handleRegisterCoaching}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-600/30 transition"
+                className="px-4 py-2 bg-[#DE1B54] hover:bg-[#C4164A] disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition"
               >
                 {coachingModal.submitting ? 'Registrando...' : 'Confirmar y Registrar Coaching'}
               </button>
@@ -1406,18 +1406,18 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
       {/* ================= MODAL: DETALLE COMPLETO DEL AGENTE ================= */}
       {selectedAgentDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-2xl w-full p-6 shadow-lg space-y-4 max-h-[85vh] overflow-y-auto relative">
             <button
               type="button"
               onClick={() => setSelectedAgentDetail(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#252830] transition"
             >
               ✕
             </button>
 
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-base">
+              <div className="w-12 h-12 rounded-xl bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40 flex items-center justify-center font-bold text-base">
                 {toTitleCase(selectedAgentDetail.firstName).charAt(0).toUpperCase()}
                 {toTitleCase(selectedAgentDetail.lastName).charAt(0).toUpperCase()}
               </div>
@@ -1425,7 +1425,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 <h3 className="text-base font-bold text-white">
                   {formatFullName(selectedAgentDetail.firstName, selectedAgentDetail.lastName)}
                 </h3>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-zinc-400 font-mono">
                   ID: {selectedAgentDetail.employeeId} &bull; {selectedAgentDetail.email}
                 </span>
               </div>
@@ -1433,21 +1433,21 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             {/* Historial de Tareas de Hoy */}
             <div className="space-y-2 pt-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                 Últimas tareas completadas hoy:
               </h4>
               {selectedAgentDetail.recentTasks.length === 0 ? (
-                <p className="text-xs text-slate-500">No hay tareas registradas hoy para este agente.</p>
+                <p className="text-xs text-zinc-500">No hay tareas registradas hoy para este agente.</p>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto">
                   {selectedAgentDetail.recentTasks.map((t) => (
                     <div
                       key={t.id}
-                      className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between text-xs"
+                      className="p-2.5 rounded-lg bg-[#121316] border border-[#2E323B] flex items-center justify-between text-xs"
                     >
                       <div>
                         <span className="font-semibold text-white">{t.taskType}</span>
-                        <span className="text-[10px] text-slate-400 block font-mono">
+                        <span className="text-[10px] text-zinc-400 block font-mono">
                           {new Date(t.createdAt).toLocaleTimeString()} &bull; Decisión: {t.decision || 'N/A'}
                         </span>
                       </div>
@@ -1469,12 +1469,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
             </div>
 
             {/* Historial de Coachings */}
-            <div className="space-y-2 pt-2 border-t border-slate-800">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div className="space-y-2 pt-2 border-t border-[#2E323B]">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                 Historial de Coachings ({selectedAgentDetail.coachings.length} registrados):
               </h4>
               {selectedAgentDetail.coachings.length === 0 ? (
-                <p className="text-xs text-slate-500">El agente no tiene coachings registrados.</p>
+                <p className="text-xs text-zinc-500">El agente no tiene coachings registrados.</p>
               ) : (
                 <div className="space-y-2">
                   {selectedAgentDetail.coachings.map((c) => (
@@ -1483,7 +1483,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         <span>Por: {c.admin ? formatFullName(c.admin.firstName, c.admin.lastName) : 'Administrador'}</span>
                         <span className="font-mono">{new Date(c.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <p className="text-slate-200">{c.reason}</p>
+                      <p className="text-zinc-200">{c.reason}</p>
                     </div>
                   ))}
                 </div>
@@ -1494,7 +1494,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               <button
                 type="button"
                 onClick={() => setSelectedAgentDetail(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold"
+                className="px-4 py-2 bg-[#121316] hover:bg-[#252830] text-white rounded-xl text-xs font-semibold"
               >
                 Cerrar Detalle
               </button>

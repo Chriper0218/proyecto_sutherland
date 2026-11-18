@@ -663,9 +663,9 @@ export default function DashboardPage() {
 
   if (loadingUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-200">
-        <div className="flex items-center space-x-3 bg-slate-800/80 px-6 py-4 rounded-xl border border-slate-700 shadow-xl">
-          <svg className="animate-spin h-6 w-6 text-blue-500" viewBox="0 0 24 24" fill="none">
+      <div className="min-h-screen flex items-center justify-center bg-[#121316] text-zinc-200">
+        <div className="flex items-center space-x-3 bg-[#1C1E24] px-6 py-4 rounded-xl border border-[#2E323B] shadow-md">
+          <svg className="animate-spin h-6 w-6 text-[#0065FF]" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
           </svg>
@@ -681,9 +681,9 @@ export default function DashboardPage() {
 
   // ================= MODAL DE RESTRICCIONES Y CONFIRMACIÓN DE SESIÓN (compartido por vista Admin y Operativa) =================
   const restrictionModalElement = restrictionModal.isOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
           <div
-            className="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative"
+            className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-5 relative"
             role="dialog"
             aria-modal="true"
           >
@@ -691,7 +691,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={closeRestrictionModal}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#252830] transition"
               aria-label="Cerrar modal"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -702,7 +702,7 @@ export default function DashboardPage() {
             {restrictionModal.type === 'LOGOUT_RESTRICTED' && (
               <>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 shadow-lg shadow-amber-500/10">
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 shadow-sm">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         strokeLinecap="round"
@@ -717,7 +717,7 @@ export default function DashboardPage() {
                       Restricción Operativa &bull; Risk &amp; Compliance
                     </span>
                     <h3 className="text-lg font-black text-white">No puedes cerrar sesión</h3>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-zinc-300">
                       Para garantizar la integridad del tiempo AHT y el registro de casos, debes completar el flujo operativo antes de salir:
                     </p>
                   </div>
@@ -755,7 +755,7 @@ export default function DashboardPage() {
                           {isTaskActive ? 'Pendiente / En Progreso' : 'Culminada'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-zinc-400">
                         {isTaskActive
                           ? `Tienes un caso activo (${caseType || 'En curso'}). Debes presionar "Generar Nota y Detener AHT" para registrar la métrica.`
                           : 'No tienes ninguna tarea activa en progreso.'}
@@ -793,7 +793,7 @@ export default function DashboardPage() {
                           {isShiftActive ? 'Turno Activo' : 'Finalizado'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-zinc-400">
                         {isShiftActive
                           ? 'Debes hacer clic en "Finalizar Turno" en la sección superior una vez que hayas culminado tu tarea.'
                           : 'El turno laboral ha sido cerrado en la base de datos.'}
@@ -802,7 +802,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 text-[11px] text-slate-300 flex items-center gap-2">
+                <div className="bg-[#1C1E24] p-3 rounded-xl border border-[#2E323B] text-[11px] text-zinc-300 flex items-center gap-2">
                   <span className="text-amber-400 text-sm">💡</span>
                   <span>
                     Secuencia obligatoria: <strong>1° Culminar tarea</strong> ➔ <strong>2° Finalizar turno</strong> ➔ <strong>3° Cerrar sesión</strong>.
@@ -813,7 +813,7 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={closeRestrictionModal}
-                    className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition duration-150 shadow-lg shadow-blue-600/30 active:scale-98"
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#0052CC] hover:bg-[#0065FF] text-white font-semibold text-xs transition duration-150 shadow-sm active:scale-98"
                   >
                     Entendido, continuar trabajando
                   </button>
@@ -824,7 +824,7 @@ export default function DashboardPage() {
             {restrictionModal.type === 'SHIFT_END_RESTRICTED' && (
               <>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0 shadow-lg shadow-rose-500/10">
+                  <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0 shadow-sm">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         strokeLinecap="round"
@@ -839,15 +839,15 @@ export default function DashboardPage() {
                       Tarea en Progreso
                     </span>
                     <h3 className="text-lg font-black text-white">No puedes finalizar el turno</h3>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-zinc-300">
                       Tienes una tarea activa abierta ({caseType || 'Caso actual'}). No puedes finalizar tu turno sin antes culminar la tarea.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-2">
-                  <span className="text-xs font-bold text-slate-200 block">¿Qué debes hacer?</span>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                <div className="p-4 rounded-xl bg-[#1C1E24] border border-[#2E323B] space-y-2">
+                  <span className="text-xs font-bold text-zinc-200 block">¿Qué debes hacer?</span>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
                     Completa los campos de la nota y haz clic en el botón verde{' '}
                     <strong className="text-emerald-400">&ldquo;Generar Nota y Detener AHT&rdquo;</strong>. Esto registrará tu tiempo de gestión y te permitirá finalizar el turno de manera ordenada.
                   </p>
@@ -857,7 +857,7 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={closeRestrictionModal}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-600 transition duration-150 active:scale-98"
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#1C1E24] hover:bg-[#252830] text-white font-semibold text-xs border border-[#2E323B] transition duration-150 active:scale-98"
                   >
                     Volver y culminar tarea
                   </button>
@@ -868,7 +868,7 @@ export default function DashboardPage() {
             {restrictionModal.type === 'LOGOUT_CONFIRM' && (
               <>
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 shadow-lg shadow-blue-500/10">
+                  <div className="w-12 h-12 rounded-xl bg-[#0052CC]/15 border border-[#0052CC]/40 flex items-center justify-center text-[#4C9AFF] flex-shrink-0 shadow-sm">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         strokeLinecap="round"
@@ -883,13 +883,13 @@ export default function DashboardPage() {
                       ✓ Turno y tareas al día
                     </span>
                     <h3 className="text-lg font-black text-white">¿Deseas cerrar sesión?</h3>
-                    <p className="text-xs text-slate-300">
+                    <p className="text-xs text-zinc-300">
                       Has culminado tus tareas y tu turno de trabajo se encuentra cerrado en la base de datos.
                     </p>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-400">
                   Al cerrar sesión volverás a la pantalla de autenticación. Deberás ingresar tus credenciales para volver a operar.
                 </p>
 
@@ -897,14 +897,14 @@ export default function DashboardPage() {
                   <button
                     type="button"
                     onClick={closeRestrictionModal}
-                    className="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition"
+                    className="py-2 px-4 rounded-xl bg-[#1C1E24] hover:bg-[#252830] text-zinc-300 font-semibold text-xs border border-[#2E323B] transition"
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
                     onClick={confirmLogout}
-                    className="py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-lg shadow-red-600/30 flex items-center gap-1.5"
+                    className="py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-sm flex items-center gap-1.5"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -933,11 +933,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans">
       {/* ================= HEADER PRINCIPAL ================= */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30 px-6 py-3.5 flex items-center justify-between shadow-lg">
+      <header className="border-b border-[#2E323B] bg-[#121316]/95 backdrop-blur sticky top-0 z-30 px-6 py-3.5 flex items-center justify-between shadow-lg">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center p-1.5 shadow-md shadow-blue-500/10">
+          <div className="w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm">
             <Image
               src="/suth-logo.png"
               alt="Sutherland Logo"
@@ -950,27 +950,27 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base font-bold tracking-tight text-white">Annotations platform</h1>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
                 Risk & Compliance
               </span>
             </div>
-            <p className="text-xs text-slate-400">Dashboard de Trabajo Operativo &bull; Estandarización de Notas (AHT)</p>
+            <p className="text-xs text-zinc-400">Dashboard de Trabajo Operativo &bull; Estandarización de Notas (AHT)</p>
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
           <div className="hidden sm:flex flex-col text-right">
-            <span className="text-xs font-semibold text-slate-200">
+            <span className="text-xs font-semibold text-zinc-200">
               {toTitleCase(user.firstName)} {toTitleCase(user.lastName)}
             </span>
-            <span className="text-[11px] text-slate-400 font-mono">ID: {user.employeeId}</span>
+            <span className="text-[11px] text-zinc-400 font-mono">ID: {user.employeeId}</span>
           </div>
 
           {isAdmin && (
             <button
               type="button"
               onClick={() => setAdminViewMode('ADMIN')}
-              className="text-xs px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold transition flex items-center gap-1.5 shadow-md shadow-purple-900/30"
+              className="text-xs px-3 py-1.5 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white font-bold transition flex items-center gap-1.5 shadow-sm"
               title="Volver a la vista de supervisión y analítica de agentes"
             >
               <span>👑 Volver a Panel Admin</span>
@@ -979,8 +979,8 @@ export default function DashboardPage() {
 
           <span
             className={`px-3 py-1 text-xs font-semibold rounded-full border ${isAdmin
-              ? 'bg-purple-900/40 text-purple-300 border-purple-600/50'
-              : 'bg-blue-900/40 text-blue-300 border-blue-600/50'
+              ? 'bg-[#DE1B54]/15 text-[#DE1B54] border-[#DE1B54]/40'
+              : 'bg-[#0052CC]/15 text-[#4C9AFF] border-[#0052CC]/40'
               }`}
           >
             {isAdmin ? '👑 Rol: Administrador' : '💼 Rol: Analista de Riesgo'}
@@ -989,8 +989,8 @@ export default function DashboardPage() {
           <button
             onClick={handleLogout}
             className={`text-xs px-3.5 py-1.5 rounded-lg border transition duration-150 flex items-center gap-1.5 ${isTaskActive || isShiftActive
-              ? 'bg-slate-800 text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
-              : 'bg-slate-800 hover:bg-red-500/10 hover:text-red-400 text-slate-300 border-slate-700 hover:border-red-500/30'
+              ? 'bg-[#1C1E24] text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
+              : 'bg-[#1C1E24] hover:bg-red-500/10 hover:text-red-400 text-zinc-300 border-[#2E323B] hover:border-red-500/30'
               }`}
             title={
               isTaskActive || isShiftActive
@@ -1028,14 +1028,14 @@ export default function DashboardPage() {
       {/* ================= CONTENEDOR PRINCIPAL ================= */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
         {/* ================= 1. GESTIÓN DE TURNOS (SHIFT MANAGEMENT) ================= */}
-        <section className="p-5 sm:p-6 rounded-2xl bg-slate-800/90 border border-slate-700 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <section className="p-5 sm:p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-transparent rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
             {/* Información del Turno */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                   Control de Turno Laboral
                 </span>
                 <span
@@ -1055,22 +1055,22 @@ export default function DashboardPage() {
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 Gestión de Disponibilidad & Jornada
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
+              <p className="text-xs sm:text-sm text-zinc-400 max-w-xl">
                 Debes iniciar turno para habilitar la gestión de casos y cronometrar el AHT. Puedes realizar
                 múltiples turnos por día.
               </p>
             </div>
 
             {/* Contador de Turno & Botones */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-900/80 p-4 rounded-xl border border-slate-700/80">
-              <div className="flex flex-col pr-4 sm:border-r border-slate-700/80">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-[#121316] p-4 rounded-xl border border-[#2E323B]">
+              <div className="flex flex-col pr-4 sm:border-r border-[#2E323B]">
+                <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
                   Tiempo de Turno Actual
                 </span>
                 <span className="text-3xl font-mono font-black text-white tracking-wider">
                   {formatShiftTime(shiftSeconds)}
                 </span>
-                <span className="text-[10px] text-slate-500">Formato HH:MM:SS</span>
+                <span className="text-[10px] text-zinc-500">Formato HH:MM:SS</span>
               </div>
 
               <div className="flex items-center gap-2.5 w-full sm:w-auto">
@@ -1080,8 +1080,8 @@ export default function DashboardPage() {
                   onClick={handleStartShift}
                   disabled={isShiftActive || shiftLoading}
                   className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${isShiftActive
-                    ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30 active:scale-95'
+                    ? 'bg-[#1C1E24] text-zinc-500 border border-[#2E323B] cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm active:scale-95'
                     }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1097,10 +1097,10 @@ export default function DashboardPage() {
                   onClick={handleEndShift}
                   disabled={!isShiftActive || shiftLoading}
                   className={`flex-1 sm:flex-none px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center justify-center gap-2 ${!isShiftActive
-                    ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed'
+                    ? 'bg-[#1C1E24] text-zinc-500 border border-[#2E323B] cursor-not-allowed'
                     : isTaskActive
                       ? 'bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-700/60 cursor-pointer active:scale-95'
-                      : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-900/30 active:scale-95'
+                      : 'bg-rose-600 hover:bg-rose-500 text-white shadow-sm active:scale-95'
                     }`}
                   title={
                     isTaskActive
@@ -1125,8 +1125,8 @@ export default function DashboardPage() {
 
           {/* Notificación de Estado de Turno */}
           {shiftMessage && (
-            <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-xs font-medium text-blue-300 flex items-center gap-2">
-              <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mt-4 p-3 bg-[#0052CC]/15 border border-[#0052CC]/40 rounded-lg text-xs font-medium text-[#4C9AFF] flex items-center gap-2">
+              <svg className="w-4 h-4 text-[#4C9AFF] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{shiftMessage}</span>
@@ -1135,10 +1135,10 @@ export default function DashboardPage() {
         </section>
 
         {/* ================= 2. SELECTOR DE CASO Y BARRA DE CRONÓMETRO AHT ================= */}
-        <section className="p-5 rounded-2xl bg-slate-800/90 border border-slate-700 shadow-xl space-y-4">
+        <section className="p-5 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
-              <label htmlFor="case-type-select" className="text-xs font-bold uppercase tracking-wider text-slate-300 flex flex-wrap items-center gap-2">
+              <label htmlFor="case-type-select" className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex flex-wrap items-center gap-2">
                 <span>1. Seleccionar Tipo de Tarea / Caso</span>
                 {!isShiftActive && (
                   <span className="text-[10px] text-amber-400 font-semibold">
@@ -1170,8 +1170,8 @@ export default function DashboardPage() {
                   value={caseType}
                   onChange={handleCaseTypeChange}
                   className={`w-full border rounded-xl px-4 py-2.5 text-sm appearance-none font-medium transition ${!isShiftActive || isTaskActive
-                    ? 'bg-slate-900/60 border-slate-700/60 text-slate-400 cursor-not-allowed'
-                    : 'bg-slate-900 border-slate-700 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 cursor-pointer ring-1 ring-blue-500/40'
+                    ? 'bg-[#121316]/70 border-[#2E323B] text-zinc-400 cursor-not-allowed'
+                    : 'bg-[#121316] border-[#2E323B] text-white focus:outline-none focus:border-[#0065FF] focus:ring-1 focus:ring-[#0065FF] cursor-pointer ring-1 ring-[#0052CC]/40'
                     }`}
                 >
                   <option value="">
@@ -1186,7 +1186,7 @@ export default function DashboardPage() {
                   <option value="RECORD_KEEPING">📁 Record Keeping Review (RK)</option>
                   <option value="WATCHLIST_REVIEW">🌐 Watchlist Review (Sender / Recipient)</option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-400">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -1216,16 +1216,16 @@ export default function DashboardPage() {
 
             {/* Cronómetro de Tarea / AHT (Visible al seleccionar cualquier caso) */}
             {caseType && (
-              <div className="flex items-center gap-4 bg-slate-900/90 p-3.5 rounded-xl border border-blue-500/30 shadow-inner">
+              <div className="flex items-center gap-4 bg-[#121316] p-3.5 rounded-xl border border-[#2E323B] shadow-inner">
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <span className="relative flex h-3 w-3">
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isTaskActive ? 'bg-emerald-400 opacity-75' : 'bg-slate-500'}`}></span>
-                      <span className={`relative inline-flex rounded-full h-3 w-3 ${isTaskActive ? 'bg-emerald-500' : 'bg-slate-600'}`}></span>
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isTaskActive ? 'bg-emerald-400 opacity-75' : 'bg-zinc-500'}`}></span>
+                      <span className={`relative inline-flex rounded-full h-3 w-3 ${isTaskActive ? 'bg-emerald-500' : 'bg-zinc-600'}`}></span>
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
                       Cronómetro AHT ({caseType})
                     </span>
                     <span className="text-2xl font-mono font-black text-emerald-400 tracking-wider">
@@ -1234,44 +1234,44 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="border-l border-slate-700/80 pl-3 hidden sm:block text-right">
-                  <span className="text-[10px] text-slate-400 block font-mono">
+                <div className="border-l border-[#2E323B] pl-3 hidden sm:block text-right">
+                  <span className="text-[10px] text-zinc-400 block font-mono">
                     Estado: {isTaskActive ? 'En Progreso' : 'Pausado'}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">Formato MM:SS</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">Formato MM:SS</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Tarjeta Informativa de Métricas Rápidas */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-700/50">
-            <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Notas / Tareas Hoy</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-[#2E323B]">
+            <div className="bg-[#121316] p-2.5 rounded-lg border border-[#2E323B]">
+              <span className="text-[10px] text-zinc-400 uppercase font-semibold">Notas / Tareas Hoy</span>
               <p className="text-lg font-bold text-white font-mono">{todayNotesCount}</p>
             </div>
-            <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">AHT Promedio</span>
-              <p className="text-lg font-bold text-blue-400 font-mono">
+            <div className="bg-[#121316] p-2.5 rounded-lg border border-[#2E323B]">
+              <span className="text-[10px] text-zinc-400 uppercase font-semibold">AHT Promedio</span>
+              <p className="text-lg font-bold text-[#4C9AFF] font-mono">
                 {todayAvgAht > 0 ? `${formatTaskTime(todayAvgAht)} min` : '00:00'}
               </p>
             </div>
-            <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50">
-              <span className="text-[10px] text-slate-400 uppercase font-semibold">Turno Asociado</span>
-              <p className="text-xs font-semibold text-slate-300 truncate mt-1">
+            <div className="bg-[#121316] p-2.5 rounded-lg border border-[#2E323B]">
+              <span className="text-[10px] text-zinc-400 uppercase font-semibold">Turno Asociado</span>
+              <p className="text-xs font-semibold text-zinc-300 truncate mt-1">
                 {activeShift ? `ID: ${activeShift.id.slice(0, 8)}...` : 'Ninguno (Libre)'}
               </p>
             </div>
-            <div className="bg-slate-900/50 p-2.5 rounded-lg border border-slate-700/50 flex items-center justify-between">
+            <div className="bg-[#121316] p-2.5 rounded-lg border border-[#2E323B] flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-slate-400 uppercase font-semibold block">Validación ID</span>
-                <span className="text-xs font-bold text-slate-200">EdisonTD</span>
+                <span className="text-[10px] text-zinc-400 uppercase font-semibold block">Validación ID</span>
+                <span className="text-xs font-bold text-zinc-200">EdisonTD</span>
               </div>
               <a
                 href="https://www.edisontd.nl/country-browser/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-2.5 py-1 text-[11px] font-semibold rounded bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30 transition flex items-center gap-1"
+                className="px-2.5 py-1 text-[11px] font-semibold rounded bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40 hover:bg-[#0052CC]/25 transition flex items-center gap-1"
                 title="Abrir navegador de pasaportes y documentos EdisonTD"
               >
                 <span>Abrir</span>
@@ -1350,8 +1350,8 @@ export default function DashboardPage() {
           </div>
         ) : (
           /* Estado Vacío cuando no hay caso seleccionado o no hay turno activo */
-          <div className="p-12 text-center rounded-2xl bg-slate-800/50 border border-dashed border-slate-700 space-y-3">
-            <div className="w-12 h-12 mx-auto rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
+          <div className="p-12 text-center rounded-2xl bg-[#1C1E24] border border-dashed border-[#2E323B] space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-[#1C1E24] flex items-center justify-center text-zinc-400 border border-[#2E323B]">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
@@ -1359,7 +1359,7 @@ export default function DashboardPage() {
             <h4 className="text-base font-bold text-white">
               {!isShiftActive ? 'Inicia un turno para comenzar' : 'Ningún caso en curso'}
             </h4>
-            <p className="text-xs text-slate-400 max-w-md mx-auto">
+            <p className="text-xs text-zinc-400 max-w-md mx-auto">
               {!isShiftActive
                 ? 'El panel de notas y el cronómetro AHT requieren que tengas un turno de trabajo activo.'
                 : 'Selecciona una plantilla en el menú desplegable superior (KYC, Risk Review, Record Keeping, Watchlist Review) para iniciar el cronómetro AHT.'}
@@ -1371,26 +1371,26 @@ export default function DashboardPage() {
       {restrictionModalElement}
       {/* ================= NOTIFICACIÓN FLOTANTE DE MENSAJE FANTASMA (PARA EL AGENTE) ================= */}
       {activeGhostMessage && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-bounceIn shadow-2xl">
-          <div className="bg-slate-900/95 border-2 border-indigo-500/80 rounded-2xl p-4 shadow-indigo-500/30 backdrop-blur-md space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-bounceIn shadow-lg">
+          <div className="bg-[#1C1E24] border-2 border-[#DE1B54]/60 rounded-2xl p-4 shadow-md backdrop-blur-md space-y-3 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-transparent rounded-full blur-2xl pointer-events-none"></div>
 
             <div className="flex items-start justify-between gap-3 relative z-10">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-lg animate-pulse">
+                <div className="w-8 h-8 rounded-lg bg-[#DE1B54]/15 border border-[#DE1B54]/40 flex items-center justify-center text-lg animate-pulse">
                   👻
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-400 block">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#DE1B54] block">
                     Mensaje de Supervisión &bull; {activeGhostMessage.senderName}
                   </span>
                   <h4 className="text-xs font-bold text-white">Alerta de Supervisión en Vivo</h4>
                 </div>
               </div>
-              <span className="text-[10px] text-slate-400 font-mono">Ahora</span>
+              <span className="text-[10px] text-zinc-400 font-mono">Ahora</span>
             </div>
 
-            <div className="p-3 bg-slate-950/80 rounded-xl border border-indigo-500/30 text-xs text-indigo-100 font-medium relative z-10">
+            <div className="p-3 bg-[#0B0C0E]/80 rounded-xl border border-[#2E323B] text-xs text-zinc-100 font-medium relative z-10">
               &ldquo;{activeGhostMessage.message}&rdquo;
             </div>
 
@@ -1398,7 +1398,7 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={handleDismissGhostMessage}
-                className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/30 transition active:scale-95"
+                className="px-4 py-1.5 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white font-bold text-xs shadow-sm transition active:scale-95"
               >
                 ✓ Entendido / Confirmar
               </button>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // Uso: node scripts/reset-users.cjs          -> solo muestra conteos
 //      node scripts/reset-users.cjs --delete -> elimina usuarios y todos sus datos dependientes
 const { PrismaClient } = require('@prisma/client');

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { formatFullName, toTitleCase } from '@/lib/validation/userValidation';
 
 // ================= TIPOS DE DATOS =================
 export interface AgentTodayMetrics {
@@ -237,7 +238,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
         setGhostModal((prev) => ({
           ...prev,
           submitting: false,
-          feedback: `¡Mensaje fantasma enviado a la pantalla de ${ghostModal.agent?.firstName}!`,
+          feedback: `¡Mensaje fantasma enviado a la pantalla de ${toTitleCase(ghostModal.agent?.firstName)}!`,
           message: '',
         }));
         setTimeout(() => {
@@ -386,7 +387,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             <div className="hidden sm:flex flex-col text-right pr-2 border-r border-slate-800">
               <span className="text-xs font-bold text-slate-200">
-                {user.firstName} {user.lastName}
+                {formatFullName(user.firstName, user.lastName)}
               </span>
               <span className="text-[11px] text-purple-400 font-mono">ID Admin: {user.employeeId}</span>
             </div>
@@ -724,12 +725,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-sm shadow-inner">
-                              {agent.firstName.charAt(0)}
-                              {agent.lastName.charAt(0)}
+                              {toTitleCase(agent.firstName).charAt(0).toUpperCase()}
+                              {toTitleCase(agent.lastName).charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <h3 className="text-sm font-bold text-white leading-tight">
-                                {agent.firstName} {agent.lastName}
+                                {formatFullName(agent.firstName, agent.lastName)}
                               </h3>
                               <span className="text-[11px] text-slate-400 font-mono">
                                 ID: {agent.employeeId} &bull; {agent.email}
@@ -1029,7 +1030,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     <div key={ag.id} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-semibold text-slate-200">
-                          {ag.firstName} {ag.lastName}{' '}
+                          {formatFullName(ag.firstName, ag.lastName)}{' '}
                           <span className="text-[10px] text-slate-400 font-mono">({ag.employeeId})</span>
                         </span>
                         <div className="flex items-center gap-2 font-mono text-[11px]">
@@ -1156,7 +1157,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 {agents.flatMap((a) =>
                   a.coachings.map((c) => ({
                     ...c,
-                    agentName: `${a.firstName} ${a.lastName}`,
+                    agentName: formatFullName(a.firstName, a.lastName),
                     agentId: a.employeeId,
                     currentCoachingCount: a.coachingCount,
                     isSuspended: a.isSuspended,
@@ -1171,7 +1172,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     .flatMap((a) =>
                       a.coachings.map((c) => ({
                         ...c,
-                        agentName: `${a.firstName} ${a.lastName}`,
+                        agentName: formatFullName(a.firstName, a.lastName),
                         agentId: a.employeeId,
                         currentCoachingCount: a.coachingCount,
                         isSuspended: a.isSuspended,
@@ -1198,7 +1199,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         </div>
 
                         <div className="text-right text-[11px] text-slate-400 font-mono">
-                          <div>Registrado por: {item.admin ? `${item.admin.firstName} ${item.admin.lastName}` : 'Administrador'}</div>
+                          <div>Registrado por: {item.admin ? formatFullName(item.admin.firstName, item.admin.lastName) : 'Administrador'}</div>
                           <div>{new Date(item.createdAt).toLocaleString()}</div>
                         </div>
                       </div>
@@ -1231,7 +1232,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   Mensaje Fantasma en Pantalla
                 </span>
                 <h3 className="text-lg font-black text-white">
-                  Supervisar a {ghostModal.agent.firstName} {ghostModal.agent.lastName}
+                  Supervisar a {formatFullName(ghostModal.agent.firstName, ghostModal.agent.lastName)}
                 </h3>
                 <p className="text-xs text-slate-400">
                   Este mensaje aparecerá como notificación flotante directa en la ventana activa del agente.
@@ -1335,7 +1336,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   Registro de Coaching Disciplinario / AHT
                 </span>
                 <h3 className="text-lg font-black text-white">
-                  Coaching para {coachingModal.agent.firstName} {coachingModal.agent.lastName}
+                  Coaching para {formatFullName(coachingModal.agent.firstName, coachingModal.agent.lastName)}
                 </h3>
                 <p className="text-xs text-slate-300">
                   AHT Actual: <strong>{formatSecondsToMMSS(coachingModal.agent.todayMetrics.avgAht)} min</strong> (Target: 10 min).
@@ -1417,12 +1418,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-base">
-                {selectedAgentDetail.firstName.charAt(0)}
-                {selectedAgentDetail.lastName.charAt(0)}
+                {toTitleCase(selectedAgentDetail.firstName).charAt(0).toUpperCase()}
+                {toTitleCase(selectedAgentDetail.lastName).charAt(0).toUpperCase()}
               </div>
               <div>
                 <h3 className="text-base font-bold text-white">
-                  {selectedAgentDetail.firstName} {selectedAgentDetail.lastName}
+                  {formatFullName(selectedAgentDetail.firstName, selectedAgentDetail.lastName)}
                 </h3>
                 <span className="text-xs text-slate-400 font-mono">
                   ID: {selectedAgentDetail.employeeId} &bull; {selectedAgentDetail.email}
@@ -1479,7 +1480,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   {selectedAgentDetail.coachings.map((c) => (
                     <div key={c.id} className="p-3 rounded-lg bg-rose-950/20 border border-rose-500/30 text-xs space-y-1">
                       <div className="flex items-center justify-between text-[11px] text-rose-300 font-semibold">
-                        <span>Por: {c.admin ? `${c.admin.firstName} ${c.admin.lastName}` : 'Administrador'}</span>
+                        <span>Por: {c.admin ? formatFullName(c.admin.firstName, c.admin.lastName) : 'Administrador'}</span>
                         <span className="font-mono">{new Date(c.createdAt).toLocaleDateString()}</span>
                       </div>
                       <p className="text-slate-200">{c.reason}</p>

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { isValidCorporateEmail, toTitleCase } from '@/lib/validation/userValidation';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -74,13 +75,30 @@ export default function AuthPage() {
     setError(null);
     setSuccess(null);
 
-    // 1. Validar que las contraseñas coincidan
+    // 1. Validar que los campos obligatorios no contengan solo espacios
+    if (
+      !signUpData.firstName.trim() ||
+      !signUpData.lastName.trim() ||
+      !signUpData.employeeId.trim() ||
+      !signUpData.email.trim()
+    ) {
+      setError('Todos los campos marcados son obligatorios.');
+      return;
+    }
+
+    // 2. Validar dominio del correo corporativo
+    if (!isValidCorporateEmail(signUpData.email.trim())) {
+      setError('Debe ingresar un correo corporativo válido');
+      return;
+    }
+
+    // 3. Validar que las contraseñas coincidan
     if (signUpData.password !== signUpData.confirmPassword) {
       setError('Las contraseñas no coinciden.');
       return;
     }
 
-    // 2. Validar mayoría de edad
+    // 4. Validar mayoría de edad
     if (!validateAge(signUpData.birthDate)) {
       setError('Debes ser mayor de 18 años para registrarte.');
       return;
@@ -105,7 +123,7 @@ export default function AuthPage() {
       }
 
       setSuccess(
-        `¡Usuario ${data.user.firstName} ${data.user.lastName} creado con éxito (${data.user.role})! Redirigiendo al inicio de sesión...`
+        `¡Usuario ${toTitleCase(data.user.firstName)} ${toTitleCase(data.user.lastName)} creado con éxito (${data.user.role})! Redirigiendo al inicio de sesión...`
       );
 
       // Limpiar formulario y cambiar al login

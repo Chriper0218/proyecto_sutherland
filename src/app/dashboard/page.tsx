@@ -28,6 +28,7 @@ import { RecordKeepingForm } from '@/components/notes/RecordKeepingForm';
 import { WatchlistReviewForm } from '@/components/notes/WatchlistReviewForm';
 import { NotePreviewCard } from '@/components/notes/NotePreviewCard';
 import Administrador from '@/components/admin/administrador';
+import { formatFullName, toTitleCase } from '@/lib/validation/userValidation';
 
 interface UserSession {
   id: string;
@@ -614,7 +615,9 @@ export default function DashboardPage() {
             setActiveGhostMessage({
               id: first.id,
               message: first.message,
-              senderName: first.sender ? `${first.sender.firstName} ${first.sender.lastName}` : 'Administrador',
+              senderName: first.sender
+                ? formatFullName(first.sender.firstName, first.sender.lastName)
+                : 'Administrador',
               createdAt: first.createdAt,
             });
           }
@@ -958,7 +961,7 @@ export default function DashboardPage() {
         <div className="flex items-center space-x-4">
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-xs font-semibold text-slate-200">
-              {user.firstName} {user.lastName}
+              {toTitleCase(user.firstName)} {toTitleCase(user.lastName)}
             </span>
             <span className="text-[11px] text-slate-400 font-mono">ID: {user.employeeId}</span>
           </div>

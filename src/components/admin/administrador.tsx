@@ -1,8 +1,17 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
+import Script from 'next/script';
 import { formatFullName, toTitleCase } from '@/lib/validation/userValidation';
+
+interface TableauVizElement extends HTMLElement {
+  refreshDataAsync?: () => Promise<void>;
+}
+
+const TABLEAU_VIZ_URL =
+  process.env.NEXT_PUBLIC_TABLEAU_VIZ_URL ||
+  'https://10ax.online.tableau.com/t/riskoperations/views/Risk_metrics_dashboard/Dashboard';
 
 // ================= TIPOS DE DATOS =================
 export interface AgentTodayMetrics {
@@ -132,8 +141,71 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
   // 3. Modal Detalle de Agente
   const [selectedAgentDetail, setSelectedAgentDetail] = useState<AgentData | null>(null);
 
-  // Estado Tableau Embed
-  const [tableauUrl, setTableauUrl] = useState<string>('');
+  // Estado Tableau Cloud Connected Apps (JWT)
+  const [jwtToken, setJwtToken] = useState<string>('');
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [refreshingViz, setRefreshingViz] = useState<boolean>(false);
+  const vizRef = useRef<TableauVizElement | null>(null);
+
+  const fetchTableauToken = useCallback(async () => {
+    try {
+      const res = await fetch('/api/tableau-token', { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok || !data.token) {
+        setTokenError(data.error || 'No se pudo obtener el token de Tableau');
+        return;
+      }
+      setJwtToken(data.token);
+      setTokenError(null);
+    } catch (err) {
+      console.error('Error al obtener token JWT de Tableau:', err);
+      setTokenError('Error de conexión al autenticar con Tableau Cloud.');
+    }
+  }, []);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadToken = async () => {
+      try {
+        const res = await fetch('/api/tableau-token', { cache: 'no-store' });
+        const data = await res.json();
+        if (ignore) return;
+        if (!res.ok || !data.token) {
+          setTokenError(data.error || 'No se pudo obtener el token de Tableau');
+          return;
+        }
+        setJwtToken(data.token);
+        setTokenError(null);
+      } catch (err) {
+        console.error('Error al obtener token JWT de Tableau:', err);
+        if (!ignore) {
+          setTokenError('Error de conexión al autenticar con Tableau Cloud.');
+        }
+      }
+    };
+
+    void loadToken();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const handleRefreshTableauData = async () => {
+    setRefreshingViz(true);
+    try {
+      if (vizRef.current && typeof vizRef.current.refreshDataAsync === 'function') {
+        await vizRef.current.refreshDataAsync();
+      } else {
+        await fetchTableauToken();
+      }
+    } catch (err) {
+      console.error('Error al refrescar datos de Tableau:', err);
+      await fetchTableauToken();
+    } finally {
+      setRefreshingViz(false);
+    }
+  };
 
   // Formateadores de tiempo
   const formatSecondsToMMSS = (seconds: number): string => {
@@ -1067,13 +1139,13 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               </div>
             </div>
 
-            {/* Gráfico 2: Distribución de Tareas por Tipo */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Gráfico 2: Distribución de Tareas por Tipo + Dashboard Principal Tableau Cloud */}
+            <div className="grid grid-cols-1 gap-6">
               <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
                 <h3 className="text-base font-bold text-white">
                   📂 Distribución de Tipos de Notas / Casos
                 </h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {Object.entries(summary.taskDistribution).map(([typeKey, count]) => (
                     <div key={typeKey} className="p-3 bg-[#121316] rounded-xl border border-[#2E323B]">
                       <span className="text-[10px] text-zinc-400 uppercase font-bold block">{typeKey}</span>
@@ -1083,52 +1155,90 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 </div>
               </div>
 
-              {/* Conector Tableau Embed Interactivo */}
-              <div className="p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-white">
-                    🌐 Conectar Dashboard Externo de Tableau
-                  </h3>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
-                    Tableau Server / Public
-                  </span>
-                </div>
-                <p className="text-xs text-zinc-400">
-                  Inserta el enlace del libro de trabajo (Workbook) de Tableau para visualizar las hojas analíticas directamente:
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="url"
-                    placeholder="https://public.tableau.com/views/..."
-                    value={tableauUrl}
-                    onChange={(e) => setTableauUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] font-mono"
-                  />
+              {/* Bloque Analítico Principal: Tableau Cloud (Connected Apps JWT) */}
+              <div className="col-span-full w-full min-h-[850px] p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-lg flex flex-col justify-between space-y-4">
+                <Script
+                  src="https://10ax.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"
+                  type="module"
+                  strategy="afterInteractive"
+                />
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2E323B] pb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-white">
+                      🌐 Dashboard Analítico &bull; Tableau Cloud
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-0.5">
+                      Visualización interactiva conectada a Neon PostgreSQL mediante autenticación automática JWT.
+                    </p>
+                  </div>
+
                   <button
                     type="button"
-                    onClick={() => {
-                      if (!tableauUrl) {
-                        setTableauUrl('https://public.tableau.com/views/RiskComplianceAHTDashboard/Overview');
-                      }
-                    }}
-                    className="px-3.5 py-2 bg-[#0052CC] hover:bg-[#0065FF] text-white rounded-xl text-xs font-bold transition shadow-sm"
+                    onClick={handleRefreshTableauData}
+                    disabled={refreshingViz}
+                    className="px-3.5 py-2 rounded-xl bg-[#121316] hover:bg-[#252830] disabled:opacity-60 text-zinc-200 border border-[#2E323B] hover:border-[#0065FF] text-xs font-semibold transition shadow-sm flex items-center gap-2 self-start sm:self-auto"
+                    title="Limpiar caché de Tableau y consultar registros recientes en Neon PostgreSQL"
                   >
-                    Cargar
+                    <svg
+                      className={`w-3.5 h-3.5 text-[#4C9AFF] ${refreshingViz ? 'animate-spin' : ''}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                    <span>{refreshingViz ? 'Actualizando...' : 'Actualizar Datos'}</span>
                   </button>
                 </div>
-                {tableauUrl ? (
-                  <div className="w-full h-64 rounded-xl bg-[#121316] border border-[#2E323B] flex items-center justify-center text-zinc-400 text-xs">
-                    <iframe
-                      src={tableauUrl}
-                      className="w-full h-full rounded-xl"
-                      title="Tableau Embedded Dashboard"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-32 rounded-xl bg-[#121316] border border-dashed border-[#2E323B] flex items-center justify-center text-zinc-500 text-xs text-center p-4">
-                    Ingresa una URL de Tableau arriba o presiona &ldquo;Cargar&rdquo; para previsualizar la integración.
-                  </div>
-                )}
+
+                <div className="w-full block min-h-[850px] rounded-xl bg-[#121316] border border-[#2E323B] overflow-hidden">
+                  {tokenError ? (
+                    <div className="p-12 text-center space-y-3 max-w-md mx-auto">
+                      <p className="text-xs text-rose-300 font-medium">{tokenError}</p>
+                      <button
+                        type="button"
+                        onClick={fetchTableauToken}
+                        className="px-4 py-2 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white text-xs font-semibold transition"
+                      >
+                        Reintentar autenticación
+                      </button>
+                    </div>
+                  ) : !jwtToken ? (
+                    <div className="flex items-center justify-center space-x-2.5 text-zinc-400 text-xs min-h-[850px]">
+                      <svg className="animate-spin h-5 w-5 text-[#0065FF]" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      <span>Autenticando sesión segura con Tableau Cloud...</span>
+                    </div>
+                  ) : (
+                    React.createElement('tableau-viz', {
+                      ref: (el: TableauVizElement | null) => {
+                        vizRef.current = el;
+                      },
+                      id: 'tableauViz',
+                      src: TABLEAU_VIZ_URL,
+                      token: jwtToken,
+                      device: 'desktop',
+                      width: '100%',
+                      height: '850px',
+                      toolbar: 'hidden',
+                      'hide-tabs': true,
+                      style: {
+                        width: '100%',
+                        minWidth: '100%',
+                        height: '850px',
+                        display: 'block',
+                      },
+                    })
+                  )}
+                </div>
               </div>
             </div>
           </section>

@@ -191,259 +191,259 @@ export default function AuthPage() {
 
   // ================= TARJETA DE ACCESO (Login / Registro) =================
   const authCard = (
-      <div className="max-w-md w-full space-y-8 bg-[#1C1E24] p-8 rounded-xl shadow-md border border-[#2E323B]">
+    <div className="max-w-md w-full space-y-8 bg-[#1C1E24] p-8 rounded-xl shadow-md border border-[#2E323B]">
 
-        {/* Encabezado */}
-        <div>
-          <div className="flex justify-center mb-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#121316] border border-[#2E323B] flex items-center justify-center p-2 shadow-sm">
-              <Image
-                src="/suth-logo.png"
-                alt="Sutherland Logo"
-                width={50}
-                height={50}
-                className="w-full h-full object-contain"
-                priority
-              />
-            </div>
+      {/* Encabezado */}
+      <div>
+        <div className="flex justify-center mb-3">
+          <div className="w-14 h-14 rounded-2xl bg-[#121316] border border-[#2E323B] flex items-center justify-center p-2 shadow-sm">
+            <Image
+              src="/suth-logo.png"
+              alt="Sutherland Logo"
+              width={50}
+              height={50}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold text-white tracking-tight">
-            {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
-          </h2>
-          <p className="mt-2 text-center text-sm text-zinc-400">
-            {isSignUp
-              ? 'Sistema de Estandarización de Registros y Métricas (AHT)'
-              : 'Ingresa con tu cuenta corporativa'}
-          </p>
         </div>
+        <h2 className="mt-2 text-center text-3xl font-extrabold text-white tracking-tight">
+          {isSignUp ? 'Crear Cuenta' : 'Iniciar Sesión'}
+        </h2>
+        <p className="mt-2 text-center text-sm text-zinc-400">
+          {isSignUp
+            ? 'Sistema de Estandarización de Registros y Métricas (AHT)'
+            : 'Ingresa con tu cuenta corporativa'}
+        </p>
+      </div>
 
-        {/* Alerta de Error */}
-        {error && (
-          <div className="bg-[#DE1B54]/10 border border-[#DE1B54]/40 text-[#F43F5E] text-sm p-3 rounded-lg flex items-center space-x-2 animate-fadeIn">
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{error}</span>
-          </div>
-        )}
+      {/* Alerta de Error */}
+      {error && (
+        <div className="bg-[#DE1B54]/10 border border-[#DE1B54]/40 text-[#F43F5E] text-sm p-3 rounded-lg flex items-center space-x-2 animate-fadeIn">
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
 
-        {/* Alerta de Éxito */}
-        {success && (
-          <div className="bg-[#0052CC]/15 border border-[#0052CC]/40 text-[#4C9AFF] text-sm p-3 rounded-lg flex items-center space-x-2 animate-fadeIn">
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{success}</span>
-          </div>
-        )}
+      {/* Alerta de Éxito */}
+      {success && (
+        <div className="bg-[#0052CC]/15 border border-[#0052CC]/40 text-[#4C9AFF] text-sm p-3 rounded-lg flex items-center space-x-2 animate-fadeIn">
+          <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{success}</span>
+        </div>
+      )}
 
-        {/* Formulario de REGISTRO (SIGN UP) */}
-        {isSignUp ? (
-          <form className="mt-6 space-y-4" onSubmit={handleSignUpSubmit}>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Nombres: </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  required
-                  disabled={loading}
-                  value={signUpData.firstName}
-                  onChange={handleSignUpChange}
-                  className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                  placeholder="Ejm: Christian"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Apellidos: </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  required
-                  disabled={loading}
-                  value={signUpData.lastName}
-                  onChange={handleSignUpChange}
-                  className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                  placeholder="Ejm: Perez"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Fecha Nacimiento: </label>
-                <input
-                  type="date"
-                  name="birthDate"
-                  required
-                  disabled={loading}
-                  value={signUpData.birthDate}
-                  onChange={handleSignUpChange}
-                  className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Cédula: </label>
-                <input
-                  type="text"
-                  name="employeeId"
-                  required
-                  disabled={loading}
-                  value={signUpData.employeeId}
-                  onChange={handleSignUpChange}
-                  className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                  placeholder="1000123456"
-                />
-              </div>
-            </div>
-
+      {/* Formulario de REGISTRO (SIGN UP) */}
+      {isSignUp ? (
+        <form className="mt-6 space-y-4" onSubmit={handleSignUpSubmit}>
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Correo Corporativo: </label>
-              <input
-                type="email"
-                name="email"
-                required
-                disabled={loading}
-                value={signUpData.email}
-                onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                placeholder="agente@sutherlandglobal.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">
-                Llave de Acceso <span className="text-zinc-400 font-normal">(Ingresa la llave de administrador)</span>:
-              </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Nombres: </label>
               <input
                 type="text"
-                name="accessKey"
-                disabled={loading}
-                value={signUpData.accessKey}
-                onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50 font-mono uppercase"
-                placeholder="Si eres Agente, este campo es opcional"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Contraseña: </label>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  minLength={6}
-                  disabled={loading}
-                  value={signUpData.password}
-                  onChange={handleSignUpChange}
-                  className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Confirmar: </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  required
-                  disabled={loading}
-                  value={signUpData.confirmPassword}
-                  onChange={handleSignUpChange}
-                  className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-2 flex items-center justify-center space-x-2"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                  </svg>
-                  <span>Creando usuario...</span>
-                </>
-              ) : (
-                <span>Registrarse</span>
-              )}
-            </button>
-          </form>
-        ) : (
-          /* Formulario de INICIO DE SESIÓN (LOG IN) */
-          <form className="mt-6 space-y-4" onSubmit={handleLoginSubmit}>
-            <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Correo Corporativo: </label>
-              <input
-                type="email"
-                name="email"
+                name="firstName"
                 required
                 disabled={loading}
-                value={loginData.email}
-                onChange={handleLoginChange}
+                value={signUpData.firstName}
+                onChange={handleSignUpChange}
                 className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-                placeholder="usuario@sutherlandglobal.com"
+                placeholder="Ejm: Christian"
               />
             </div>
+            <div>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Apellidos: </label>
+              <input
+                type="text"
+                name="lastName"
+                required
+                disabled={loading}
+                value={signUpData.lastName}
+                onChange={handleSignUpChange}
+                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                placeholder="Ejm: Perez"
+              />
+            </div>
+          </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Fecha Nacimiento: </label>
+              <input
+                type="date"
+                name="birthDate"
+                required
+                disabled={loading}
+                value={signUpData.birthDate}
+                onChange={handleSignUpChange}
+                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Cédula: </label>
+              <input
+                type="text"
+                name="employeeId"
+                required
+                disabled={loading}
+                value={signUpData.employeeId}
+                onChange={handleSignUpChange}
+                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                placeholder="1000123456"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">Correo Corporativo: </label>
+            <input
+              type="email"
+              name="email"
+              required
+              disabled={loading}
+              value={signUpData.email}
+              onChange={handleSignUpChange}
+              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+              placeholder="agente@sutherland.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">
+              Llave de Acceso <span className="text-zinc-400 font-normal">(Ingresa la llave de administrador)</span>:
+            </label>
+            <input
+              type="text"
+              name="accessKey"
+              disabled={loading}
+              value={signUpData.accessKey}
+              onChange={handleSignUpChange}
+              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50 font-mono uppercase"
+              placeholder="Si eres Agente, este campo es opcional"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-zinc-300 mb-1">Contraseña: </label>
               <input
                 type="password"
                 name="password"
                 required
+                minLength={6}
                 disabled={loading}
-                value={loginData.password}
-                onChange={handleLoginChange}
+                value={signUpData.password}
+                onChange={handleSignUpChange}
                 className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                 placeholder="••••••••"
               />
             </div>
+            <div>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Confirmar: </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                required
+                disabled={loading}
+                value={signUpData.confirmPassword}
+                onChange={handleSignUpChange}
+                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-4 flex items-center justify-center space-x-2"
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                  </svg>
-                  <span>Iniciando sesión...</span>
-                </>
-              ) : (
-                <span>Iniciar Sesión</span>
-              )}
-            </button>
-          </form>
-        )}
-
-        {/* Botón para alternar entre Login y Registro */}
-        <div className="text-center pt-2 border-t border-[#2E323B]">
           <button
-            type="button"
+            type="submit"
             disabled={loading}
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError(null);
-              setSuccess(null);
-            }}
-            className="text-sm text-[#4C9AFF] hover:text-white font-medium focus:outline-none disabled:opacity-50"
+            className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-2 flex items-center justify-center space-x-2"
           >
-            {isSignUp
-              ? '¿Ya tienes una cuenta? Inicia sesión aquí'
-              : '¿No tienes cuenta? Regístrate aquí'}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Creando usuario...</span>
+              </>
+            ) : (
+              <span>Registrarse</span>
+            )}
           </button>
-        </div>
+        </form>
+      ) : (
+        /* Formulario de INICIO DE SESIÓN (LOG IN) */
+        <form className="mt-6 space-y-4" onSubmit={handleLoginSubmit}>
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">Correo Corporativo: </label>
+            <input
+              type="email"
+              name="email"
+              required
+              disabled={loading}
+              value={loginData.email}
+              onChange={handleLoginChange}
+              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+              placeholder="usuario@sutherland.com"
+            />
+          </div>
 
+          <div>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">Contraseña: </label>
+            <input
+              type="password"
+              name="password"
+              required
+              disabled={loading}
+              value={loginData.password}
+              onChange={handleLoginChange}
+              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-4 flex items-center justify-center space-x-2"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Iniciando sesión...</span>
+              </>
+            ) : (
+              <span>Iniciar Sesión</span>
+            )}
+          </button>
+        </form>
+      )}
+
+      {/* Botón para alternar entre Login y Registro */}
+      <div className="text-center pt-2 border-t border-[#2E323B]">
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => {
+            setIsSignUp(!isSignUp);
+            setError(null);
+            setSuccess(null);
+          }}
+          className="text-sm text-[#4C9AFF] hover:text-white font-medium focus:outline-none disabled:opacity-50"
+        >
+          {isSignUp
+            ? '¿Ya tienes una cuenta? Inicia sesión aquí'
+            : '¿No tienes cuenta? Regístrate aquí'}
+        </button>
       </div>
+
+    </div>
   );
 
   // ================= NAVEGACIÓN DE LA PÁGINA DE INICIO =================
@@ -557,11 +557,10 @@ export default function AuthPage() {
                 key={item.label}
                 type="button"
                 onClick={item.onClick}
-                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition ${
-                  item.active
+                className={`px-3.5 py-2 rounded-lg text-sm font-medium transition ${item.active
                     ? 'bg-[#0052CC] text-white border border-[#0065FF]'
                     : 'text-zinc-300 hover:text-white hover:bg-[#1C1E24] border border-transparent'
-                }`}
+                  }`}
               >
                 {item.label}
               </button>
@@ -593,9 +592,8 @@ export default function AuthPage() {
                 key={item.label}
                 type="button"
                 onClick={item.onClick}
-                className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${
-                  item.active ? 'bg-[#0052CC] text-white' : 'text-zinc-300 hover:bg-[#1C1E24]'
-                }`}
+                className={`block w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${item.active ? 'bg-[#0052CC] text-white' : 'text-zinc-300 hover:bg-[#1C1E24]'
+                  }`}
               >
                 {item.label}
               </button>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Script from 'next/script';
 import { formatFullName, toTitleCase } from '@/lib/validation/userValidation';
+import ActiveCaseTimer from '@/components/admin/ActiveCaseTimer';
 
 interface TableauVizElement extends HTMLElement {
   refreshDataAsync?: () => Promise<void>;
@@ -55,6 +56,7 @@ export interface AgentData {
   isSuspended: boolean;
   liveStatus: 'ON_TASK' | 'SHIFT_NO_TASK' | 'OFF_SHIFT' | 'SUSPENDED';
   activeShift: { id: string; startTime: string } | null;
+  isTaskActive?: boolean;
   hasActiveTask: boolean;
   currentTaskType: string | null;
   taskStartedAt: string | null;
@@ -1031,6 +1033,16 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                             </span>
                           )}
                         </div>
+
+                        {/* Cronómetro en Tiempo Real del Caso Activo */}
+                        <ActiveCaseTimer
+                          isTaskActive={Boolean(
+                            (agent.isTaskActive ?? agent.hasActiveTask) &&
+                              agent.liveStatus !== 'OFF_SHIFT'
+                          )}
+                          taskStartedAt={agent.taskStartedAt}
+                          currentTaskType={agent.currentTaskType}
+                        />
                       </div>
 
                       {/* Botones de Acción */}

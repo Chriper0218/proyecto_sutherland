@@ -202,6 +202,7 @@ export async function GET() {
         isSuspended,
         liveStatus,
         activeShift,
+        isTaskActive: Boolean(agent.isTaskActive),
         hasActiveTask,
         currentTaskType: agent.currentTaskType,
         taskStartedAt: agent.taskStartedAt,

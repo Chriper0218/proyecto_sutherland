@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import { isValidCorporateEmail, toTitleCase } from '@/lib/validation/userValidation';
 
@@ -32,6 +33,152 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Estados del modal de recuperación de contraseña (2 pasos)
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLastName, setForgotLastName] = useState('');
+  const [forgotBirthDate, setForgotBirthDate] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState('');
+  const [forgotCompleted, setForgotCompleted] = useState(false);
+
+  const openForgotModal = () => {
+    setForgotStep(1);
+    setForgotEmail(loginData.email.trim());
+    setForgotLastName('');
+    setForgotBirthDate('');
+    setForgotNewPassword('');
+    setForgotConfirmPassword('');
+    setForgotError('');
+    setForgotSuccess('');
+    setForgotCompleted(false);
+    setShowForgotModal(true);
+  };
+
+  const closeForgotModal = () => {
+    if (forgotLoading) return;
+    setShowForgotModal(false);
+    setForgotNewPassword('');
+    setForgotConfirmPassword('');
+    setForgotError('');
+    setForgotSuccess('');
+    setForgotCompleted(false);
+  };
+
+  const handleVerifyIdentity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+    setForgotSuccess('');
+
+    if (!forgotEmail.trim() || !forgotLastName.trim() || !forgotBirthDate.trim()) {
+      setForgotError(
+        'Por favor completa tu correo (o ID), primer apellido y fecha de nacimiento.'
+      );
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'VERIFY',
+          email: forgotEmail,
+          lastName: forgotLastName,
+          birthDate: forgotBirthDate,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setForgotError(data.error || 'No fue posible verificar tu identidad.');
+        return;
+      }
+
+      setForgotSuccess(
+        data.message ||
+          'Identidad verificada correctamente. Ingresa tu nueva contraseña.'
+      );
+      setForgotStep(2);
+    } catch (err) {
+      console.error('Error al verificar identidad:', err);
+      setForgotError('Error de conexión con el servidor. Intenta nuevamente.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+    setForgotSuccess('');
+
+    if (forgotNewPassword.length < 6 || forgotNewPassword.length > 100) {
+      setForgotError('La nueva contraseña debe tener entre 6 y 100 caracteres.');
+      return;
+    }
+
+    if (forgotNewPassword !== forgotConfirmPassword) {
+      setForgotError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'RESET',
+          email: forgotEmail,
+          lastName: forgotLastName,
+          birthDate: forgotBirthDate,
+          newPassword: forgotNewPassword,
+          confirmPassword: forgotConfirmPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setForgotError(data.error || 'No se pudo actualizar la contraseña.');
+        return;
+      }
+
+      const normalizedIdentifier = forgotEmail.trim().toLowerCase();
+      setForgotCompleted(true);
+      setForgotSuccess(
+        data.message ||
+          'Contraseña actualizada exitosamente. Ya puedes iniciar sesión.'
+      );
+      setForgotNewPassword('');
+      setForgotConfirmPassword('');
+
+      if (normalizedIdentifier.includes('@')) {
+        setLoginData({ email: normalizedIdentifier, password: '' });
+      } else {
+        setLoginData((prev) => ({ ...prev, password: '' }));
+      }
+      setError(null);
+      setSuccess('Contraseña actualizada. Ya puedes iniciar sesión con tu nueva clave.');
+
+      setTimeout(() => {
+        setShowForgotModal(false);
+        setForgotCompleted(false);
+        setForgotSuccess('');
+      }, 1800);
+    } catch (err) {
+      console.error('Error al restablecer contraseña:', err);
+      setForgotError('Error de conexión con el servidor. Intenta nuevamente.');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
 
   // Manejo de cambios en los inputs de Registro
   const handleSignUpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -392,7 +539,17 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">Contraseña: </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-medium text-zinc-300">Contraseña: </label>
+              <button
+                type="button"
+                disabled={loading}
+                onClick={openForgotModal}
+                className="text-xs font-medium text-[#4C9AFF] hover:text-[#0065FF] transition-colors focus:outline-none disabled:opacity-50"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
             <input
               type="password"
               name="password"
@@ -802,6 +959,254 @@ export default function AuthPage() {
           &copy; {new Date().getFullYear()} Christian Pérez Vega &bull; Universidad de la Costa &bull; Barranquilla, Colombia
         </div>
       </footer>
+
+      {/* ================= MODAL DE RECUPERACIÓN DE CONTRASEÑA ================= */}
+      {showForgotModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="forgot-password-title"
+        >
+          <div className="max-w-md w-full bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-6 sm:p-7 shadow-xl space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3
+                  id="forgot-password-title"
+                  className="text-xl font-extrabold text-white tracking-tight"
+                >
+                  Recuperar Contraseña
+                </h3>
+                <p className="mt-1 text-xs text-zinc-400">
+                  Valida tu identidad registrada para establecer una nueva contraseña.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={forgotLoading}
+                onClick={closeForgotModal}
+                aria-label="Cerrar modal"
+                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-[#121316] border border-transparent hover:border-[#2E323B] transition disabled:opacity-50"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Indicador visual de pasos */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div
+                className={`px-3 py-2 rounded-lg border font-semibold text-center transition ${
+                  forgotStep === 1
+                    ? 'bg-[#0052CC]/20 border-[#0065FF] text-[#4C9AFF]'
+                    : 'bg-[#121316] border-[#2E323B] text-zinc-400'
+                }`}
+              >
+                1. Validación de Identidad
+              </div>
+              <div
+                className={`px-3 py-2 rounded-lg border font-semibold text-center transition ${
+                  forgotStep === 2
+                    ? 'bg-[#0052CC]/20 border-[#0065FF] text-[#4C9AFF]'
+                    : 'bg-[#121316] border-[#2E323B] text-zinc-500'
+                }`}
+              >
+                2. Nueva Contraseña
+              </div>
+            </div>
+
+            {forgotError && (
+              <div className="bg-[#DE1B54]/10 border border-[#DE1B54]/40 text-[#F43F5E] text-sm p-3 rounded-lg flex items-center space-x-2">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{forgotError}</span>
+              </div>
+            )}
+
+            {forgotSuccess && (
+              <div className="bg-[#0052CC]/15 border border-[#0052CC]/40 text-[#4C9AFF] text-sm p-3 rounded-lg flex items-center space-x-2">
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{forgotSuccess}</span>
+              </div>
+            )}
+
+            {forgotStep === 1 ? (
+              <form onSubmit={handleVerifyIdentity} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Correo Corporativo o ID de Empleado:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    disabled={forgotLoading}
+                    value={forgotEmail}
+                    onChange={(e) => {
+                      setForgotEmail(e.target.value);
+                      setForgotError('');
+                    }}
+                    placeholder="usuario@sutherland.com o cédula"
+                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Primer Apellido:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    disabled={forgotLoading}
+                    value={forgotLastName}
+                    onChange={(e) => {
+                      setForgotLastName(e.target.value);
+                      setForgotError('');
+                    }}
+                    placeholder="Ejm: Perez"
+                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Fecha de Nacimiento:
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    disabled={forgotLoading}
+                    value={forgotBirthDate}
+                    onChange={(e) => {
+                      setForgotBirthDate(e.target.value);
+                      setForgotError('');
+                    }}
+                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    disabled={forgotLoading}
+                    onClick={closeForgotModal}
+                    className="px-4 py-2.5 rounded-lg bg-[#121316] hover:bg-[#252830] border border-[#2E323B] text-zinc-300 text-sm font-medium transition disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="flex-1 py-2.5 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200"
+                  >
+                    {forgotLoading ? 'Verificando...' : 'Verificar Identidad'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div className="px-3 py-2 rounded-lg bg-[#121316] border border-[#2E323B] text-xs text-zinc-300 flex items-center justify-between gap-2">
+                  <span className="truncate">
+                    Cuenta:{' '}
+                    <strong className="text-white">
+                      {forgotEmail.trim().toLowerCase()}
+                    </strong>
+                  </span>
+                  {!forgotCompleted && (
+                    <button
+                      type="button"
+                      disabled={forgotLoading}
+                      onClick={() => {
+                        setForgotStep(1);
+                        setForgotError('');
+                        setForgotSuccess('');
+                        setForgotNewPassword('');
+                        setForgotConfirmPassword('');
+                      }}
+                      className="text-[#4C9AFF] hover:text-[#0065FF] font-medium shrink-0"
+                    >
+                      Cambiar datos
+                    </button>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Nueva contraseña:
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    disabled={forgotLoading || forgotCompleted}
+                    value={forgotNewPassword}
+                    onChange={(e) => {
+                      setForgotNewPassword(e.target.value);
+                      setForgotError('');
+                    }}
+                    placeholder="Mínimo 6 caracteres"
+                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-zinc-300 mb-1">
+                    Confirmar nueva contraseña:
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    disabled={forgotLoading || forgotCompleted}
+                    value={forgotConfirmPassword}
+                    onChange={(e) => {
+                      setForgotConfirmPassword(e.target.value);
+                      setForgotError('');
+                    }}
+                    placeholder="••••••••"
+                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    disabled={forgotLoading}
+                    onClick={closeForgotModal}
+                    className="px-4 py-2.5 rounded-lg bg-[#121316] hover:bg-[#252830] border border-[#2E323B] text-zinc-300 text-sm font-medium transition disabled:opacity-50"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading || forgotCompleted}
+                    className="flex-1 py-2.5 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200"
+                  >
+                    {forgotLoading
+                      ? 'Guardando...'
+                      : forgotCompleted
+                        ? 'Contraseña Actualizada'
+                        : 'Guardar Nueva Contraseña'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="pt-2 border-t border-[#2E323B] text-center">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-zinc-400 hover:text-[#4C9AFF] transition-colors"
+              >
+                Abrir recuperación en página dedicada
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

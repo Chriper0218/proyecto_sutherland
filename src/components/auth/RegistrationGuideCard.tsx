@@ -51,33 +51,33 @@ export default function RegistrationGuideCard() {
   return (
     <aside
       aria-label="Guía y reglas de registro"
-      className="w-full bg-[#1C1E24] border border-[#2E323B] rounded-xl p-6 sm:p-8 shadow-md space-y-6"
+      className="w-full h-full flex flex-col justify-between bg-[#1C1E24] border border-[#2E323B] rounded-xl p-5 sm:p-6 shadow-md space-y-4"
     >
-      <div className="space-y-2 border-b border-[#2E323B] pb-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
+      <div className="space-y-1.5 border-b border-[#2E323B] pb-3.5">
+        <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
           Paso a Paso
         </div>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+        <h2 className="text-xl font-extrabold text-white tracking-tight">
           Guía / Reglas de Registro
         </h2>
-        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+        <p className="text-xs text-zinc-400 leading-relaxed">
           Verifica cada requisito antes de crear tu cuenta para evitar rechazos de validación y asegurar la recuperación futura de tu acceso.
         </p>
       </div>
 
-      <ol className="space-y-4">
+      <ol className="space-y-2.5 flex-1 flex flex-col justify-between">
         {REGISTRATION_RULES.map((rule) => (
           <li
             key={rule.step}
-            className={`p-4 rounded-xl border transition ${
+            className={`p-3 rounded-xl border transition ${
               rule.highlight
                 ? 'bg-[#DE1B54]/10 border-[#DE1B54]/35'
                 : 'bg-[#121316] border-[#2E323B]'
             }`}
           >
-            <div className="flex items-start gap-3.5">
+            <div className="flex items-start gap-3">
               <span
-                className={`flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black font-mono border ${
+                className={`flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-xs font-black font-mono border ${
                   rule.highlight
                     ? 'bg-[#DE1B54]/20 border-[#DE1B54]/50 text-[#F43F5E]'
                     : 'bg-[#0052CC]/20 border-[#0065FF]/40 text-[#4C9AFF]'
@@ -85,9 +85,9 @@ export default function RegistrationGuideCard() {
               >
                 {rule.step}
               </span>
-              <div className="flex-1 space-y-1">
+              <div className="flex-1 space-y-0.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-sm font-bold text-white">{rule.title}</h3>
+                  <h3 className="text-[13px] font-bold text-white leading-snug">{rule.title}</h3>
                   <span
                     className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
                       rule.highlight
@@ -98,7 +98,7 @@ export default function RegistrationGuideCard() {
                     {rule.badge}
                   </span>
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed">{rule.description}</p>
+                <p className="text-xs text-zinc-400 leading-snug">{rule.description}</p>
               </div>
             </div>
           </li>

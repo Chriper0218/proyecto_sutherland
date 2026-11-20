@@ -184,53 +184,55 @@ export default function RegisterPage() {
       </nav>
 
       {/* Contenido Principal: Guía arriba en móvil / izquierda en escritorio + Formulario */}
-      <main className="flex-1 max-w-5xl w-full mx-auto py-10 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-6">
+      <main className="flex-1 max-w-5xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div className="lg:col-span-6 flex">
           <RegistrationGuideCard />
         </div>
 
-        <div className="lg:col-span-6 flex justify-center lg:justify-end">
-          <div className="max-w-lg w-full space-y-6 bg-[#1C1E24] p-8 rounded-xl shadow-md border border-[#2E323B]">
-            <div className="text-center">
-              <div className="flex justify-center mb-3">
-                <div className="w-14 h-14 rounded-2xl bg-[#121316] border border-[#2E323B] flex items-center justify-center p-2 shadow-sm">
-                  <Image
-                    src="/suth-logo.png"
-                    alt="Sutherland Logo"
-                    width={50}
-                    height={50}
-                    className="w-full h-full object-contain"
-                    priority
-                  />
+        <div className="lg:col-span-6 flex">
+          <div className="w-full h-full flex flex-col justify-between bg-[#1C1E24] p-6 sm:p-7 rounded-xl shadow-md border border-[#2E323B] space-y-5">
+            <div className="space-y-4">
+              <div className="text-center">
+                <div className="flex justify-center mb-2.5">
+                  <div className="w-12 h-12 rounded-2xl bg-[#121316] border border-[#2E323B] flex items-center justify-center p-2 shadow-sm">
+                    <Image
+                      src="/suth-logo.png"
+                      alt="Sutherland Logo"
+                      width={44}
+                      height={44}
+                      className="w-full h-full object-contain"
+                      priority
+                    />
+                  </div>
                 </div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  Crear Cuenta
+                </h1>
+                <p className="mt-1 text-xs sm:text-sm text-zinc-400">
+                  Sistema de Estandarización de Registros y Métricas (AHT)
+                </p>
               </div>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">
-                Crear Cuenta
-              </h1>
-              <p className="mt-2 text-sm text-zinc-400">
-                Sistema de Estandarización de Registros y Métricas (AHT)
-              </p>
+
+              {error && (
+                <div className="bg-[#DE1B54]/10 border border-[#DE1B54]/40 text-[#F43F5E] text-sm p-3 rounded-lg flex items-center space-x-2">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {success && (
+                <div className="bg-[#0052CC]/15 border border-[#0052CC]/40 text-[#4C9AFF] text-sm p-3 rounded-lg flex items-center space-x-2">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{success}</span>
+                </div>
+              )}
             </div>
 
-            {error && (
-              <div className="bg-[#DE1B54]/10 border border-[#DE1B54]/40 text-[#F43F5E] text-sm p-3 rounded-lg flex items-center space-x-2">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            {success && (
-              <div className="bg-[#0052CC]/15 border border-[#0052CC]/40 text-[#4C9AFF] text-sm p-3 rounded-lg flex items-center space-x-2">
-                <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{success}</span>
-              </div>
-            )}
-
-            <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+            <form className="flex-1 flex flex-col justify-between space-y-4" onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-300 mb-1">

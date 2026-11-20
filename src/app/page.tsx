@@ -376,8 +376,10 @@ export default function AuthPage() {
   const authCard = (
     <div
       className={`${
-        isSignUp ? 'max-w-lg' : 'max-w-md'
-      } w-full space-y-8 bg-[#1C1E24] p-8 rounded-xl shadow-md border border-[#2E323B]`}
+        isSignUp
+          ? 'w-full h-full flex flex-col justify-between p-6 sm:p-7 space-y-5'
+          : 'max-w-md w-full p-8 space-y-8'
+      } bg-[#1C1E24] rounded-xl shadow-md border border-[#2E323B]`}
     >
 
       {/* Encabezado */}
@@ -426,7 +428,11 @@ export default function AuthPage() {
 
       {/* Formulario de REGISTRO (SIGN UP) */}
       {isSignUp ? (
-        <form className="mt-6 space-y-4" onSubmit={handleSignUpSubmit} noValidate>
+        <form
+          className="mt-4 flex-1 flex flex-col justify-between space-y-3.5"
+          onSubmit={handleSignUpSubmit}
+          noValidate
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-zinc-300 mb-1">
@@ -844,12 +850,12 @@ export default function AuthPage() {
       {/* ================= CONTENIDO PRINCIPAL ================= */}
       <main id="inicio" className="flex-1 scroll-mt-20">
         {isSignUp ? (
-          /* Vista de REGISTRO: guía paso a paso + formulario de registro */
-          <div className="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            <div className="lg:col-span-6">
+          /* Vista de REGISTRO: guía paso a paso + formulario de registro con alturas iguales */
+          <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <div className="lg:col-span-6 flex">
               <RegistrationGuideCard />
             </div>
-            <div className="lg:col-span-6 flex justify-center lg:justify-end">
+            <div className="lg:col-span-6 flex">
               {authCard}
             </div>
           </div>

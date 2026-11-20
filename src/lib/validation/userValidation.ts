@@ -2,10 +2,15 @@
  * Validación, saneamiento, normalización y formateo para usuarios.
  */
 
-export const CORPORATE_EMAIL_REGEX = /^[a-z0-9._%+-]+@(sutherlandglobal\.com|sutherland\.com)$/i;
+export const CORPORATE_EMAIL_REGEX = /^[a-z0-9._%+-]+@sutherland\.com$/i;
 export const NAME_REGEX = /^[a-záéíóúüñ]+(?:\s[a-záéíóúüñ]+)*$/i;
 export const CEDULA_REGEX = /^[a-z0-9]+$/i;
 export const DANGEROUS_CHARS_REGEX = /[<>;"'`$\\{}]/;
+
+export const CORPORATE_EMAIL_ERROR_MESSAGE =
+  'El correo corporativo es obligatorio y debe terminar en @sutherland.com.';
+export const INVALID_ADMIN_KEY_MESSAGE =
+  'La llave de acceso no es correcta. Si eres empleado, por favor deja este campo vacío para continuar con tu registro.';
 
 export type UserRole = 'ADMIN' | 'EMPLOYEE';
 
@@ -53,11 +58,26 @@ export function formatFullName(firstName?: string | null, lastName?: string | nu
   return [toTitleCase(firstName), toTitleCase(lastName)].filter(Boolean).join(' ');
 }
 
-/** Valida que el correo tenga longitud válida y pertenezca al dominio corporativo. */
+/** Valida que el correo tenga longitud válida y pertenezca estrictamente al dominio @sutherland.com. */
 export function isValidCorporateEmail(email: string): boolean {
   const cleaned = email.trim().toLowerCase();
   if (!cleaned || cleaned.length > 120) return false;
-  return CORPORATE_EMAIL_REGEX.test(cleaned);
+  return CORPORATE_EMAIL_REGEX.test(cleaned) && cleaned.endsWith('@sutherland.com');
+}
+
+/** Verifica si una fecha de nacimiento YYYY-MM-DD corresponde a una persona mayor de 18 años. */
+export function isAdultBirthDate(dateString: string): boolean {
+  if (!dateString) return false;
+  const birth = new Date(dateString);
+  if (isNaN(birth.getTime())) return false;
+
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age >= 18;
 }
 
 /**
@@ -169,9 +189,12 @@ export function validateAndNormalizeRegistration(
     return { success: false, error: lastNameResult.error };
   }
 
-  const normalizedEmail = rawEmail.toLowerCase();
+  const normalizedEmail = rawEmail.trim().toLowerCase();
   if (!isValidCorporateEmail(normalizedEmail)) {
-    return { success: false, error: 'Debe ingresar un correo corporativo válido' };
+    return {
+      success: false,
+      error: CORPORATE_EMAIL_ERROR_MESSAGE,
+    };
   }
 
   if (password !== confirmPassword) {
@@ -190,25 +213,21 @@ export function validateAndNormalizeRegistration(
     return { success: false, error: 'La fecha de nacimiento no es válida.' };
   }
 
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const monthDiff = today.getMonth() - birth.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-  if (age < 18) {
+  if (!isAdultBirthDate(rawBirthDate)) {
     return {
       success: false,
       error: 'Debes ser mayor de 18 años para registrarte en el sistema.',
     };
   }
 
-  const isMasterAdmin =
-    Boolean(rawAccessKey) &&
-    (rawAccessKey.toUpperCase() === 'SADMIN' ||
-      (Boolean(envAdminKey) && rawAccessKey === envAdminKey?.trim()));
-
-  const role: UserRole = isMasterAdmin ? 'ADMIN' : 'EMPLOYEE';
+  const expectedAdminKey = envAdminKey?.trim() || 'SADMIN';
+  let role: UserRole = 'EMPLOYEE';
+  if (rawAccessKey !== '') {
+    if (rawAccessKey !== expectedAdminKey) {
+      return { success: false, error: INVALID_ADMIN_KEY_MESSAGE };
+    }
+    role = 'ADMIN';
+  }
 
   const idResult = buildPrefixedEmployeeId(rawEmployeeId, role);
   if (!idResult.valid) {

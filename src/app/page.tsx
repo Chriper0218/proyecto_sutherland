@@ -4,7 +4,14 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { isValidCorporateEmail, toTitleCase } from '@/lib/validation/userValidation';
+import {
+  CORPORATE_EMAIL_ERROR_MESSAGE,
+  INVALID_ADMIN_KEY_MESSAGE,
+  isAdultBirthDate,
+  isValidCorporateEmail,
+  toTitleCase,
+} from '@/lib/validation/userValidation';
+import RegistrationGuideCard from '@/components/auth/RegistrationGuideCard';
 
 export default function AuthPage() {
   const router = useRouter();
@@ -33,6 +40,8 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailFieldError, setEmailFieldError] = useState<string | null>(null);
+  const [accessKeyFieldError, setAccessKeyFieldError] = useState<string | null>(null);
 
   // Estados del modal de recuperación de contraseña (2 pasos)
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -182,10 +191,17 @@ export default function AuthPage() {
 
   // Manejo de cambios en los inputs de Registro
   const handleSignUpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setSignUpData({
       ...signUpData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+    if (name === 'email') {
+      setEmailFieldError(null);
+    }
+    if (name === 'accessKey') {
+      setAccessKeyFieldError(null);
+    }
     setError(null);
     setSuccess(null);
   };
@@ -200,53 +216,58 @@ export default function AuthPage() {
     setSuccess(null);
   };
 
-  // Validación de Mayoría de Edad (18 años)
-  const validateAge = (dateString: string): boolean => {
-    if (!dateString) return false;
-    const today = new Date();
-    const birthDate = new Date(dateString);
-    if (isNaN(birthDate.getTime())) return false;
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age >= 18;
-  };
-
   // Envío del formulario de Registro
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setEmailFieldError(null);
+    setAccessKeyFieldError(null);
 
-    // 1. Validar que los campos obligatorios no contengan solo espacios
+    const normalizedFirstName = signUpData.firstName.trim().toLowerCase();
+    const normalizedLastName = signUpData.lastName.trim().toLowerCase();
+    const normalizedEmail = signUpData.email.trim().toLowerCase();
+    const trimmedEmployeeId = signUpData.employeeId.trim();
+    const trimmedAccessKey = signUpData.accessKey.trim();
+
+    // 1. Validar que los campos obligatorios no estén vacíos
     if (
-      !signUpData.firstName.trim() ||
-      !signUpData.lastName.trim() ||
-      !signUpData.employeeId.trim() ||
-      !signUpData.email.trim()
+      !normalizedFirstName ||
+      !normalizedLastName ||
+      !signUpData.birthDate ||
+      !trimmedEmployeeId
     ) {
       setError('Todos los campos marcados son obligatorios.');
       return;
     }
 
-    // 2. Validar dominio del correo corporativo
-    if (!isValidCorporateEmail(signUpData.email.trim())) {
-      setError('Debe ingresar un correo corporativo válido');
+    // 2. Validar dominio obligatorio del correo corporativo (@sutherland.com)
+    if (!isValidCorporateEmail(normalizedEmail)) {
+      setEmailFieldError(CORPORATE_EMAIL_ERROR_MESSAGE);
+      setError(CORPORATE_EMAIL_ERROR_MESSAGE);
       return;
     }
 
-    // 3. Validar que las contraseñas coincidan
+    // 3. Validar llave de administrador (vacía = empleado; distinta a "SADMIN" = bloqueado)
+    if (trimmedAccessKey !== '' && trimmedAccessKey !== 'SADMIN') {
+      setAccessKeyFieldError(INVALID_ADMIN_KEY_MESSAGE);
+      setError(INVALID_ADMIN_KEY_MESSAGE);
+      return;
+    }
+
+    // 4. Validar contraseña y confirmación
+    if (signUpData.password.length < 6 || signUpData.password.length > 100) {
+      setError('La contraseña debe tener entre 6 y 100 caracteres.');
+      return;
+    }
+
     if (signUpData.password !== signUpData.confirmPassword) {
       setError('Las contraseñas no coinciden.');
       return;
     }
 
-    // 4. Validar mayoría de edad
-    if (!validateAge(signUpData.birthDate)) {
+    // 5. Validar mayoría de edad
+    if (!isAdultBirthDate(signUpData.birthDate)) {
       setError('Debes ser mayor de 18 años para registrarte.');
       return;
     }
@@ -259,13 +280,28 @@ export default function AuthPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(signUpData),
+        body: JSON.stringify({
+          firstName: normalizedFirstName,
+          lastName: normalizedLastName,
+          birthDate: signUpData.birthDate,
+          employeeId: trimmedEmployeeId,
+          email: normalizedEmail,
+          accessKey: trimmedAccessKey,
+          password: signUpData.password,
+          confirmPassword: signUpData.confirmPassword,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Ocurrió un error al procesar el registro.');
+        const serverError = data.error || 'Ocurrió un error al procesar el registro.';
+        if (serverError === INVALID_ADMIN_KEY_MESSAGE) {
+          setAccessKeyFieldError(serverError);
+        } else if (serverError.toLowerCase().includes('correo')) {
+          setEmailFieldError(serverError);
+        }
+        setError(serverError);
         return;
       }
 
@@ -338,7 +374,11 @@ export default function AuthPage() {
 
   // ================= TARJETA DE ACCESO (Login / Registro) =================
   const authCard = (
-    <div className="max-w-md w-full space-y-8 bg-[#1C1E24] p-8 rounded-xl shadow-md border border-[#2E323B]">
+    <div
+      className={`${
+        isSignUp ? 'max-w-lg' : 'max-w-md'
+      } w-full space-y-8 bg-[#1C1E24] p-8 rounded-xl shadow-md border border-[#2E323B]`}
+    >
 
       {/* Encabezado */}
       <div>
@@ -386,10 +426,12 @@ export default function AuthPage() {
 
       {/* Formulario de REGISTRO (SIGN UP) */}
       {isSignUp ? (
-        <form className="mt-6 space-y-4" onSubmit={handleSignUpSubmit}>
-          <div className="grid grid-cols-2 gap-3">
+        <form className="mt-6 space-y-4" onSubmit={handleSignUpSubmit} noValidate>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Nombres: </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">
+                Primer Nombre:
+              </label>
               <input
                 type="text"
                 name="firstName"
@@ -402,7 +444,9 @@ export default function AuthPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Apellidos: </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">
+                Primer Apellido:
+              </label>
               <input
                 type="text"
                 name="lastName"
@@ -416,9 +460,11 @@ export default function AuthPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Fecha Nacimiento: </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">
+                Fecha de Nacimiento:
+              </label>
               <input
                 type="date"
                 name="birthDate"
@@ -430,7 +476,9 @@ export default function AuthPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Cédula: </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">
+                Número de Cédula:
+              </label>
               <input
                 type="text"
                 name="employeeId"
@@ -445,7 +493,9 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">Correo Corporativo: </label>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">
+              Correo Corporativo:
+            </label>
             <input
               type="email"
               name="email"
@@ -453,14 +503,31 @@ export default function AuthPage() {
               disabled={loading}
               value={signUpData.email}
               onChange={handleSignUpChange}
-              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
-              placeholder="agente@sutherland.com"
+              onBlur={() => {
+                const trimmed = signUpData.email.trim().toLowerCase();
+                if (trimmed && !isValidCorporateEmail(trimmed)) {
+                  setEmailFieldError(CORPORATE_EMAIL_ERROR_MESSAGE);
+                }
+              }}
+              className={`w-full px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 ${
+                emailFieldError
+                  ? 'border-[#DE1B54] focus:border-[#DE1B54]'
+                  : 'border-[#2E323B] focus:border-[#0065FF]'
+              }`}
+              placeholder="usuario@sutherland.com"
             />
+            {emailFieldError && (
+              <p className="text-xs text-[#F43F5E] mt-1.5">{emailFieldError}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-xs font-medium text-zinc-300 mb-1">
-              Llave de Acceso <span className="text-zinc-400 font-normal">(Ingresa la llave de administrador)</span>:
+              Llave de Administrador{' '}
+              <span className="text-zinc-400 font-normal">
+                (Opcional — dejar vacío si eres empleado)
+              </span>
+              :
             </label>
             <input
               type="text"
@@ -468,9 +535,16 @@ export default function AuthPage() {
               disabled={loading}
               value={signUpData.accessKey}
               onChange={handleSignUpChange}
-              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50 font-mono uppercase"
-              placeholder="Si eres Agente, este campo es opcional"
+              className={`w-full px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 font-mono ${
+                accessKeyFieldError
+                  ? 'border-[#DE1B54] focus:border-[#DE1B54]'
+                  : 'border-[#2E323B] focus:border-[#0065FF]'
+              }`}
+              placeholder="Dejar vacío si eres empleado"
             />
+            {accessKeyFieldError && (
+              <p className="text-xs text-[#F43F5E] mt-1.5">{accessKeyFieldError}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -591,6 +665,8 @@ export default function AuthPage() {
             setIsSignUp(!isSignUp);
             setError(null);
             setSuccess(null);
+            setEmailFieldError(null);
+            setAccessKeyFieldError(null);
           }}
           className="text-sm text-[#4C9AFF] hover:text-white font-medium focus:outline-none disabled:opacity-50"
         >
@@ -617,6 +693,8 @@ export default function AuthPage() {
     setIsSignUp(false);
     setError(null);
     setSuccess(null);
+    setEmailFieldError(null);
+    setAccessKeyFieldError(null);
     scrollToId('inicio');
   };
 
@@ -624,6 +702,8 @@ export default function AuthPage() {
     setIsSignUp(false);
     setError(null);
     setSuccess(null);
+    setEmailFieldError(null);
+    setAccessKeyFieldError(null);
     scrollToId('acceso');
   };
 
@@ -631,6 +711,8 @@ export default function AuthPage() {
     setIsSignUp(true);
     setError(null);
     setSuccess(null);
+    setEmailFieldError(null);
+    setAccessKeyFieldError(null);
     scrollToId('inicio');
   };
 
@@ -762,8 +844,15 @@ export default function AuthPage() {
       {/* ================= CONTENIDO PRINCIPAL ================= */}
       <main id="inicio" className="flex-1 scroll-mt-20">
         {isSignUp ? (
-          /* Vista de REGISTRO: se mantiene la misma visual centrada */
-          <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">{authCard}</div>
+          /* Vista de REGISTRO: guía paso a paso + formulario de registro */
+          <div className="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-6">
+              <RegistrationGuideCard />
+            </div>
+            <div className="lg:col-span-6 flex justify-center lg:justify-end">
+              {authCard}
+            </div>
+          </div>
         ) : (
           <>
             {/* ===== HERO + LOGIN LATERAL DERECHO ===== */}

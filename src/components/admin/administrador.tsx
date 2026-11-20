@@ -48,6 +48,7 @@ export interface AgentData {
   firstName: string;
   lastName: string;
   email: string;
+  role?: 'ADMIN' | 'EMPLOYEE';
   createdAt: string;
   coachingCount: number;
   suspendedUntil: string | null;
@@ -140,6 +141,25 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
   // 3. Modal Detalle de Agente
   const [selectedAgentDetail, setSelectedAgentDetail] = useState<AgentData | null>(null);
+
+  // 4. Modal Eliminar Empleado (con doble validación del administrador)
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    agent: AgentData | null;
+    adminBirthDate: string;
+    adminPassword: string;
+    submitting: boolean;
+    error: string | null;
+    feedback: string | null;
+  }>({
+    isOpen: false,
+    agent: null,
+    adminBirthDate: '',
+    adminPassword: '',
+    submitting: false,
+    error: null,
+    feedback: null,
+  });
 
   // Estado Tableau Cloud Connected Apps (JWT)
   const [jwtToken, setJwtToken] = useState<string>('');
@@ -385,6 +405,77 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
         ...prev,
         submitting: false,
         error: 'Error de conexión al registrar el coaching.',
+      }));
+    }
+  };
+
+  // Manejo de eliminación de empleado con doble validación de seguridad
+  const handleDeleteAgent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deleteModal.agent) return;
+
+    if (!deleteModal.adminBirthDate || !deleteModal.adminPassword) {
+      setDeleteModal((prev) => ({
+        ...prev,
+        error: 'Debes ingresar tu fecha de nacimiento y tu contraseña actual de administrador.',
+      }));
+      return;
+    }
+
+    setDeleteModal((prev) => ({ ...prev, submitting: true, error: null, feedback: null }));
+    const targetId = deleteModal.agent.id;
+
+    try {
+      const res = await fetch('/api/admin/agents', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: targetId,
+          adminId: user.id,
+          adminBirthDate: deleteModal.adminBirthDate,
+          adminPassword: deleteModal.adminPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteModal((prev) => ({
+          ...prev,
+          submitting: false,
+          error: data.error || 'No se pudo eliminar al empleado.',
+        }));
+        return;
+      }
+
+      setAgents((prev) => prev.filter((ag) => ag.id !== targetId));
+      setSelectedAgentDetail((prev) => (prev?.id === targetId ? null : prev));
+      setDeleteModal((prev) => ({
+        ...prev,
+        submitting: false,
+        feedback: data.message || 'Empleado eliminado correctamente del sistema.',
+        adminBirthDate: '',
+        adminPassword: '',
+      }));
+
+      await fetchAgentsData();
+
+      setTimeout(() => {
+        setDeleteModal({
+          isOpen: false,
+          agent: null,
+          adminBirthDate: '',
+          adminPassword: '',
+          submitting: false,
+          error: null,
+          feedback: null,
+        });
+      }, 1200);
+    } catch (err) {
+      console.error('Error al eliminar empleado:', err);
+      setDeleteModal((prev) => ({
+        ...prev,
+        submitting: false,
+        error: 'Error de conexión al intentar eliminar al empleado.',
       }));
     }
   };
@@ -1000,6 +1091,36 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
                         </button>
+
+                        {/* Botón Eliminar (solo empleados, nunca admins) */}
+                        {agent.id !== user.id && (!agent.role || agent.role === 'EMPLOYEE') && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDeleteModal({
+                                isOpen: true,
+                                agent,
+                                adminBirthDate: '',
+                                adminPassword: '',
+                                submitting: false,
+                                error: null,
+                                feedback: null,
+                              });
+                            }}
+                            className="py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-rose-500 transition flex items-center justify-center gap-1 active:scale-95"
+                            title="Eliminar empleado permanentemente (requiere verificación del administrador)"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                            <span>Eliminar</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -1609,6 +1730,140 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 Cerrar Detalle
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL: ELIMINAR EMPLEADO (DOBLE VALIDACIÓN ADMIN) ================= */}
+      {deleteModal.isOpen && deleteModal.agent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#1C1E24] border border-rose-500/40 rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-4 relative">
+            <button
+              type="button"
+              disabled={deleteModal.submitting}
+              onClick={() =>
+                setDeleteModal({
+                  isOpen: false,
+                  agent: null,
+                  adminBirthDate: '',
+                  adminPassword: '',
+                  submitting: false,
+                  error: null,
+                  feedback: null,
+                })
+              }
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-[#252830] transition disabled:opacity-50"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+                  Acción Irreversible &bull; Doble Validación
+                </span>
+                <h3 className="text-lg font-black text-white">
+                  Eliminar a {formatFullName(deleteModal.agent.firstName, deleteModal.agent.lastName)}
+                </h3>
+                <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                  ID: {deleteModal.agent.employeeId} &bull; {deleteModal.agent.email}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/30 text-xs text-rose-200 leading-relaxed">
+              Esta acción eliminará permanentemente la cuenta del empleado y todo su historial de turnos, métricas AHT,
+              coachings y mensajes fantasma. Para confirmar, verifica tu identidad como administrador:
+            </div>
+
+            <form onSubmit={handleDeleteAgent} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-zinc-200 mb-1">
+                  Fecha de nacimiento del administrador:
+                </label>
+                <input
+                  type="date"
+                  required
+                  disabled={deleteModal.submitting}
+                  value={deleteModal.adminBirthDate}
+                  onChange={(e) =>
+                    setDeleteModal((prev) => ({ ...prev, adminBirthDate: e.target.value, error: null }))
+                  }
+                  className="w-full p-2.5 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white focus:outline-none focus:border-rose-500 disabled:opacity-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-200 mb-1">
+                  Contraseña actual del administrador:
+                </label>
+                <input
+                  type="password"
+                  required
+                  disabled={deleteModal.submitting}
+                  value={deleteModal.adminPassword}
+                  onChange={(e) =>
+                    setDeleteModal((prev) => ({ ...prev, adminPassword: e.target.value, error: null }))
+                  }
+                  placeholder="••••••••"
+                  className="w-full p-2.5 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-rose-500 disabled:opacity-50"
+                />
+              </div>
+
+              {deleteModal.error && (
+                <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 font-medium">
+                  {deleteModal.error}
+                </div>
+              )}
+
+              {deleteModal.feedback && (
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 font-medium">
+                  {deleteModal.feedback}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={deleteModal.submitting}
+                  onClick={() =>
+                    setDeleteModal({
+                      isOpen: false,
+                      agent: null,
+                      adminBirthDate: '',
+                      adminPassword: '',
+                      submitting: false,
+                      error: null,
+                      feedback: null,
+                    })
+                  }
+                  className="px-4 py-2 bg-[#121316] hover:bg-[#252830] text-zinc-300 border border-[#2E323B] rounded-xl text-xs font-semibold disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={
+                    deleteModal.submitting ||
+                    !deleteModal.adminBirthDate ||
+                    !deleteModal.adminPassword
+                  }
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5"
+                >
+                  {deleteModal.submitting ? 'Eliminando...' : 'Confirmar y Eliminar Empleado'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

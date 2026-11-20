@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -19,6 +20,7 @@ export async function GET() {
         firstName: true,
         lastName: true,
         email: true,
+        role: true,
         createdAt: true,
         coachingCount: true,
         suspendedUntil: true,
@@ -193,6 +195,7 @@ export async function GET() {
         firstName: agent.firstName,
         lastName: agent.lastName,
         email: agent.email,
+        role: agent.role,
         createdAt: agent.createdAt,
         coachingCount: agent.coachingCount,
         suspendedUntil: agent.suspendedUntil,
@@ -253,6 +256,123 @@ export async function GET() {
     console.error('Error en GET /api/admin/agents:', error);
     return NextResponse.json(
       { error: 'Error al consultar agentes y métricas en el servidor' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/admin/agents - Eliminar usuario empleado con doble validación del administrador
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const agentId = typeof body?.agentId === 'string' ? body.agentId.trim() : '';
+    const adminId = typeof body?.adminId === 'string' ? body.adminId.trim() : '';
+    const adminBirthDate = typeof body?.adminBirthDate === 'string' ? body.adminBirthDate.trim() : '';
+    const adminPassword = typeof body?.adminPassword === 'string' ? body.adminPassword : '';
+
+    if (!agentId || !adminId || !adminBirthDate || !adminPassword) {
+      return NextResponse.json(
+        { error: 'Debes ingresar tu fecha de nacimiento y tu contraseña actual de administrador.' },
+        { status: 400 }
+      );
+    }
+
+    if (agentId === adminId) {
+      return NextResponse.json(
+        { error: 'No puedes eliminar tu propia cuenta.' },
+        { status: 403 }
+      );
+    }
+
+    // 1. Verificar administrador autenticado
+    const adminUser = await prisma.user.findUnique({
+      where: { id: adminId },
+      select: {
+        id: true,
+        role: true,
+        birthDate: true,
+        password: true,
+      },
+    });
+
+    if (!adminUser || adminUser.role !== 'ADMIN') {
+      return NextResponse.json(
+        { error: 'Acceso denegado: Se requieren permisos de Administrador.' },
+        { status: 403 }
+      );
+    }
+
+    // 2. Validar fecha de nacimiento en formato YYYY-MM-DD (UTC) para evitar desfases horarios
+    const storedBirthDate = adminUser.birthDate.toISOString().slice(0, 10);
+    if (adminBirthDate !== storedBirthDate) {
+      return NextResponse.json(
+        { error: 'La fecha de nacimiento no coincide con la registrada para el administrador actual.' },
+        { status: 401 }
+      );
+    }
+
+    // 3. Validar contraseña actual usando bcrypt
+    const isPasswordValid = await bcrypt.compare(adminPassword, adminUser.password);
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { error: 'La contraseña del administrador es incorrecta.' },
+        { status: 401 }
+      );
+    }
+
+    // 4. Verificar que el usuario objetivo exista y sea empleado
+    const targetUser = await prisma.user.findUnique({
+      where: { id: agentId },
+      select: {
+        id: true,
+        role: true,
+      },
+    });
+
+    if (!targetUser) {
+      return NextResponse.json(
+        { error: 'El empleado especificado no existe.' },
+        { status: 404 }
+      );
+    }
+
+    if (targetUser.role !== 'EMPLOYEE') {
+      return NextResponse.json(
+        { error: 'No está permitido eliminar cuentas con rol de Administrador.' },
+        { status: 403 }
+      );
+    }
+
+    // 5. Eliminar dependencias y usuario empleado en una transacción atómica
+    await prisma.$transaction([
+      prisma.coaching.deleteMany({
+        where: { OR: [{ agentId }, { adminId: agentId }] },
+      }),
+      prisma.ghostMessage.deleteMany({
+        where: { OR: [{ agentId }, { senderId: agentId }] },
+      }),
+      prisma.taskMetric.deleteMany({
+        where: { userId: agentId },
+      }),
+      prisma.shift.deleteMany({
+        where: { userId: agentId },
+      }),
+      prisma.user.delete({
+        where: { id: agentId },
+      }),
+    ]);
+
+    return NextResponse.json(
+      {
+        message: 'Empleado eliminado correctamente del sistema.',
+        deletedAgentId: agentId,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error en DELETE /api/admin/agents:', error);
+    return NextResponse.json(
+      { error: 'Error del servidor al intentar eliminar el empleado.' },
       { status: 500 }
     );
   }

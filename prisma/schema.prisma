@@ -58,7 +58,7 @@ model Shift {
   startTime   DateTime  @default(now()) // Hora de inicio del turno
   endTime     DateTime?                 // Hora de fin (nulo hasta que el empleado cierre turno)
   
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks       TaskMetric[] // Tareas realizadas dentro de este turno específico
 }
 
@@ -83,8 +83,8 @@ model TaskMetric {
   createdAt       DateTime  @default(now())
 
   // Relaciones
-  user            User      @relation(fields: [userId], references: [id])
-  shift           Shift?    @relation(fields: [shiftId], references: [id])
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shift           Shift?    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
 }
 
 // 5. MODELO DE MENSAJES FANTASMA (Supervisión -> Agente)
@@ -96,8 +96,8 @@ model GhostMessage {
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  sender    User     @relation("SentGhostMessages", fields: [senderId], references: [id])
-  agent     User     @relation("ReceivedGhostMessages", fields: [agentId], references: [id])
+  sender    User     @relation("SentGhostMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  agent     User     @relation("ReceivedGhostMessages", fields: [agentId], references: [id], onDelete: Cascade)
 }
 
 // 6. MODELO DE COACHING (Control de demoras y AHT fuera de target)
@@ -109,6 +109,6 @@ model Coaching {
   ahtAtTime Int?     // AHT promedio en segundos al momento del coaching
   createdAt DateTime @default(now())
 
-  agent     User     @relation("AgentCoachings", fields: [agentId], references: [id])
-  admin     User     @relation("GivenCoachings", fields: [adminId], references: [id])
+  agent     User     @relation("AgentCoachings", fields: [agentId], references: [id], onDelete: Cascade)
+  admin     User     @relation("GivenCoachings", fields: [adminId], references: [id], onDelete: Cascade)
 }

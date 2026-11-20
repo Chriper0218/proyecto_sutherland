@@ -20,10 +20,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      lang="es"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full flex flex-col bg-[#121316] text-zinc-100">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#121316] text-zinc-100 overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }

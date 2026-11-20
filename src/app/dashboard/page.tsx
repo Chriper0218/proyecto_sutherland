@@ -683,7 +683,7 @@ export default function DashboardPage() {
   const restrictionModalElement = restrictionModal.isOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
           <div
-            className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-5 relative"
+            className="w-[92%] max-w-md mx-auto max-h-[90vh] overflow-y-auto bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-6 shadow-lg space-y-5 relative"
             role="dialog"
             aria-modal="true"
           >
@@ -893,18 +893,18 @@ export default function DashboardPage() {
                   Al cerrar sesión volverás a la pantalla de autenticación. Deberás ingresar tus credenciales para volver a operar.
                 </p>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
+                <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-2">
                   <button
                     type="button"
                     onClick={closeRestrictionModal}
-                    className="py-2 px-4 rounded-xl bg-[#1C1E24] hover:bg-[#252830] text-zinc-300 font-semibold text-xs border border-[#2E323B] transition"
+                    className="min-h-[44px] py-2 px-4 rounded-xl bg-[#1C1E24] hover:bg-[#252830] text-zinc-300 font-semibold text-xs border border-[#2E323B] transition"
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
                     onClick={confirmLogout}
-                    className="py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-sm flex items-center gap-1.5"
+                    className="min-h-[44px] py-2 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs transition shadow-sm flex items-center justify-center gap-1.5"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -933,100 +933,102 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans overflow-x-hidden">
       {/* ================= HEADER PRINCIPAL ================= */}
-      <header className="border-b border-[#2E323B] bg-[#121316]/95 backdrop-blur sticky top-0 z-30 px-6 py-3.5 flex items-center justify-between shadow-lg">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm">
-            <Image
-              src="/suth-logo.png"
-              alt="Sutherland Logo"
-              width={40}
-              height={40}
-              className="w-full h-full object-contain"
-              priority
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold tracking-tight text-white">Annotations platform</h1>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
-                Risk & Compliance
-              </span>
+      <header className="border-b border-[#2E323B] bg-[#121316]/95 backdrop-blur sticky top-0 z-30 px-4 py-3.5 sm:px-6 lg:px-8 shadow-lg">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm shrink-0">
+              <Image
+                src="/suth-logo.png"
+                alt="Sutherland Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
-            <p className="text-xs text-zinc-400">Dashboard de Trabajo Operativo &bull; Estandarización de Notas (AHT)</p>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-sm sm:text-base font-bold tracking-tight text-white">Annotations platform</h1>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
+                  Risk &amp; Compliance
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 truncate">Dashboard de Trabajo Operativo &bull; Estandarización de Notas (AHT)</p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center space-x-4">
-          <div className="hidden sm:flex flex-col text-right">
-            <span className="text-xs font-semibold text-zinc-200">
-              {toTitleCase(user.firstName)} {toTitleCase(user.lastName)}
-            </span>
-            <span className="text-[11px] text-zinc-400 font-mono">ID: {user.employeeId}</span>
-          </div>
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 sm:gap-3">
+            <div className="hidden md:flex flex-col text-right">
+              <span className="text-xs font-semibold text-zinc-200">
+                {toTitleCase(user.firstName)} {toTitleCase(user.lastName)}
+              </span>
+              <span className="text-[11px] text-zinc-400 font-mono">ID: {user.employeeId}</span>
+            </div>
 
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => setAdminViewMode('ADMIN')}
-              className="text-xs px-3 py-1.5 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white font-bold transition flex items-center gap-1.5 shadow-sm"
-              title="Volver a la vista de supervisión y analítica de agentes"
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setAdminViewMode('ADMIN')}
+                className="min-h-[40px] text-xs px-3 py-1.5 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white font-bold transition flex items-center gap-1.5 shadow-sm"
+                title="Volver a la vista de supervisión y analítica de agentes"
+              >
+                <span>👑 Volver a Panel Admin</span>
+              </button>
+            )}
+
+            <span
+              className={`px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-full border ${isAdmin
+                ? 'bg-[#DE1B54]/15 text-[#DE1B54] border-[#DE1B54]/40'
+                : 'bg-[#0052CC]/15 text-[#4C9AFF] border-[#0052CC]/40'
+                }`}
             >
-              <span>👑 Volver a Panel Admin</span>
+              {isAdmin ? '👑 Rol: Administrador' : '💼 Rol: Analista de Riesgo'}
+            </span>
+
+            <button
+              onClick={handleLogout}
+              className={`min-h-[40px] text-xs px-3.5 py-1.5 rounded-lg border transition duration-150 flex items-center gap-1.5 ${isTaskActive || isShiftActive
+                ? 'bg-[#1C1E24] text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
+                : 'bg-[#1C1E24] hover:bg-red-500/10 hover:text-red-400 text-zinc-300 border-[#2E323B] hover:border-red-500/30'
+                }`}
+              title={
+                isTaskActive || isShiftActive
+                  ? '🔒 Restricción activa: Debes culminar la tarea y finalizar el turno antes de cerrar sesión'
+                  : 'Cerrar Sesión'
+              }
+            >
+              {isTaskActive || isShiftActive ? (
+                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+              )}
+              <span>Cerrar Sesión</span>
+              {(isTaskActive || isShiftActive) && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5" title="Restricción activa"></span>
+              )}
             </button>
-          )}
-
-          <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full border ${isAdmin
-              ? 'bg-[#DE1B54]/15 text-[#DE1B54] border-[#DE1B54]/40'
-              : 'bg-[#0052CC]/15 text-[#4C9AFF] border-[#0052CC]/40'
-              }`}
-          >
-            {isAdmin ? '👑 Rol: Administrador' : '💼 Rol: Analista de Riesgo'}
-          </span>
-
-          <button
-            onClick={handleLogout}
-            className={`text-xs px-3.5 py-1.5 rounded-lg border transition duration-150 flex items-center gap-1.5 ${isTaskActive || isShiftActive
-              ? 'bg-[#1C1E24] text-amber-300 border-amber-500/40 hover:bg-amber-500/10 hover:border-amber-500/60'
-              : 'bg-[#1C1E24] hover:bg-red-500/10 hover:text-red-400 text-zinc-300 border-[#2E323B] hover:border-red-500/30'
-              }`}
-            title={
-              isTaskActive || isShiftActive
-                ? '🔒 Restricción activa: Debes culminar la tarea y finalizar el turno antes de cerrar sesión'
-                : 'Cerrar Sesión'
-            }
-          >
-            {isTaskActive || isShiftActive ? (
-              <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            ) : (
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-            )}
-            <span>Cerrar Sesión</span>
-            {(isTaskActive || isShiftActive) && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5" title="Restricción activa"></span>
-            )}
-          </button>
+          </div>
         </div>
       </header>
 
       {/* ================= CONTENEDOR PRINCIPAL ================= */}
-      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
+      <main className="max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6 flex-1">
         {/* ================= 1. GESTIÓN DE TURNOS (SHIFT MANAGEMENT) ================= */}
         <section className="p-5 sm:p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-transparent rounded-full blur-3xl pointer-events-none"></div>
@@ -1371,7 +1373,7 @@ export default function DashboardPage() {
       {restrictionModalElement}
       {/* ================= NOTIFICACIÓN FLOTANTE DE MENSAJE FANTASMA (PARA EL AGENTE) ================= */}
       {activeGhostMessage && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md w-full animate-bounceIn shadow-lg">
+        <div className="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50 sm:max-w-md sm:w-full animate-bounceIn shadow-lg">
           <div className="bg-[#1C1E24] border-2 border-[#DE1B54]/60 rounded-2xl p-4 shadow-md backdrop-blur-md space-y-3 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-transparent rounded-full blur-2xl pointer-events-none"></div>
 

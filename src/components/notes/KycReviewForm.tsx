@@ -22,14 +22,14 @@ export const KycReviewForm: React.FC<KycReviewFormProps> = ({
   isTaskActive = false,
 }) => {
   return (
-    <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-6 shadow-md space-y-5">
-      <div className="flex items-center justify-between border-b border-[#2E323B] pb-4">
+    <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-4 sm:p-6 shadow-md space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2E323B] pb-4">
         <div>
           <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <span className="w-6 h-6 rounded-md bg-[#0052CC] flex items-center justify-center text-xs font-mono font-bold">
+            <span className="w-6 h-6 rounded-md bg-[#0052CC] flex items-center justify-center text-xs font-mono font-bold shrink-0">
               ID
             </span>
-            Formulario KYC: Proof of Identity
+            <span>Formulario KYC: Proof of Identity</span>
           </h3>
           <p className="text-xs text-zinc-400 mt-0.5">
             Completa las validaciones del documento primario para estandarizar la auditoría.
@@ -41,7 +41,7 @@ export const KycReviewForm: React.FC<KycReviewFormProps> = ({
           href="https://www.edisontd.nl/country-browser/"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-[#4C9AFF] hover:text-[#4C9AFF] border border-[#2E323B] text-xs font-semibold flex items-center gap-1.5 transition"
+          className="min-h-[40px] px-3 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-[#4C9AFF] hover:text-[#4C9AFF] border border-[#2E323B] text-xs font-semibold flex items-center gap-1.5 transition self-start sm:self-auto shrink-0"
         >
           <svg className="w-4 h-4 text-[#4C9AFF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />

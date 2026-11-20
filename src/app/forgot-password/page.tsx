@@ -119,8 +119,8 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col justify-center items-center px-4 py-10 font-sans">
-      <div className="max-w-md w-full bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-8 shadow-md space-y-6">
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col justify-center items-center px-4 py-6 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
+      <div className="w-full max-w-md bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-8 shadow-md space-y-6">
         <div className="text-center space-y-2">
           <div className="flex justify-center mb-2">
             <div className="w-14 h-14 rounded-2xl bg-[#121316] border border-[#2E323B] flex items-center justify-center p-2 shadow-sm">
@@ -143,9 +143,9 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Indicador de pasos */}
-        <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div
-            className={`px-3 py-2 rounded-lg border font-semibold text-center transition ${
+            className={`px-3 py-2.5 rounded-lg border font-semibold text-center transition ${
               step === 1
                 ? 'bg-[#0052CC]/20 border-[#0065FF] text-[#4C9AFF]'
                 : 'bg-[#121316] border-[#2E323B] text-zinc-400'
@@ -154,7 +154,7 @@ export default function ForgotPasswordPage() {
             1. Validación de Identidad
           </div>
           <div
-            className={`px-3 py-2 rounded-lg border font-semibold text-center transition ${
+            className={`px-3 py-2.5 rounded-lg border font-semibold text-center transition ${
               step === 2
                 ? 'bg-[#0052CC]/20 border-[#0065FF] text-[#4C9AFF]'
                 : 'bg-[#121316] border-[#2E323B] text-zinc-500'
@@ -218,7 +218,7 @@ export default function ForgotPasswordPage() {
                   setError('');
                 }}
                 placeholder="usuario@sutherland.com o cédula"
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               />
             </div>
 
@@ -236,7 +236,7 @@ export default function ForgotPasswordPage() {
                   setError('');
                 }}
                 placeholder="Ejm: Perez"
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               />
             </div>
 
@@ -253,21 +253,21 @@ export default function ForgotPasswordPage() {
                   setBirthDate(e.target.value);
                   setError('');
                 }}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 flex items-center justify-center space-x-2"
+              className="w-full min-h-[44px] py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 flex items-center justify-center space-x-2"
             >
               {loading ? <span>Verificando identidad...</span> : <span>Verificar Identidad</span>}
             </button>
           </form>
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-4">
-            <div className="px-3 py-2 rounded-lg bg-[#121316] border border-[#2E323B] text-xs text-zinc-300 flex items-center justify-between gap-2">
+            <div className="px-3 py-2.5 rounded-lg bg-[#121316] border border-[#2E323B] text-xs text-zinc-300 flex items-center justify-between gap-2">
               <span className="truncate">
                 Cuenta: <strong className="text-white">{email.trim().toLowerCase()}</strong>
               </span>
@@ -304,7 +304,7 @@ export default function ForgotPasswordPage() {
                   setError('');
                 }}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               />
             </div>
 
@@ -323,14 +323,14 @@ export default function ForgotPasswordPage() {
                   setError('');
                 }}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || completed}
-              className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 flex items-center justify-center space-x-2"
+              className="w-full min-h-[44px] py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <span>Guardando contraseña...</span>

@@ -149,10 +149,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans">
-      {/* Navbar simple */}
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans overflow-x-hidden">
+      {/* Navbar adaptable */}
       <nav className="sticky top-0 z-40 bg-[#121316]/95 backdrop-blur border-b border-[#2E323B] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm">
               <Image
@@ -176,7 +176,7 @@ export default function RegisterPage() {
 
           <Link
             href="/"
-            className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-300 hover:text-white bg-[#1C1E24] border border-[#2E323B] hover:border-[#0065FF] transition"
+            className="min-h-[44px] px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-zinc-300 hover:text-white bg-[#1C1E24] border border-[#2E323B] hover:border-[#0065FF] transition inline-flex items-center justify-center"
           >
             ← Volver a Iniciar Sesión
           </Link>
@@ -184,13 +184,13 @@ export default function RegisterPage() {
       </nav>
 
       {/* Contenido Principal: Guía arriba en móvil / izquierda en escritorio + Formulario */}
-      <main className="flex-1 max-w-5xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div className="lg:col-span-6 flex">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <div className="flex">
           <RegistrationGuideCard />
         </div>
 
-        <div className="lg:col-span-6 flex">
-          <div className="w-full h-full flex flex-col justify-between bg-[#1C1E24] p-6 sm:p-7 rounded-xl shadow-md border border-[#2E323B] space-y-5">
+        <div className="flex">
+          <div className="w-full h-full flex flex-col justify-between bg-[#1C1E24] p-5 sm:p-7 rounded-xl shadow-md border border-[#2E323B] space-y-5">
             <div className="space-y-4">
               <div className="text-center">
                 <div className="flex justify-center mb-2.5">
@@ -245,7 +245,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                     placeholder="Ejm: Christian"
                   />
                 </div>
@@ -260,7 +260,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                     placeholder="Ejm: Perez"
                   />
                 </div>
@@ -278,7 +278,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     value={formData.birthDate}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                   />
                 </div>
                 <div>
@@ -292,7 +292,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     value={formData.employeeId}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                     placeholder="1000123456"
                   />
                 </div>
@@ -315,7 +315,7 @@ export default function RegisterPage() {
                       setEmailFieldError(CORPORATE_EMAIL_ERROR_MESSAGE);
                     }
                   }}
-                  className={`w-full px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 ${
+                  className={`w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 ${
                     emailFieldError
                       ? 'border-[#DE1B54] focus:border-[#DE1B54]'
                       : 'border-[#2E323B] focus:border-[#0065FF]'
@@ -341,7 +341,7 @@ export default function RegisterPage() {
                   disabled={loading}
                   value={formData.accessKey}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 font-mono ${
+                  className={`w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 font-mono ${
                     accessKeyFieldError
                       ? 'border-[#DE1B54] focus:border-[#DE1B54]'
                       : 'border-[#2E323B] focus:border-[#0065FF]'
@@ -366,7 +366,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                     placeholder="••••••••"
                   />
                 </div>
@@ -381,7 +381,7 @@ export default function RegisterPage() {
                     disabled={loading}
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2.5 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                     placeholder="••••••••"
                   />
                 </div>
@@ -390,7 +390,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-2 flex items-center justify-center space-x-2"
+                className="w-full min-h-[44px] py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-2 flex items-center justify-center space-x-2"
               >
                 {loading ? <span>Creando usuario...</span> : <span>Registrarse</span>}
               </button>

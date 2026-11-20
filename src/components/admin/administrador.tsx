@@ -502,12 +502,12 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
   });
 
   return (
-    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans selection:bg-[#0052CC] selection:text-white">
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans selection:bg-[#0052CC] selection:text-white overflow-x-hidden">
       {/* ================= HEADER ADMINISTRATIVO ================= */}
-      <header className="border-b border-[#2E323B] bg-[#121316]/95 backdrop-blur sticky top-0 z-30 px-6 py-3.5 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3.5">
-            <div className="relative w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm">
+      <header className="border-b border-[#2E323B] bg-[#121316]/95 backdrop-blur sticky top-0 z-30 px-4 py-3.5 sm:px-6 lg:px-8 shadow-sm">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center space-x-3.5 min-w-0">
+            <div className="relative w-10 h-10 rounded-xl bg-[#1C1E24] border border-[#2E323B] flex items-center justify-center p-1.5 shadow-sm shrink-0">
               <Image
                 src="/suth-logo.png"
                 alt="Sutherland Logo"
@@ -519,9 +519,9 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 👑
               </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-black tracking-tight text-white">Supervisión &amp; Administración</h1>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <h1 className="text-sm sm:text-base font-black tracking-tight text-white">Supervisión &amp; Administración</h1>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#DE1B54]/15 text-[#DE1B54] border border-[#DE1B54]/40">
                   Panel de Control General
                 </span>
@@ -530,25 +530,25 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   <span>Tiempo Real (5s)</span>
                 </span>
               </div>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-zinc-400 truncate">
                 Monitoreo de Agentes &bull; Control de AHT (Target: 10 min) &bull; Coachings &bull; Visualización Tableau
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2 sm:gap-3">
             {onSwitchToOperational && (
               <button
                 type="button"
                 onClick={onSwitchToOperational}
-                className="text-xs px-3 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-[#4C9AFF] border border-[#2E323B] hover:border-[#0065FF] transition flex items-center gap-1.5 font-medium"
+                className="min-h-[40px] text-xs px-3 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-[#4C9AFF] border border-[#2E323B] hover:border-[#0065FF] transition flex items-center gap-1.5 font-medium"
                 title="Probar o usar el panel de notas estandarizadas"
               >
                 <span>💼 Vista Operativa</span>
               </button>
             )}
 
-            <div className="hidden sm:flex flex-col text-right pr-2 border-r border-[#2E323B]">
+            <div className="hidden md:flex flex-col text-right pr-2 border-r border-[#2E323B]">
               <span className="text-xs font-bold text-zinc-200">
                 {formatFullName(user.firstName, user.lastName)}
               </span>
@@ -558,7 +558,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
             <button
               type="button"
               onClick={onLogout}
-              className="text-xs px-3.5 py-1.5 rounded-lg bg-[#121316] hover:bg-red-500/10 hover:text-red-400 text-zinc-300 border border-[#2E323B] hover:border-red-500/30 transition duration-150 flex items-center gap-1.5"
+              className="min-h-[40px] text-xs px-3.5 py-1.5 rounded-lg bg-[#121316] hover:bg-red-500/10 hover:text-red-400 text-zinc-300 border border-[#2E323B] hover:border-red-500/30 transition duration-150 flex items-center gap-1.5"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -570,20 +570,20 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       </header>
 
       {/* ================= CONTENEDOR PRINCIPAL ================= */}
-      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6 flex-1">
+      <main className="max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6 flex-1">
         {/* ================= 1. BARRA DE NAVEGACIÓN Y PESTAÑAS ================= */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2E323B] pb-3">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#2E323B] pb-3">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('MONITORING')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center sm:justify-start gap-2 ${
                 activeTab === 'MONITORING'
                   ? 'bg-[#0052CC] text-white shadow-sm'
                   : 'bg-[#1C1E24] text-zinc-400 hover:text-white border border-[#2E323B]'
               }`}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
               <span>Monitoreo en Vivo de Agentes</span>
@@ -592,13 +592,13 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
             <button
               type="button"
               onClick={() => setActiveTab('TABLEAU')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center sm:justify-start gap-2 ${
                 activeTab === 'TABLEAU'
                   ? 'bg-[#0052CC] text-white shadow-sm'
                   : 'bg-[#1C1E24] text-zinc-400 hover:text-white border border-[#2E323B]'
               }`}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
               </svg>
               <span>Métricas &amp; Gráficos Tableau</span>
@@ -607,13 +607,13 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
             <button
               type="button"
               onClick={() => setActiveTab('COACHINGS')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center sm:justify-start gap-2 ${
                 activeTab === 'COACHINGS'
                   ? 'bg-[#DE1B54] text-white shadow-sm'
                   : 'bg-[#1C1E24] text-zinc-400 hover:text-white border border-[#2E323B]'
               }`}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <span>Historial de Coachings &amp; Suspensión</span>
@@ -885,17 +885,17 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
 
                       {/* Header de la tarjeta del agente */}
                       <div className="space-y-3 pt-1">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#121316] border border-[#2E323B] flex items-center justify-center font-bold text-white text-sm shadow-inner">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-[#121316] border border-[#2E323B] flex items-center justify-center font-bold text-white text-sm shadow-inner shrink-0">
                               {toTitleCase(agent.firstName).charAt(0).toUpperCase()}
                               {toTitleCase(agent.lastName).charAt(0).toUpperCase()}
                             </div>
-                            <div>
-                              <h3 className="text-sm font-bold text-white leading-tight">
+                            <div className="min-w-0">
+                              <h3 className="text-sm font-bold text-white leading-tight truncate">
                                 {formatFullName(agent.firstName, agent.lastName)}
                               </h3>
-                              <span className="text-[11px] text-zinc-400 font-mono">
+                              <span className="text-[11px] text-zinc-400 font-mono break-all block">
                                 ID: {agent.employeeId} &bull; {agent.email}
                               </span>
                             </div>
@@ -1034,7 +1034,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                       </div>
 
                       {/* Botones de Acción */}
-                      <div className="pt-4 mt-3 border-t border-[#2E323B] flex items-center gap-2">
+                      <div className="pt-4 mt-3 border-t border-[#2E323B] flex flex-wrap items-center gap-2">
                         {/* Botón Mensaje Fantasma */}
                         <button
                           type="button"
@@ -1047,7 +1047,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                               feedback: null,
                             });
                           }}
-                          className="flex-1 py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-[#0052CC]/15 hover:bg-[#0052CC]/25 text-[#4C9AFF] border border-[#0052CC]/40 transition flex items-center justify-center gap-1.5 active:scale-95"
+                          className="flex-1 min-h-[40px] py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-[#0052CC]/15 hover:bg-[#0052CC]/25 text-[#4C9AFF] border border-[#0052CC]/40 transition flex items-center justify-center gap-1.5 active:scale-95 whitespace-nowrap"
                           title="Enviar mensaje fantasma corto a la pantalla del agente"
                         >
                           <span>👻 Mensaje Fantasma</span>
@@ -1068,7 +1068,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                               error: null,
                             });
                           }}
-                          className={`py-1.5 px-2.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 ${
+                          className={`min-h-[40px] py-1.5 px-2.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1 whitespace-nowrap ${
                             isRed
                               ? 'bg-[#DE1B54] hover:bg-[#C4164A] text-white shadow-sm font-bold active:scale-95'
                               : 'bg-[#121316] hover:bg-[#252830] text-zinc-300 border border-[#2E323B]'
@@ -1083,7 +1083,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                         <button
                           type="button"
                           onClick={() => setSelectedAgentDetail(agent)}
-                          className="p-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-zinc-400 hover:text-white border border-[#2E323B] transition"
+                          className="min-h-[40px] px-2.5 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-zinc-400 hover:text-white border border-[#2E323B] transition flex items-center justify-center"
                           title="Ver métricas completas y gráficos de este agente"
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1107,10 +1107,10 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                                 feedback: null,
                               });
                             }}
-                            className="py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-rose-500 transition flex items-center justify-center gap-1 active:scale-95"
+                            className="min-h-[40px] py-1.5 px-2.5 rounded-lg text-xs font-semibold bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-rose-500 transition flex items-center justify-center gap-1 active:scale-95 whitespace-nowrap"
                             title="Eliminar empleado permanentemente (requiere verificación del administrador)"
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -1125,6 +1125,127 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Tabla Responsiva de Usuarios / Empleados Registrados */}
+            {!loading && filteredAgents.length > 0 && (
+              <div className="rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-md overflow-hidden">
+                <div className="px-5 py-4 border-b border-[#2E323B] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-bold text-white">
+                      Tabla General de Usuarios Operativos ({filteredAgents.length})
+                    </h3>
+                    <p className="text-xs text-zinc-400">
+                      Desliza horizontalmente en pantallas pequeñas para consultar todas las columnas y acciones.
+                    </p>
+                  </div>
+                </div>
+                <div className="w-full overflow-x-auto">
+                  <table className="w-full min-w-[720px] text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-[#121316] border-b border-[#2E323B] text-[11px] uppercase font-mono text-zinc-400">
+                        <th className="py-3 px-4">Empleado</th>
+                        <th className="py-3 px-4">ID / Correo</th>
+                        <th className="py-3 px-4">Estado</th>
+                        <th className="py-3 px-4">Casos / AHT</th>
+                        <th className="py-3 px-4">Coachings</th>
+                        <th className="py-3 px-4 text-right">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#2E323B]">
+                      {filteredAgents.map((agent) => (
+                        <tr key={`table-${agent.id}`} className="hover:bg-[#121316]/60 transition">
+                          <td className="py-3 px-4 font-bold text-white whitespace-nowrap">
+                            {formatFullName(agent.firstName, agent.lastName)}
+                          </td>
+                          <td className="py-3 px-4 font-mono text-zinc-300 whitespace-nowrap">
+                            <span className="block text-white">{agent.employeeId}</span>
+                            <span className="text-[11px] text-zinc-400">{agent.email}</span>
+                          </td>
+                          <td className="py-3 px-4 whitespace-nowrap">
+                            {agent.isSuspended ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#DE1B54]/15 text-[#DE1B54] border border-[#DE1B54]/40">
+                                ⛔ Suspendido
+                              </span>
+                            ) : agent.liveStatus === 'ON_TASK' ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0052CC]/15 text-[#4C9AFF] border border-[#0052CC]/40">
+                                Task Activo
+                              </span>
+                            ) : agent.liveStatus === 'SHIFT_NO_TASK' ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                En Turno
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#121316] text-zinc-400 border border-[#2E323B]">
+                                Fuera de Turno
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 font-mono whitespace-nowrap">
+                            <span className="text-white font-bold">{agent.todayMetrics.totalTasks}</span> casos &bull;{' '}
+                            <span className="text-[#4C9AFF] font-bold">
+                              {agent.todayMetrics.totalTasks > 0
+                                ? formatSecondsToMMSS(agent.todayMetrics.avgAht)
+                                : '--:--'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 font-mono whitespace-nowrap">
+                            <span
+                              className={
+                                agent.coachingCount >= 3
+                                  ? 'text-rose-400 font-bold'
+                                  : agent.coachingCount > 0
+                                    ? 'text-amber-400 font-bold'
+                                    : 'text-zinc-300'
+                              }
+                            >
+                              {agent.coachingCount} / 3
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setSelectedAgentDetail(agent)}
+                                className="min-h-[38px] px-2.5 py-1.5 rounded-lg bg-[#121316] hover:bg-[#252830] text-zinc-300 hover:text-white border border-[#2E323B] transition text-xs font-semibold"
+                              >
+                                Detalle
+                              </button>
+                              {agent.id !== user.id && (!agent.role || agent.role === 'EMPLOYEE') && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setDeleteModal({
+                                      isOpen: true,
+                                      agent,
+                                      adminBirthDate: '',
+                                      adminPassword: '',
+                                      submitting: false,
+                                      error: null,
+                                      feedback: null,
+                                    });
+                                  }}
+                                  className="min-h-[38px] py-1.5 px-3 rounded-lg text-xs font-semibold bg-rose-500/10 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-rose-500 transition inline-flex items-center gap-1.5 whitespace-nowrap"
+                                >
+                                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                  </svg>
+                                  <span>Eliminar</span>
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </section>
@@ -1277,7 +1398,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               </div>
 
               {/* Bloque Analítico Principal: Tableau Cloud (Connected Apps JWT) */}
-              <div className="col-span-full w-full min-h-[850px] p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-lg flex flex-col justify-between space-y-4">
+              <div className="col-span-full w-full p-4 sm:p-6 rounded-2xl bg-[#1C1E24] border border-[#2E323B] shadow-lg flex flex-col justify-between space-y-4">
                 <Script
                   src="https://10ax.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"
                   type="module"
@@ -1298,7 +1419,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     type="button"
                     onClick={handleRefreshTableauData}
                     disabled={refreshingViz}
-                    className="px-3.5 py-2 rounded-xl bg-[#121316] hover:bg-[#252830] disabled:opacity-60 text-zinc-200 border border-[#2E323B] hover:border-[#0065FF] text-xs font-semibold transition shadow-sm flex items-center gap-2 self-start sm:self-auto"
+                    className="min-h-[40px] px-3.5 py-2 rounded-xl bg-[#121316] hover:bg-[#252830] disabled:opacity-60 text-zinc-200 border border-[#2E323B] hover:border-[#0065FF] text-xs font-semibold transition shadow-sm flex items-center gap-2 self-start sm:self-auto"
                     title="Limpiar caché de Tableau y consultar registros recientes en Neon PostgreSQL"
                   >
                     <svg
@@ -1318,20 +1439,20 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   </button>
                 </div>
 
-                <div className="w-full block min-h-[850px] rounded-xl bg-[#121316] border border-[#2E323B] overflow-hidden">
+                <div className="w-full block h-[70vh] sm:h-[80vh] lg:h-[85vh] rounded-xl bg-[#121316] border border-[#2E323B] overflow-hidden">
                   {tokenError ? (
-                    <div className="p-12 text-center space-y-3 max-w-md mx-auto">
+                    <div className="p-8 sm:p-12 text-center space-y-3 max-w-md mx-auto h-full flex flex-col items-center justify-center">
                       <p className="text-xs text-rose-300 font-medium">{tokenError}</p>
                       <button
                         type="button"
                         onClick={fetchTableauToken}
-                        className="px-4 py-2 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white text-xs font-semibold transition"
+                        className="min-h-[44px] px-4 py-2 rounded-lg bg-[#0052CC] hover:bg-[#0065FF] text-white text-xs font-semibold transition"
                       >
                         Reintentar autenticación
                       </button>
                     </div>
                   ) : !jwtToken ? (
-                    <div className="flex items-center justify-center space-x-2.5 text-zinc-400 text-xs min-h-[850px]">
+                    <div className="flex items-center justify-center space-x-2.5 text-zinc-400 text-xs h-full">
                       <svg className="animate-spin h-5 w-5 text-[#0065FF]" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -1348,13 +1469,13 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                       token: jwtToken,
                       device: 'desktop',
                       width: '100%',
-                      height: '850px',
+                      height: '100%',
                       toolbar: 'hidden',
                       'hide-tabs': true,
                       style: {
                         width: '100%',
                         minWidth: '100%',
-                        height: '850px',
+                        height: '100%',
                         display: 'block',
                       },
                     })
@@ -1445,7 +1566,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       {/* ================= MODAL: ENVIAR MENSAJE FANTASMA ================= */}
       {ghostModal.isOpen && ghostModal.agent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-4 relative">
+          <div className="w-[92%] max-w-md mx-auto max-h-[90vh] overflow-y-auto bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-6 shadow-lg space-y-4 relative">
             <button
               type="button"
               onClick={() => setGhostModal({ isOpen: false, agent: null, message: '', submitting: false, feedback: null })}
@@ -1549,7 +1670,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       {/* ================= MODAL: REGISTRAR COACHING ================= */}
       {coachingModal.isOpen && coachingModal.agent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-4 relative">
+          <div className="w-[92%] max-w-md mx-auto max-h-[90vh] overflow-y-auto bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-6 shadow-lg space-y-4 relative">
             <button
               type="button"
               onClick={() => setCoachingModal({ isOpen: false, agent: null, reason: '', submitting: false, feedback: null, error: null })}
@@ -1638,7 +1759,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       {/* ================= MODAL: DETALLE COMPLETO DEL AGENTE ================= */}
       {selectedAgentDetail && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#1C1E24] border border-[#2E323B] rounded-2xl max-w-2xl w-full p-6 shadow-lg space-y-4 max-h-[85vh] overflow-y-auto relative">
+          <div className="w-[92%] max-w-md sm:max-w-xl mx-auto max-h-[90vh] overflow-y-auto bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-6 shadow-lg space-y-4 relative">
             <button
               type="button"
               onClick={() => setSelectedAgentDetail(null)}
@@ -1737,7 +1858,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
       {/* ================= MODAL: ELIMINAR EMPLEADO (DOBLE VALIDACIÓN ADMIN) ================= */}
       {deleteModal.isOpen && deleteModal.agent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0B0C0E]/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-[#1C1E24] border border-rose-500/40 rounded-2xl max-w-lg w-full p-6 shadow-lg space-y-4 relative">
+          <div className="w-[92%] max-w-md mx-auto max-h-[90vh] overflow-y-auto bg-[#1C1E24] border border-rose-500/40 rounded-2xl p-5 sm:p-6 shadow-lg space-y-4 relative">
             <button
               type="button"
               disabled={deleteModal.submitting}
@@ -1757,8 +1878,8 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               ✕
             </button>
 
-            <div className="flex items-start gap-3">
-              <div className="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
+            <div className="flex items-start gap-3 pr-6">
+              <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
@@ -1768,14 +1889,14 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   />
                 </svg>
               </div>
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 font-mono block">
                   Acción Irreversible &bull; Doble Validación
                 </span>
-                <h3 className="text-lg font-black text-white">
+                <h3 className="text-base sm:text-lg font-black text-white break-words">
                   Eliminar a {formatFullName(deleteModal.agent.firstName, deleteModal.agent.lastName)}
                 </h3>
-                <p className="text-xs text-zinc-400 font-mono mt-0.5">
+                <p className="text-xs text-zinc-400 font-mono mt-0.5 break-all">
                   ID: {deleteModal.agent.employeeId} &bull; {deleteModal.agent.email}
                 </p>
               </div>
@@ -1799,7 +1920,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   onChange={(e) =>
                     setDeleteModal((prev) => ({ ...prev, adminBirthDate: e.target.value, error: null }))
                   }
-                  className="w-full p-2.5 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white focus:outline-none focus:border-rose-500 disabled:opacity-50"
+                  className="w-full min-h-[44px] p-2.5 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white focus:outline-none focus:border-rose-500 disabled:opacity-50"
                 />
               </div>
 
@@ -1816,7 +1937,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     setDeleteModal((prev) => ({ ...prev, adminPassword: e.target.value, error: null }))
                   }
                   placeholder="••••••••"
-                  className="w-full p-2.5 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-rose-500 disabled:opacity-50"
+                  className="w-full min-h-[44px] p-2.5 bg-[#121316] border border-[#2E323B] rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-rose-500 disabled:opacity-50"
                 />
               </div>
 
@@ -1832,7 +1953,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   disabled={deleteModal.submitting}
@@ -1847,7 +1968,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                       feedback: null,
                     })
                   }
-                  className="px-4 py-2 bg-[#121316] hover:bg-[#252830] text-zinc-300 border border-[#2E323B] rounded-xl text-xs font-semibold disabled:opacity-50"
+                  className="min-h-[44px] px-4 py-2 bg-[#121316] hover:bg-[#252830] text-zinc-300 border border-[#2E323B] rounded-xl text-xs font-semibold disabled:opacity-50"
                 >
                   Cancelar
                 </button>
@@ -1858,7 +1979,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                     !deleteModal.adminBirthDate ||
                     !deleteModal.adminPassword
                   }
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center gap-1.5"
+                  className="min-h-[44px] px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition flex items-center justify-center gap-1.5"
                 >
                   {deleteModal.submitting ? 'Eliminando...' : 'Confirmar y Eliminar Empleado'}
                 </button>

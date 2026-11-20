@@ -445,7 +445,7 @@ export default function AuthPage() {
                 disabled={loading}
                 value={signUpData.firstName}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                 placeholder="Ejm: Christian"
               />
             </div>
@@ -460,7 +460,7 @@ export default function AuthPage() {
                 disabled={loading}
                 value={signUpData.lastName}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                 placeholder="Ejm: Perez"
               />
             </div>
@@ -478,7 +478,7 @@ export default function AuthPage() {
                 disabled={loading}
                 value={signUpData.birthDate}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               />
             </div>
             <div>
@@ -492,7 +492,7 @@ export default function AuthPage() {
                 disabled={loading}
                 value={signUpData.employeeId}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                 placeholder="1000123456"
               />
             </div>
@@ -515,7 +515,7 @@ export default function AuthPage() {
                   setEmailFieldError(CORPORATE_EMAIL_ERROR_MESSAGE);
                 }
               }}
-              className={`w-full px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 ${
+              className={`w-full min-h-[44px] px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 ${
                 emailFieldError
                   ? 'border-[#DE1B54] focus:border-[#DE1B54]'
                   : 'border-[#2E323B] focus:border-[#0065FF]'
@@ -541,7 +541,7 @@ export default function AuthPage() {
               disabled={loading}
               value={signUpData.accessKey}
               onChange={handleSignUpChange}
-              className={`w-full px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 font-mono ${
+              className={`w-full min-h-[44px] px-3 py-2 bg-[#121316] border rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none disabled:opacity-50 font-mono ${
                 accessKeyFieldError
                   ? 'border-[#DE1B54] focus:border-[#DE1B54]'
                   : 'border-[#2E323B] focus:border-[#0065FF]'
@@ -553,7 +553,7 @@ export default function AuthPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-zinc-300 mb-1">Contraseña: </label>
               <input
@@ -564,7 +564,7 @@ export default function AuthPage() {
                 disabled={loading}
                 value={signUpData.password}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                 placeholder="••••••••"
               />
             </div>
@@ -577,7 +577,7 @@ export default function AuthPage() {
                 disabled={loading}
                 value={signUpData.confirmPassword}
                 onChange={handleSignUpChange}
-                className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                 placeholder="••••••••"
               />
             </div>
@@ -586,7 +586,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-2 flex items-center justify-center space-x-2"
+            className="w-full min-h-[44px] py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-2 flex items-center justify-center space-x-2"
           >
             {loading ? (
               <>
@@ -613,7 +613,7 @@ export default function AuthPage() {
               disabled={loading}
               value={loginData.email}
               onChange={handleLoginChange}
-              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+              className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               placeholder="usuario@sutherland.com"
             />
           </div>
@@ -637,7 +637,7 @@ export default function AuthPage() {
               disabled={loading}
               value={loginData.password}
               onChange={handleLoginChange}
-              className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+              className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
               placeholder="••••••••"
             />
           </div>
@@ -645,7 +645,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-4 flex items-center justify-center space-x-2"
+            className="w-full min-h-[44px] py-3 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-sm transition duration-200 mt-4 flex items-center justify-center space-x-2"
           >
             {loading ? (
               <>
@@ -774,7 +774,7 @@ export default function AuthPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#121316] text-zinc-100 flex flex-col font-sans overflow-x-hidden">
       {/* ================= NAVBAR ================= */}
       <nav className="sticky top-0 z-40 bg-[#121316]/95 backdrop-blur border-b border-[#2E323B] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -851,11 +851,11 @@ export default function AuthPage() {
       <main id="inicio" className="flex-1 scroll-mt-20">
         {isSignUp ? (
           /* Vista de REGISTRO: guía paso a paso + formulario de registro con alturas iguales */
-          <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <div className="lg:col-span-6 flex">
+          <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <div className="flex">
               <RegistrationGuideCard />
             </div>
-            <div className="lg:col-span-6 flex">
+            <div className="flex">
               {authCard}
             </div>
           </div>
@@ -1063,7 +1063,7 @@ export default function AuthPage() {
           aria-modal="true"
           aria-labelledby="forgot-password-title"
         >
-          <div className="max-w-md w-full bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-6 sm:p-7 shadow-xl space-y-5">
+          <div className="w-[92%] max-w-md mx-auto max-h-[90vh] overflow-y-auto bg-[#1C1E24] border border-[#2E323B] rounded-2xl p-5 sm:p-7 shadow-xl space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3
@@ -1090,7 +1090,7 @@ export default function AuthPage() {
             </div>
 
             {/* Indicador visual de pasos */}
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div
                 className={`px-3 py-2 rounded-lg border font-semibold text-center transition ${
                   forgotStep === 1
@@ -1145,7 +1145,7 @@ export default function AuthPage() {
                       setForgotError('');
                     }}
                     placeholder="usuario@sutherland.com o cédula"
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                   />
                 </div>
 
@@ -1163,7 +1163,7 @@ export default function AuthPage() {
                       setForgotError('');
                     }}
                     placeholder="Ejm: Perez"
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                   />
                 </div>
 
@@ -1180,23 +1180,23 @@ export default function AuthPage() {
                       setForgotBirthDate(e.target.value);
                       setForgotError('');
                     }}
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 pt-1">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
                   <button
                     type="button"
                     disabled={forgotLoading}
                     onClick={closeForgotModal}
-                    className="px-4 py-2.5 rounded-lg bg-[#121316] hover:bg-[#252830] border border-[#2E323B] text-zinc-300 text-sm font-medium transition disabled:opacity-50"
+                    className="min-h-[44px] px-4 py-2.5 rounded-lg bg-[#121316] hover:bg-[#252830] border border-[#2E323B] text-zinc-300 text-sm font-medium transition disabled:opacity-50"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={forgotLoading}
-                    className="flex-1 py-2.5 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200"
+                    className="flex-1 min-h-[44px] py-2.5 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200"
                   >
                     {forgotLoading ? 'Verificando...' : 'Verificar Identidad'}
                   </button>
@@ -1244,7 +1244,7 @@ export default function AuthPage() {
                       setForgotError('');
                     }}
                     placeholder="Mínimo 6 caracteres"
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                   />
                 </div>
 
@@ -1263,23 +1263,23 @@ export default function AuthPage() {
                       setForgotError('');
                     }}
                     placeholder="••••••••"
-                    className="w-full px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
+                    className="w-full min-h-[44px] px-3 py-2 bg-[#121316] border border-[#2E323B] rounded-lg text-white text-sm placeholder-zinc-500 focus:outline-none focus:border-[#0065FF] disabled:opacity-50"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 pt-1">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
                   <button
                     type="button"
                     disabled={forgotLoading}
                     onClick={closeForgotModal}
-                    className="px-4 py-2.5 rounded-lg bg-[#121316] hover:bg-[#252830] border border-[#2E323B] text-zinc-300 text-sm font-medium transition disabled:opacity-50"
+                    className="min-h-[44px] px-4 py-2.5 rounded-lg bg-[#121316] hover:bg-[#252830] border border-[#2E323B] text-zinc-300 text-sm font-medium transition disabled:opacity-50"
                   >
                     Cerrar
                   </button>
                   <button
                     type="submit"
                     disabled={forgotLoading || forgotCompleted}
-                    className="flex-1 py-2.5 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200"
+                    className="flex-1 min-h-[44px] py-2.5 px-4 bg-[#0052CC] hover:bg-[#0065FF] disabled:bg-[#003D99] disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg shadow-sm transition duration-200"
                   >
                     {forgotLoading
                       ? 'Guardando...'

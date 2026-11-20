@@ -22,14 +22,14 @@ export const NotePreviewCard: React.FC<NotePreviewCardProps> = ({
     <div className="space-y-3 sticky top-24">
       <div className="bg-[#0B0C0E] rounded-2xl border border-[#2E323B] shadow-md overflow-hidden flex flex-col">
         {/* Cabecera del Bloc de Notas */}
-        <div className="px-4 py-3 bg-[#1C1E24] border-b border-[#2E323B] flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="flex space-x-1.5">
+        <div className="px-4 py-3 bg-[#1C1E24] border-b border-[#2E323B] flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center space-x-2 min-w-0">
+            <div className="flex space-x-1.5 shrink-0">
               <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
               <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
             </div>
-            <span className="text-xs font-mono font-medium text-zinc-300 ml-2">
+            <span className="text-xs font-mono font-medium text-zinc-300 ml-2 truncate">
               Nota Generada: {templateTitle}
             </span>
           </div>
@@ -38,7 +38,7 @@ export const NotePreviewCard: React.FC<NotePreviewCardProps> = ({
           <button
             type="button"
             onClick={onCopy}
-            className={`text-xs px-3.5 py-1.5 rounded-lg font-bold transition duration-200 flex items-center gap-1.5 shadow-sm ${
+            className={`min-h-[40px] text-xs px-3.5 py-1.5 rounded-lg font-bold transition duration-200 flex items-center gap-1.5 shadow-sm shrink-0 ${
               isCopied
                 ? 'bg-emerald-600 text-white border border-emerald-500 scale-105'
                 : 'bg-[#0052CC] hover:bg-[#0065FF] text-white border border-[#0065FF] active:scale-95'

@@ -8,7 +8,7 @@ export const CEDULA_REGEX = /^[a-z0-9]+$/i;
 export const DANGEROUS_CHARS_REGEX = /[<>;"'`$\\{}]/;
 
 export const CORPORATE_EMAIL_ERROR_MESSAGE =
-  'El correo corporativo es obligatorio y debe terminar en @sutherland.com.';
+  'El correo corporativo es obligatorio y debe terminar en @sutherland.com';
 export const INVALID_ADMIN_KEY_MESSAGE =
   'La llave de acceso no es correcta. Si eres empleado, por favor deja este campo vacío para continuar con tu registro.';
 

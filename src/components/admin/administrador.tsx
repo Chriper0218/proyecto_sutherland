@@ -60,6 +60,10 @@ export interface AgentData {
   hasActiveTask: boolean;
   currentTaskType: string | null;
   taskStartedAt: string | null;
+  historicalMetrics?: {
+    totalTasks: number;
+    historicalAhtSeconds: number;
+  };
   todayMetrics: AgentTodayMetrics;
   coachings: AgentCoachingRecord[];
   recentTasks: AgentRecentTask[];
@@ -78,6 +82,10 @@ export interface AdminSummary {
   companyStatusColor: 'green' | 'orange' | 'red';
   targetAhtSeconds: number;
   taskDistribution: Record<string, number>;
+  globalAht?: number;
+  globalEfficiency?: number;
+  historicalTasksCount?: number;
+  historicalTaskDistribution?: Record<string, number>;
 }
 
 interface UserSession {
@@ -1289,16 +1297,18 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   <div className="bg-[#1C1E24] p-4 rounded-xl border border-[#2E323B] text-right">
                     <span className="text-[10px] uppercase font-bold text-zinc-400 block">AHT General</span>
                     <span className="text-2xl font-black font-mono text-[#4C9AFF]">
-                      {formatSecondsToMMSS(summary.companyAvgAht)} min
+                      {formatSecondsToMMSS(summary.globalAht ?? summary.companyAvgAht)} min
                     </span>
                     <span className="text-[10px] text-emerald-400 block font-semibold">
-                      {summary.companyAvgAht <= 600 ? '✓ En Target (<=10m)' : '+ Demoras detectadas'}
+                      {(summary.globalAht ?? summary.companyAvgAht) <= 600
+                        ? '✓ En Target (<=10m)'
+                        : '+ Demoras detectadas'}
                     </span>
                   </div>
                   <div className="bg-[#1C1E24] p-4 rounded-xl border border-[#2E323B] text-right">
                     <span className="text-[10px] uppercase font-bold text-zinc-400 block">Eficiencia General</span>
                     <span className="text-2xl font-black font-mono text-emerald-400">
-                      {summary.companyEfficiency}%
+                      {summary.globalEfficiency ?? summary.companyEfficiency}%
                     </span>
                     <span className="text-[10px] text-zinc-400 block">Operación Sutherland</span>
                   </div>
@@ -1336,7 +1346,11 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
               {/* Visualización de Barras de AHT estilo Tableau */}
               <div className="space-y-3 pt-3">
                 {agents.map((ag) => {
-                  const ahtSec = ag.todayMetrics.avgAht;
+                  const totalTasks =
+                    ag.historicalMetrics?.totalTasks ?? ag.todayMetrics.totalTasks;
+                  const ahtSec =
+                    ag.historicalMetrics?.historicalAhtSeconds ??
+                    ag.todayMetrics.avgAht;
                   const targetSec = 600; // 10 min
                   // Porcentaje visual relativo al máximo (tope en 18 min = 1080s para escala)
                   const maxScaleSec = 1080;
@@ -1344,7 +1358,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   const targetLinePercent = Math.round((targetSec / maxScaleSec) * 100);
 
                   const barColor =
-                    ahtSec === 0
+                    totalTasks === 0 || ahtSec === 0
                       ? 'bg-[#2E323B]'
                       : ahtSec <= 600
                       ? 'bg-emerald-500'
@@ -1360,9 +1374,11 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                           <span className="text-[10px] text-zinc-400 font-mono">({ag.employeeId})</span>
                         </span>
                         <div className="flex items-center gap-2 font-mono text-[11px]">
-                          <span>{ag.todayMetrics.totalTasks} tareas</span>
+                          <span>
+                            {totalTasks} {totalTasks === 1 ? 'tarea' : 'tareas'}
+                          </span>
                           <span className="font-bold text-white">
-                            {ahtSec > 0 ? `${formatSecondsToMMSS(ahtSec)} min` : 'Sin casos'}
+                            {totalTasks > 0 ? `${formatSecondsToMMSS(ahtSec)} min` : 'Sin casos'}
                           </span>
                         </div>
                       </div>
@@ -1380,7 +1396,7 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                           className={`h-full rounded transition-all duration-500 flex items-center justify-end pr-2 text-[10px] font-bold text-white ${barColor}`}
                           style={{ width: `${Math.max(4, widthPercent)}%` }}
                         >
-                          {ahtSec > 0 && formatSecondsToMMSS(ahtSec)}
+                          {totalTasks > 0 && ahtSec > 0 && formatSecondsToMMSS(ahtSec)}
                         </div>
                       </div>
                     </div>
@@ -1400,7 +1416,9 @@ export default function Administrador({ user, onLogout, onSwitchToOperational }:
                   📂 Distribución de Tipos de Notas / Casos
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {Object.entries(summary.taskDistribution).map(([typeKey, count]) => (
+                  {Object.entries(
+                    summary.historicalTaskDistribution ?? summary.taskDistribution
+                  ).map(([typeKey, count]) => (
                     <div key={typeKey} className="p-3 bg-[#121316] rounded-xl border border-[#2E323B]">
                       <span className="text-[10px] text-zinc-400 uppercase font-bold block">{typeKey}</span>
                       <span className="text-xl font-bold font-mono text-white mt-1 block">{count}</span>

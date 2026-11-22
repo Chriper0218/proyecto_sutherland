@@ -9,76 +9,90 @@ export async function GET() {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    // Obtener todos los agentes registrados (role = EMPLOYEE)
-    const agents = await prisma.user.findMany({
-      where: {
-        role: 'EMPLOYEE',
-      },
-      select: {
-        id: true,
-        employeeId: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        coachingCount: true,
-        suspendedUntil: true,
-        isTaskActive: true,
-        currentTaskType: true,
-        taskStartedAt: true,
-        shifts: {
-          where: {
-            endTime: null,
-          },
-          orderBy: {
-            startTime: 'desc',
-          },
-          take: 1,
-          select: {
-            id: true,
-            startTime: true,
-          },
+    // Obtener todos los agentes registrados (role = EMPLOYEE) y todos los TaskMetric históricos en paralelo
+    const [agents, allHistoricalTasks] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          role: 'EMPLOYEE',
         },
-        tasks: {
-          where: {
-            createdAt: {
-              gte: todayStart,
+        select: {
+          id: true,
+          employeeId: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          coachingCount: true,
+          suspendedUntil: true,
+          isTaskActive: true,
+          currentTaskType: true,
+          taskStartedAt: true,
+          shifts: {
+            where: {
+              endTime: null,
+            },
+            orderBy: {
+              startTime: 'desc',
+            },
+            take: 1,
+            select: {
+              id: true,
+              startTime: true,
             },
           },
-          select: {
-            id: true,
-            taskType: true,
-            durationSeconds: true,
-            decision: true,
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
-        agentCoachings: {
-          select: {
-            id: true,
-            reason: true,
-            ahtAtTime: true,
-            createdAt: true,
-            admin: {
-              select: {
-                firstName: true,
-                lastName: true,
+          tasks: {
+            where: {
+              createdAt: {
+                gte: todayStart,
               },
             },
+            select: {
+              id: true,
+              taskType: true,
+              durationSeconds: true,
+              decision: true,
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
           },
-          orderBy: {
-            createdAt: 'desc',
+          agentCoachings: {
+            select: {
+              id: true,
+              reason: true,
+              ahtAtTime: true,
+              createdAt: true,
+              admin: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
           },
         },
-      },
-      orderBy: {
-        firstName: 'asc',
-      },
-    });
+        orderBy: {
+          firstName: 'asc',
+        },
+      }),
+      prisma.taskMetric.findMany({
+        where: {
+          user: {
+            role: 'EMPLOYEE',
+          },
+        },
+        select: {
+          userId: true,
+          taskType: true,
+          durationSeconds: true,
+        },
+      }),
+    ]);
 
     const now = new Date();
 
@@ -100,6 +114,44 @@ export async function GET() {
 
     const TARGET_AHT_SECONDS = 600; // 10 minutos
     const WARNING_THRESHOLD_SECONDS = 720; // 12 minutos (+2 minutos)
+
+    // Acumuladores históricos totales para "Visualización & Rendimiento Global"
+    const historicalByAgent = new Map<
+      string,
+      { totalTasks: number; sumDuration: number }
+    >();
+    const historicalTaskDistribution: Record<string, number> = {
+      KYC: 0,
+      RISK_REVIEW: 0,
+      RECORD_KEEPING: 0,
+      WATCHLIST_REVIEW: 0,
+    };
+    let historicalGlobalDurationSum = 0;
+    let historicalGlobalTasksCount = 0;
+    let historicalTasksInTarget = 0;
+
+    for (const metric of allHistoricalTasks) {
+      historicalGlobalTasksCount++;
+      historicalGlobalDurationSum += metric.durationSeconds;
+      if (metric.durationSeconds <= TARGET_AHT_SECONDS) {
+        historicalTasksInTarget++;
+      }
+
+      const typeKey = metric.taskType as string;
+      if (historicalTaskDistribution[typeKey] !== undefined) {
+        historicalTaskDistribution[typeKey]++;
+      } else {
+        historicalTaskDistribution[typeKey] = 1;
+      }
+
+      const current = historicalByAgent.get(metric.userId) || {
+        totalTasks: 0,
+        sumDuration: 0,
+      };
+      current.totalTasks += 1;
+      current.sumDuration += metric.durationSeconds;
+      historicalByAgent.set(metric.userId, current);
+    }
 
     const processedAgents = agents.map((agent) => {
       const isSuspended = Boolean(
@@ -189,6 +241,15 @@ export async function GET() {
         liveStatus = 'OFF_SHIFT';
       }
 
+      const agentHistorical = historicalByAgent.get(agent.id);
+      const historicalTotalTasks = agentHistorical
+        ? agentHistorical.totalTasks
+        : 0;
+      const historicalAhtSeconds =
+        historicalTotalTasks > 0 && agentHistorical
+          ? Math.round(agentHistorical.sumDuration / historicalTotalTasks)
+          : 0;
+
       return {
         id: agent.id,
         employeeId: agent.employeeId,
@@ -206,6 +267,10 @@ export async function GET() {
         hasActiveTask,
         currentTaskType: agent.currentTaskType,
         taskStartedAt: agent.taskStartedAt,
+        historicalMetrics: {
+          totalTasks: historicalTotalTasks,
+          historicalAhtSeconds,
+        },
         todayMetrics: {
           totalTasks: totalTasksToday,
           avgAht,
@@ -233,6 +298,15 @@ export async function GET() {
       companyStatusColor = 'orange';
     }
 
+    const globalAht =
+      historicalGlobalTasksCount > 0
+        ? Math.round(historicalGlobalDurationSum / historicalGlobalTasksCount)
+        : 0;
+    const globalEfficiency =
+      historicalGlobalTasksCount > 0
+        ? Math.round((historicalTasksInTarget / historicalGlobalTasksCount) * 100)
+        : 100;
+
     return NextResponse.json(
       {
         summary: {
@@ -248,6 +322,10 @@ export async function GET() {
           companyStatusColor,
           targetAhtSeconds: TARGET_AHT_SECONDS,
           taskDistribution,
+          globalAht,
+          globalEfficiency,
+          historicalTasksCount: historicalGlobalTasksCount,
+          historicalTaskDistribution,
         },
         agents: processedAgents,
       },
